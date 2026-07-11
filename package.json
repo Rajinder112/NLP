@@ -1,0 +1,22 @@
+{
+  "name": "nursing-leadership-program",
+  "version": "1.0.0",
+  "description": "1st Event of the Nursing Leadership Program (NLP) Event Portal and Attendance Management System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "keywords": [
+    "nursing",
+    "leadership",
+    "attendance",
+    "dashboard"
+  ],
+  "author": "NLP Organizer",
+  "license": "ISC"
+}

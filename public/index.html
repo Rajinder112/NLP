@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1st Event of the Nursing Leadership Program (NLP)</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Official event hub for the 1st Event of the Nursing Leadership Program (NLP). Mark attendance, view schedules, leadership sessions, live updates, resources, and administrative control.">
+  <meta name="keywords" content="Nursing Leadership Program, NLP, Nursing Events, Healthcare Leadership, Attendance Registry">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- SheetJS for client-side Excel exporting -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Header Navigation -->
+  <header class="main-header">
+    <div class="header-container">
+      <div class="logo-container">
+        <a href="#home" class="logo-link">
+          <img src="/assets/logo.png" alt="NLP Logo" class="header-logo-img">
+        </a>
+      </div>
+      
+      <!-- Desktop Navigation Links -->
+      <nav class="desktop-nav">
+        <ul class="nav-list">
+          <li><a href="#home" class="nav-link active" data-view="home">Home</a></li>
+          <li><a href="#schedule" class="nav-link" data-view="schedule" id="nav-link-schedule">Schedule</a></li>
+          <li><a href="#attendance" class="nav-link" data-view="attendance" id="nav-link-attendance">Attendance</a></li>
+          <li><a href="#leadership" class="nav-link" data-view="leadership" id="nav-link-leadership">Leadership</a></li>
+          <li><a href="#updates" class="nav-link" data-view="updates" id="nav-link-updates">Updates</a></li>
+          <li><a href="#feedback" class="nav-link" data-view="feedback" id="nav-link-feedback">Feedback</a></li>
+        </ul>
+      </nav>
+
+      <!-- Mobile Menu Trigger & Float -->
+      <div class="header-actions">
+        <a href="#attendance" class="floating-mark-btn hidden-mobile-nav" id="quick-mark-btn">Mark Attendance</a>
+        <button class="mobile-menu-btn" aria-label="Toggle Menu" id="mobile-menu-trigger">
+          <i data-lucide="menu"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Slide-out Menu -->
+  <div class="mobile-nav-overlay" id="mobile-overlay"></div>
+  <aside class="mobile-nav-drawer" id="mobile-drawer">
+    <div class="drawer-header">
+      <div class="logo-container">
+        <img src="/assets/logo.png" alt="NLP Logo" class="header-logo-img" style="height: 40px;">
+      </div>
+      <button class="drawer-close-btn" id="mobile-menu-close">&times;</button>
+    </div>
+    <nav class="mobile-nav-links">
+      <ul>
+        <li><a href="#home" class="mobile-link" data-view="home"><i data-lucide="home"></i> Home</a></li>
+        <li><a href="#schedule" class="mobile-link" data-view="schedule" id="m-nav-link-schedule"><i data-lucide="clock"></i> Schedule</a></li>
+        <li><a href="#attendance" class="mobile-link" data-view="attendance" id="m-nav-link-attendance"><i data-lucide="user-check"></i> Attendance</a></li>
+        <li><a href="#leadership" class="mobile-link" data-view="leadership" id="m-nav-link-leadership"><i data-lucide="users"></i> Leadership</a></li>
+        <li><a href="#updates" class="mobile-link" data-view="updates" id="m-nav-link-updates"><i data-lucide="bell"></i> Updates</a></li>
+        <li><a href="#feedback" class="mobile-link" data-view="feedback" id="m-nav-link-feedback"><i data-lucide="message-square"></i> Feedback</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main View Container -->
+  <main class="main-content">
+    
+    <!-- 1. HOME VIEW -->
+    <section class="view-section active" id="view-home">
+      <!-- Premium Hero Section -->
+      <div class="hero-block">
+        <div class="hero-pattern"></div>
+        <div class="hero-content">
+          <p class="hero-eyebrow-main" id="hero-eyebrow-text">MEDANTA HOSPITAL LUCKNOW &bull; NURSING & HR TEAM</p>
+          <p class="hero-eyebrow-sub" id="hero-eyebrow-sub-text">Proudly Hosts The 1st Event Of The</p>
+          <h1 class="hero-title" id="hero-title-text">NURSING LEADERSHIP PROGRAM (NLP)</h1>
+          <p class="hero-subtitle" id="hero-subtitle-text">Middle-Level Incharges &mdash; Batch 1 &mdash; 2026</p>
+          <div class="hero-divider"></div>
+          <p class="hero-tagline" id="hero-tagline-text">STRENGTHENING LEADERSHIP CAPABILITIES, COMMUNICATION,<br>DECISION-MAKING AND TEAM EXCELLENCE.</p>
+          
+          <!-- Event Status Card -->
+          <div class="hero-status-card">
+            <div class="status-indicator">
+              <span class="status-pulse-dot" id="state-dot"></span>
+              <span class="status-label" id="state-label">Loading status...</span>
+            </div>
+            
+            <!-- Dynamic State Content Placeholder -->
+            <div id="state-widget-container">
+              <!-- Upcoming Timer, Active Session info, or Completed Message -->
+            </div>
+          </div>
+          
+          <div class="hero-meta-grid">
+            <div class="meta-item">
+              <i data-lucide="calendar"></i>
+              <span id="hero-date-text">July 24, 2026</span>
+            </div>
+            <div class="meta-item">
+              <i data-lucide="map-pin"></i>
+              <span id="hero-venue-text">Grand Executive Healthcare Hall</span>
+            </div>
+          </div>
+
+          <div class="hero-action-buttons">
+            <a href="#schedule" class="btn btn-primary">View Schedule</a>
+            <a href="#attendance" class="btn btn-gold"><i data-lucide="user-check"></i> Mark Attendance</a>
+            <a href="/assets/event_information_booklet.pdf" download class="btn btn-outline download-pdf-btn">
+              <i data-lucide="download"></i> Download Event PDF
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mini Announcement Carousel / Highlight in Home -->
+      <div class="home-highlights container">
+        <div class="section-heading text-center">
+          <h2>Latest Announcement</h2>
+          <div class="heading-accent"></div>
+        </div>
+        <div id="latest-announcement-card" class="announcement-highlight-card">
+          <p>No recent announcements available at this moment.</p>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- 4. SCHEDULE VIEW -->
+    <section class="view-section" id="view-schedule">
+      <div class="container">
+        <div class="section-heading">
+          <span class="section-subtitle">Agenda Timeline</span>
+          <h2>Event Schedule</h2>
+          <div class="heading-accent"></div>
+        </div>
+        
+        <!-- Day Selector Tabs -->
+        <div class="category-filters" id="schedule-day-filters" style="margin-bottom: 24px;">
+          <!-- Dynamically populated day tabs: e.g. Day 1, Day 2, Day 3 -->
+        </div>
+        
+        <div class="timeline-container" id="schedule-timeline">
+          <!-- Timetable rows dynamically loaded here -->
+          <div class="loading-spinner">Loading timeline schedule...</div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- 6. ATTENDANCE VIEW -->
+    <section class="view-section" id="view-attendance">
+      <div class="container small-container">
+        <div class="section-heading text-center">
+          <span class="section-subtitle">Check-in Registry</span>
+          <h2>Participant Attendance System</h2>
+          <div class="heading-accent"></div>
+        </div>
+        
+        <!-- Attendance Registry Card -->
+        <div class="attendance-card">
+          <div class="form-header">
+            <i data-lucide="user-check" class="form-header-icon"></i>
+            <p>Please enter your professional credentials to record your presence for today's leadership sessions.</p>
+          </div>
+          
+          <form id="attendance-form" class="premium-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="att-employee-id">Employee ID <span class="required">*</span></label>
+                <input type="text" id="att-employee-id" placeholder="e.g. EMP1004" required>
+              </div>
+              <div class="form-group">
+                <label for="att-full-name">Full Name <span class="required">*</span></label>
+                <input type="text" id="att-full-name" placeholder="e.g. Nurse Clara Johnson" required>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="att-designation">Designation <span class="required">*</span></label>
+                <select id="att-designation" required>
+                  <option value="" disabled selected>Select Designation</option>
+                  <option value="Nursing Superintendent">Nursing Superintendent</option>
+                  <option value="Assistant Nursing Superintendent">Assistant Nursing Superintendent</option>
+                  <option value="Ward Incharge">Ward Incharge</option>
+                  <option value="Clinical Instructor">Clinical Instructor</option>
+                  <option value="Senior Nurse Staff">Senior Nurse Staff</option>
+                  <option value="Other">Other Admin Designation</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="att-department">Department / Unit <span class="required">*</span></label>
+                <input type="text" id="att-department" placeholder="e.g. Emergency Department" required>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="att-mobile">Mobile Number <span class="required">*</span></label>
+                <input type="tel" id="att-mobile" placeholder="e.g. +91 XXXXX XXXXX" required>
+              </div>
+              <div class="form-group">
+                <label for="att-email">Email Address</label>
+                <input type="email" id="att-email" placeholder="e.g. c.johnson@hospital.org">
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="att-date">Attendance Date <span class="required">*</span></label>
+                <input type="date" id="att-date" required readonly>
+              </div>
+              <div class="form-group">
+                <label for="att-session">Session / Event Day <span class="required">*</span></label>
+                <select id="att-session" required>
+                  <!-- Dynamically loaded sessions -->
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="att-batch">Batch <span class="required">*</span></label>
+                <input type="text" id="att-batch" value="Batch 1" readonly>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block" id="attendance-submit-btn">
+              <i data-lucide="save"></i> Submit Attendance
+            </button>
+          </form>
+          
+          <!-- Success Message -->
+          <div id="attendance-success" class="alert-success-card hidden">
+            <i data-lucide="check-circle" class="success-icon animate-bounce"></i>
+            <h3>Record Registered!</h3>
+            <p>“Attendance successfully recorded. Thank you for participating in the Nursing Leadership Program.”</p>
+            <button class="btn btn-gold btn-sm" onclick="resetAttendanceForm()">Mark Another Attendance</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. LEADERSHIP VIEW -->
+    <section class="view-section" id="view-leadership">
+      <div class="container">
+        <!-- Faculty, Speakers, and leadership profiles -->
+        <div class="section-heading">
+          <span class="section-subtitle">Speakers & Mentors</span>
+          <h2>Leaders, Faculty & Guest Speakers</h2>
+          <div class="heading-accent"></div>
+        </div>
+        
+        <!-- Category Filters -->
+        <div class="category-filters">
+          <button class="filter-btn active" data-filter="all">All Profiles</button>
+          <button class="filter-btn" data-filter="Program Leadership">Program Leadership</button>
+          <button class="filter-btn" data-filter="Guest Speakers">Guest Speakers</button>
+          <button class="filter-btn" data-filter="Faculty">Faculty</button>
+          <button class="filter-btn" data-filter="Event Coordinators">Event Coordinators</button>
+        </div>
+        
+        <div class="profiles-grid" id="leaders-cards-container">
+          <!-- Dynamically populated from server -->
+          <div class="loading-spinner">Loading leadership profiles...</div>
+        </div>
+        
+        <!-- Organizing Committee Section -->
+        <div class="section-divider"></div>
+        
+        <div class="section-heading">
+          <span class="section-subtitle">Event Planning</span>
+          <h2>Organising Committee</h2>
+          <div class="heading-accent"></div>
+        </div>
+        
+        <div class="profiles-grid" id="committee-cards-container">
+          <!-- Dynamically populated from server -->
+          <div class="loading-spinner">Loading committee members...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. UPDATES VIEW -->
+    <section class="view-section" id="view-updates">
+      <div class="container small-container">
+        <div class="section-heading">
+          <span class="section-subtitle">Live Bulletin</span>
+          <h2>Live Event Updates & Announcements</h2>
+          <div class="heading-accent"></div>
+        </div>
+        
+        <div class="announcements-feed" id="announcements-container">
+          <!-- Dynamically populated announcements -->
+          <div class="loading-spinner">Loading announcements...</div>
+        </div>
+      </div>
+    </section>
+
+
+
+
+
+    <!-- 11. FEEDBACK VIEW -->
+    <section class="view-section" id="view-feedback">
+      <div class="container small-container">
+        <div class="section-heading text-center">
+          <span class="section-subtitle">Continuous Improvement</span>
+          <h2>Program Feedback Form</h2>
+          <div class="heading-accent"></div>
+        </div>
+        
+        <div class="attendance-card">
+          <form id="feedback-form" class="premium-form">
+            <div class="form-group">
+              <label for="fb-employee-id">Employee ID (Optional)</label>
+              <input type="text" id="fb-employee-id" placeholder="e.g. EMP1004">
+            </div>
+            
+            <div class="form-group">
+              <label for="fb-rating">Rate the Overall Event Organization <span class="required">*</span></label>
+              <div class="rating-stars-input">
+                <input type="radio" id="star5" name="fb-rating" value="5" required><label for="star5" title="Excellent"><i data-lucide="star"></i></label>
+                <input type="radio" id="star4" name="fb-rating" value="4"><label for="star4" title="Good"><i data-lucide="star"></i></label>
+                <input type="radio" id="star3" name="fb-rating" value="3"><label for="star3" title="Average"><i data-lucide="star"></i></label>
+                <input type="radio" id="star2" name="fb-rating" value="2"><label for="star2" title="Poor"><i data-lucide="star"></i></label>
+                <input type="radio" id="star1" name="fb-rating" value="1"><label for="star1" title="Very Bad"><i data-lucide="star"></i></label>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="fb-relevance">How relevant were the leadership sessions to your ward operations? <span class="required">*</span></label>
+              <select id="fb-relevance" required>
+                <option value="" disabled selected>Choose relevance level</option>
+                <option value="highly-relevant">Highly Relevant</option>
+                <option value="relevant">Relevant</option>
+                <option value="neutral">Neutral / Moderately Relevant</option>
+                <option value="not-relevant">Not Relevant</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="fb-comments">Suggestions or General Comments <span class="required">*</span></label>
+              <textarea id="fb-comments" rows="5" placeholder="Share your experience or topics you'd like covered in future events..." required></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">
+              <i data-lucide="send"></i> Submit Feedback
+            </button>
+          </form>
+          
+          <div id="feedback-success" class="alert-success-card hidden">
+            <i data-lucide="smile" class="success-icon animate-bounce"></i>
+            <h3>Feedback Submitted!</h3>
+            <p>Thank you for helping us improve the Nursing Leadership Program. Your inputs have been recorded.</p>
+            <button class="btn btn-outline btn-sm" onclick="resetFeedbackForm()">Submit Another Feedback</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12. ADMIN VIEW -->
+    <section class="view-section" id="view-admin">
+      
+      <!-- Login Overlay -->
+      <div id="admin-login-box" class="container small-container admin-login-card">
+        <div class="text-center">
+          <i data-lucide="lock" class="lock-icon"></i>
+          <h2>Administrator Portal</h2>
+          <p>Please enter the administrative password to manage the event portal database.</p>
+        </div>
+        
+        <form id="admin-login-form" class="premium-form">
+          <div class="form-group">
+            <label for="admin-password">Password</label>
+            <input type="password" id="admin-password" placeholder="Enter Admin Password" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">
+            <i data-lucide="unlock"></i> Authenticate
+          </button>
+        </form>
+        <p id="admin-login-error" class="login-error-text text-center hidden"></p>
+      </div>
+
+      <!-- Dashboard Dashboard (Protected) -->
+      <div id="admin-dashboard" class="admin-dashboard-container hidden">
+        <div class="dashboard-sidebar">
+          <div class="sidebar-brand">
+            <span class="brand-badge">ADMIN</span>
+            <h3>NLP Manager</h3>
+          </div>
+          <nav class="sidebar-nav">
+            <button class="sidebar-tab-btn active" data-tab="db-summary"><i data-lucide="layout-dashboard"></i> Summary Overview</button>
+            <button class="sidebar-tab-btn" data-tab="db-attendance"><i data-lucide="user-check"></i> Attendance Records</button>
+            <button class="sidebar-tab-btn" data-tab="db-schedule"><i data-lucide="clock"></i> Manage Schedule</button>
+            <button class="sidebar-tab-btn" data-tab="db-announcements"><i data-lucide="bell"></i> Announcements</button>
+            <button class="sidebar-tab-btn" data-tab="db-profiles"><i data-lucide="users"></i> Speakers & Committee</button>
+            <button class="sidebar-tab-btn" data-tab="db-feedback"><i data-lucide="message-square"></i> Attendee Feedback</button>
+            <button class="sidebar-tab-btn logout-btn" id="admin-logout-btn"><i data-lucide="log-out"></i> Logout Session</button>
+          </nav>
+        </div>
+
+        <div class="dashboard-main">
+          
+          <!-- TAB 1: SUMMARY -->
+          <div class="dashboard-tab-panel active" id="tab-db-summary">
+            <div class="panel-header">
+              <h2>Executive Dashboard Summary</h2>
+              <p>Overall database counts and general system configuration controls.</p>
+            </div>
+            
+            <!-- Metrics Row -->
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-content">
+                  <span class="metric-val" id="metric-total-participants">0</span>
+                  <span class="metric-label">Total Check-ins</span>
+                </div>
+                <i data-lucide="user-check" class="metric-icon"></i>
+              </div>
+              
+              <div class="metric-card">
+                <div class="metric-content">
+                  <span class="metric-val" id="metric-today-attendance">0</span>
+                  <span class="metric-label">Today's Check-ins</span>
+                </div>
+                <i data-lucide="calendar" class="metric-icon"></i>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-content">
+                  <span class="metric-val" id="metric-total-sessions">0</span>
+                  <span class="metric-label">Active Sessions</span>
+                </div>
+                <i data-lucide="clock" class="metric-icon"></i>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-content">
+                  <span class="metric-val" id="metric-live-updates">0</span>
+                  <span class="metric-label">Announcements</span>
+                </div>
+                <i data-lucide="bell" class="metric-icon"></i>
+              </div>
+
+
+
+            </div>
+
+            <!-- Global Configurations -->
+            <div class="dashboard-row">
+              <div class="config-card">
+                <h3>Event State & Status Configuration</h3>
+                <p class="section-desc">Change the active portal state. The home page updates widgets and buttons instantly based on this setting.</p>
+                
+                <form id="config-settings-form" class="settings-control-form">
+                  <div class="form-group">
+                    <label for="cfg-event-state">Active Event State</label>
+                    <select id="cfg-event-state">
+                      <option value="Upcoming">Upcoming Event (Displays Countdown Clock)</option>
+                      <option value="Live">Event in Progress (Displays Live Badges & Session Info)</option>
+                      <option value="Completed">Event Completed (Displays Feedback Links & Gallery shortcuts)</option>
+                    </select>
+                  </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="cfg-event-date">Event Date</label>
+                      <input type="date" id="cfg-event-date" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="cfg-event-venue">Event Venue</label>
+                      <input type="text" id="cfg-event-venue" placeholder="e.g. Grand Auditorium" required>
+                    </div>
+                  </div>
+                  
+                  <button type="submit" class="btn btn-primary">
+                    <i data-lucide="save"></i> Update Portal Configuration
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: ATTENDANCE RECORDS -->
+          <div class="dashboard-tab-panel" id="tab-db-attendance">
+            <div class="panel-header">
+              <div class="header-main-title">
+                <h2>Excel Attendance Management</h2>
+                <p>Verify register credentials, filter columns, and export custom reports.</p>
+              </div>
+              <div class="header-actions">
+                <button class="btn btn-outline btn-sm" onclick="exportAttendanceReport('day-wise')"><i data-lucide="calendar"></i> Day-wise Report</button>
+                <button class="btn btn-outline btn-sm" onclick="exportAttendanceReport('filtered')"><i data-lucide="filter"></i> Export Filtered</button>
+                <button class="btn btn-gold btn-sm" onclick="exportAttendanceReport('all')"><i data-lucide="download"></i> Export All Excel</button>
+              </div>
+            </div>
+
+            <!-- Search and Filter Panel -->
+            <div class="filters-panel">
+              <div class="filter-row">
+                <div class="search-box-container">
+                  <i data-lucide="search"></i>
+                  <input type="text" id="admin-search-attendance" placeholder="Search by ID or Name...">
+                </div>
+                <div class="filter-controls-grid">
+                  <select id="admin-filter-dept">
+                    <option value="all">All Departments</option>
+                    <!-- Populated dynamically -->
+                  </select>
+                  <select id="admin-filter-desig">
+                    <option value="all">All Designations</option>
+                    <!-- Populated dynamically -->
+                  </select>
+                  <select id="admin-filter-session">
+                    <option value="all">All Sessions</option>
+                    <!-- Populated dynamically -->
+                  </select>
+                  <select id="admin-filter-date">
+                    <option value="all">All Dates</option>
+                    <!-- Populated dynamically -->
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Attendance Data Table -->
+            <div class="table-scroll-container">
+              <table class="dashboard-table" id="admin-attendance-table">
+                <thead>
+                  <tr>
+                    <th>Emp ID</th>
+                    <th>Full Name</th>
+                    <th>Designation</th>
+                    <th>Department</th>
+                    <th>Date</th>
+                    <th>Session</th>
+                    <th>Check In</th>
+                    <th>Status</th>
+                    <th class="actions-header">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Rows loaded dynamically -->
+                </tbody>
+              </table>
+              <div id="table-no-data" class="table-empty-fallback hidden">No attendance logs match the active query filter.</div>
+            </div>
+          </div>
+
+          <!-- TAB 3: MANAGE SCHEDULE -->
+          <div class="dashboard-tab-panel" id="tab-db-schedule">
+            <div class="panel-header">
+              <h2>Schedule & Interactive Timeline Editor</h2>
+              <p>Configure timeline events. Session statuses can toggle between Upcoming, Live Now, or Completed.</p>
+            </div>
+            
+            <div class="split-layout">
+              <!-- Left Form -->
+              <div class="layout-form-container">
+                <h3 id="schedule-form-title">Create Schedule Event</h3>
+                <form id="admin-schedule-form" class="premium-form-admin">
+                  <input type="hidden" id="sch-item-id">
+                  
+                  <div class="form-group">
+                    <label for="sch-title">Session Title</label>
+                    <input type="text" id="sch-title" placeholder="e.g. Opening Keynote" required>
+                  </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="sch-time">Time Range</label>
+                      <input type="text" id="sch-time" placeholder="e.g. 09:00 AM - 10:00 AM" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="sch-speaker">Speaker / Coordinator</label>
+                      <input type="text" id="sch-speaker" placeholder="e.g. Dr. Carter" required>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="sch-type">Session Type</label>
+                      <select id="sch-type" required>
+                        <option value="Registration">Registration / Welcome</option>
+                        <option value="Keynote">Keynote Address</option>
+                        <option value="Lecture">Lecture Session</option>
+                        <option value="Workshop">Workshop (Interactive)</option>
+                        <option value="Activity">Activity / Team Building</option>
+                        <option value="Panel">Panel Discussion</option>
+                        <option value="Social">Social / Dining</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="sch-venue">Venue Location</label>
+                      <input type="text" id="sch-venue" placeholder="e.g. Hall A" required>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="sch-status">Timeline Status</label>
+                      <select id="sch-status" required>
+                        <option value="Upcoming">Upcoming</option>
+                        <option value="Live Now">Live Now</option>
+                        <option value="Completed">Completed</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="sch-day">Event Day</label>
+                      <select id="sch-day" required>
+                        <option value="Day 1">Day 1</option>
+                        <option value="Day 2">Day 2</option>
+                        <option value="Day 3">Day 3</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="sch-details">Session Description</label>
+                    <textarea id="sch-details" rows="3" placeholder="Enter session details..."></textarea>
+                  </div>
+
+                  <div class="admin-form-actions">
+                    <button type="button" class="btn btn-outline btn-sm hidden" id="sch-cancel-edit-btn">Cancel Edit</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="sch-submit-btn">Add Event</button>
+                  </div>
+                </form>
+              </div>
+              
+              <!-- Right List -->
+              <div class="layout-list-container">
+                <h3>Existing Schedule Items</h3>
+                <div class="admin-items-list" id="admin-schedule-list">
+                  <!-- Dynamically loaded list of events -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: ANNOUNCEMENTS -->
+          <div class="dashboard-tab-panel" id="tab-db-announcements">
+            <div class="panel-header">
+              <h2>Announcements & Live Updates</h2>
+              <p>Publish bulletins directly to the event webpage. High priority items banner to top of page.</p>
+            </div>
+            
+            <div class="split-layout">
+              <div class="layout-form-container">
+                <h3 id="ann-form-title">Post Announcement</h3>
+                <form id="admin-ann-form" class="premium-form-admin">
+                  <input type="hidden" id="ann-item-id">
+                  
+                  <div class="form-group">
+                    <label for="ann-title">Title / Headline</label>
+                    <input type="text" id="ann-title" placeholder="e.g. Room Shift Notice" required>
+                  </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="ann-category">Category</label>
+                      <select id="ann-category" required>
+                        <option value="General">General Info</option>
+                        <option value="Schedule">Schedule Update</option>
+                        <option value="Logistics">Logistics / Food</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="ann-priority">Priority Level</label>
+                      <select id="ann-priority" required>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High (Sticky Top Banner)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="ann-message">Message Bulletin</label>
+                    <textarea id="ann-message" rows="4" placeholder="Detail the update..." required></textarea>
+                  </div>
+
+                  <div class="admin-form-actions">
+                    <button type="button" class="btn btn-outline btn-sm hidden" id="ann-cancel-edit-btn">Cancel Edit</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="ann-submit-btn">Publish Announcement</button>
+                  </div>
+                </form>
+              </div>
+              
+              <div class="layout-list-container">
+                <h3>Live Feed Overview</h3>
+                <div class="admin-items-list" id="admin-ann-list">
+                  <!-- Dynamically loaded list of announcements -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 5: LEADERS & COMMITTEE -->
+          <div class="dashboard-tab-panel" id="tab-db-profiles">
+            <div class="panel-header">
+              <h2>Faculty, Guest Speakers, & Committee Administration</h2>
+              <p>Add and configure leadership profiles. Contact phone numbers will only display inside detail popups.</p>
+            </div>
+            
+            <div class="split-layout">
+              <div class="layout-form-container">
+                <h3>Manage Profile Registry</h3>
+                
+                <div class="profile-mode-selector">
+                  <label><input type="radio" name="profile-type" value="leader" checked> Leaders/Speakers</label>
+                  <label><input type="radio" name="profile-type" value="committee"> Organising Committee</label>
+                </div>
+                
+                <form id="admin-profile-form" class="premium-form-admin">
+                  <input type="hidden" id="prof-item-id">
+                  
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="prof-fullname">Full Name</label>
+                      <input type="text" id="prof-fullname" placeholder="e.g. Dr. Jane Smith" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="prof-designation">Designation</label>
+                      <input type="text" id="prof-designation" placeholder="e.g. Senior Lecturer" required>
+                    </div>
+                  </div>
+                  
+                  <!-- Conditional inputs for Leader -->
+                  <div id="leader-fields">
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="prof-category">Registry Category</label>
+                        <select id="prof-category">
+                          <option value="Program Leadership">Program Leadership</option>
+                          <option value="Main Leaders">Main Leaders</option>
+                          <option value="Guest Speakers">Guest Speakers</option>
+                          <option value="Faculty">Faculty</option>
+                          <option value="Event Coordinators">Event Coordinators</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label for="prof-org">Organisation</label>
+                        <input type="text" id="prof-org" placeholder="e.g. Mercy Hospital">
+                      </div>
+                    </div>
+                    
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="prof-role">Role in Event</label>
+                        <input type="text" id="prof-role" placeholder="e.g. Keynote Mentor">
+                      </div>
+                      <div class="form-group">
+                        <label for="prof-session-title">Session / Presentation Title</label>
+                        <input type="text" id="prof-session-title" placeholder="e.g. Nurse Ethics in 2026">
+                      </div>
+                    </div>
+                    
+                    <!-- Conditional inputs for Guest Speaker topic -->
+                    <div id="guest-speaker-fields" class="hidden border-box-accent">
+                      <h4>Guest Speaker Highlights</h4>
+                      <div class="form-group">
+                        <label for="prof-topic">Session Topic</label>
+                        <input type="text" id="prof-topic" placeholder="e.g. Advanced Infection Control">
+                      </div>
+                      <div class="form-group">
+                        <label for="prof-objective">Learning Objective</label>
+                        <input type="text" id="prof-objective" placeholder="e.g. Learn aseptic barrier rules">
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Conditional inputs for Committee -->
+                  <div id="committee-fields" class="hidden">
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="prof-committee-role">Committee Role</label>
+                        <input type="text" id="prof-committee-role" placeholder="e.g. Logistics Chair">
+                      </div>
+                      <div class="form-group">
+                        <label for="prof-dept">Department</label>
+                        <input type="text" id="prof-dept" placeholder="e.g. Administration Dept">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="prof-email">Email Address</label>
+                      <input type="email" id="prof-email" placeholder="e.g. j.smith@nlp.org">
+                    </div>
+                    <div class="form-group">
+                      <label for="prof-phone">Phone Number (Approved for event use)</label>
+                      <input type="tel" id="prof-phone" placeholder="e.g. +91 99999 88880">
+                    </div>
+                  </div>
+
+                  <div class="form-row" id="leader-datetime-row">
+                    <div class="form-group">
+                      <label for="prof-session-datetime">Session Date & Time</label>
+                      <input type="text" id="prof-session-datetime" placeholder="e.g. July 24, 10:00 AM">
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prof-bio">Short Professional Bio / Description</label>
+                    <textarea id="prof-bio" rows="3" placeholder="Enter short responsibility description or speaker biography..." required></textarea>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prof-photo-file">Upload Profile Photograph</label>
+                    <input type="file" id="prof-photo-file" accept="image/*">
+                    <div class="image-preview-box" id="prof-image-preview">
+                      <span>No photograph uploaded</span>
+                    </div>
+                    <input type="hidden" id="prof-photo-url">
+                  </div>
+
+                  <div class="admin-form-actions">
+                    <button type="button" class="btn btn-outline btn-sm hidden" id="prof-cancel-edit-btn">Cancel Edit</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="prof-submit-btn">Save Profile</button>
+                  </div>
+                </form>
+              </div>
+              
+              <div class="layout-list-container">
+                <h3>Registered Members & Speakers</h3>
+                <div class="admin-items-list" id="admin-profiles-list">
+                  <!-- Loaded dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+
+          <!-- TAB 8: ATTENDEE FEEDBACK -->
+          <div class="dashboard-tab-panel" id="tab-db-feedback">
+            <div class="panel-header">
+              <div class="header-main-title">
+                <h2>Attendee Feedback Management</h2>
+                <p>Verify overall ratings, register new feedbacks, edit contents, and export logs to Excel.</p>
+              </div>
+              <div class="header-actions">
+                <button class="btn btn-outline btn-sm" onclick="adminAddFeedback()"><i data-lucide="plus"></i> Add Feedback</button>
+                <button class="btn btn-gold btn-sm" onclick="exportFeedbackReport()"><i data-lucide="download"></i> Export Feedback Excel</button>
+              </div>
+            </div>
+            
+            <div class="feedback-metrics-strip">
+              <div class="feedback-metric-bubble">
+                <span class="bubble-val" id="fb-average-rating">0.0</span>
+                <span class="bubble-lbl">Average Score</span>
+              </div>
+              <div class="feedback-metric-bubble">
+                <span class="bubble-val" id="fb-total-submissions">0</span>
+                <span class="bubble-lbl">Total Feedbacks</span>
+              </div>
+            </div>
+            
+            <!-- Feedback Data Table -->
+            <div class="table-scroll-container">
+              <table class="dashboard-table" id="admin-feedback-table">
+                <thead>
+                  <tr>
+                    <th>Emp ID</th>
+                    <th>Date</th>
+                    <th>Rating</th>
+                    <th>Relevance</th>
+                    <th>Comments</th>
+                    <th class="actions-header">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Rows loaded dynamically -->
+                </tbody>
+              </table>
+              <div id="feedback-table-no-data" class="table-empty-fallback hidden">No attendee feedback records registered in database.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="main-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <img src="/assets/logo.png" alt="Medanta Logo" class="footer-logo-img" style="height: 40px; max-height: 40px; width: auto; object-fit: contain; margin-bottom: 8px; filter: brightness(0) invert(1); display: block;">
+        <h3>Nursing Leadership Program</h3>
+        <p>Developing Leaders. Strengthening Teams. Transforming Nursing.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Navigation Links</h4>
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#schedule">Schedule</a></li>
+          <li><a href="#attendance">Mark Attendance</a></li>
+          <li><a href="#admin" class="nav-link" data-view="admin"><i data-lucide="shield-check" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>Admin Login</a></li>
+        </ul>
+      </div>
+      <div class="footer-meta">
+        <p>&copy; 2026 Nursing Leadership Program Committee. All rights reserved.</p>
+        <p>Healthcare Executive Training Cohort Series.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- MODAL POPUPS -->
+  <!-- ========================================== -->
+
+  <!-- 1. GENERAL SESSION DETAILS MODAL -->
+  <div class="modal-overlay" id="session-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-badge" id="session-modal-type">Lecture</span>
+        <button class="modal-close-btn" onclick="closeModal('session-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h2 class="modal-title" id="session-modal-title">Session Title</h2>
+        <div class="modal-meta-line">
+          <span><i data-lucide="clock"></i> <span id="session-modal-time">09:00 AM - 10:00 AM</span></span>
+          <span><i data-lucide="map-pin"></i> <span id="session-modal-venue">Auditorium A</span></span>
+        </div>
+        <div class="modal-divider"></div>
+        <div class="modal-info-block">
+          <h4>Lead Facilitator / Speaker</h4>
+          <p id="session-modal-speaker">Dr. Evelyn Carter</p>
+        </div>
+        <div class="modal-info-block">
+          <h4>Session Details</h4>
+          <p id="session-modal-details">Session detail description goes here.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. COMMITTEE DETAIL POPUP -->
+  <div class="modal-overlay" id="committee-modal">
+    <div class="modal-card profile-modal-card">
+      <button class="modal-close-btn profile-close" onclick="closeModal('committee-modal')">&times;</button>
+      <div class="profile-popup-layout">
+        <div class="profile-popup-photo">
+          <img id="com-modal-photo" src="" alt="">
+        </div>
+        <div class="profile-popup-content">
+          <h2 id="com-modal-name">Jonathan Reed</h2>
+          <p class="profile-popup-tagline" id="com-modal-desig">Head of Hospital Operations</p>
+          <div class="profile-details-list">
+            <p><strong>Committee Role:</strong> <span id="com-modal-role">Logistics Coordinator</span></p>
+            <p><strong>Department:</strong> <span id="com-modal-dept">Hospital Administration</span></p>
+            <p><strong>Email Address:</strong> <span id="com-modal-email">j.reed@nlp-committee.org</span></p>
+          </div>
+          <div class="profile-popup-bio">
+            <h4>Role Responsibilities</h4>
+            <p id="com-modal-responsibility">Detailed responsibility description...</p>
+          </div>
+          <div class="profile-popup-actions" id="com-call-container">
+            <!-- Populated via script to only show button on mobile devices if phone approved -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. SPEAKER / LEADER DETAIL POPUP -->
+  <div class="modal-overlay" id="leader-modal">
+    <div class="modal-card profile-modal-card">
+      <button class="modal-close-btn profile-close" onclick="closeModal('leader-modal')">&times;</button>
+      <div class="profile-popup-layout">
+        <div class="profile-popup-photo">
+          <img id="lead-modal-photo" src="" alt="">
+        </div>
+        <div class="profile-popup-content">
+          <h2 id="lead-modal-name">Dr. Evelyn Carter</h2>
+          <p class="profile-popup-tagline" id="lead-modal-desig">Chief Nursing Officer</p>
+          
+          <div class="profile-details-list">
+            <p><strong>Organisation:</strong> <span id="lead-modal-org">National Healthcare Trust</span></p>
+            <p><strong>Event Role:</strong> <span id="lead-modal-role">Program Director / Mentor</span></p>
+            <p><strong>Session:</strong> <span id="lead-modal-session">Opening Address & NLP Vision</span></p>
+            <p><strong>Time Slot:</strong> <span id="lead-modal-time">July 24, 2026 - 09:00 AM</span></p>
+          </div>
+
+          <!-- Specific for Guest Speakers -->
+          <div id="lead-modal-guest-section" class="guest-details-box hidden">
+            <h4>Guest Session Details</h4>
+            <p><strong>Topic:</strong> <span id="lead-modal-topic">Advanced Infection Control</span></p>
+            <p><strong>Learning Objective:</strong> <span id="lead-modal-objective">Learn aseptic barrier rules</span></p>
+          </div>
+
+          <div class="profile-popup-bio">
+            <h4>Professional Biography</h4>
+            <p id="lead-modal-bio">Detailed bio text goes here...</p>
+          </div>
+          
+          <div class="profile-details-list border-top-divider">
+            <p><strong>Contact Info:</strong> <span id="lead-modal-contact">e.carter@healthcaretrust.org</span></p>
+          </div>
+          <div class="profile-popup-actions" id="lead-call-container">
+            <!-- Optional call button -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Toast Notification Overlay -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Script Code Loader -->
+  <script src="app.js"></script>
+</body>
+</html>
