@@ -55,46 +55,46 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 // --- SETTINGS API ---
-app.get('/api/settings', (req, res) => {
-  res.json(db.getSettings());
+app.get('/api/settings', async (req, res) => {
+  res.json(await db.getSettings());
 });
 
-app.post('/api/settings', authenticateAdmin, (req, res) => {
+app.post('/api/settings', authenticateAdmin, async (req, res) => {
   try {
-    db.saveSettings(req.body);
-    res.json({ success: true, settings: db.getSettings() });
+    await db.saveSettings(req.body);
+    res.json({ success: true, settings: await db.getSettings() });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 // --- ATTENDANCE API ---
-app.get('/api/attendance', (req, res) => {
+app.get('/api/attendance', async (req, res) => {
   // Public or Admin can view depending on requirements, but let's make it open or filterable
-  res.json(db.getAttendance());
+  res.json(await db.getAttendance());
 });
 
-app.post('/api/attendance', (req, res) => {
+app.post('/api/attendance', async (req, res) => {
   try {
-    const record = db.addAttendance(req.body);
+    const record = await db.addAttendance(req.body);
     res.status(201).json({ success: true, record });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-app.put('/api/attendance/:id', authenticateAdmin, (req, res) => {
+app.put('/api/attendance/:id', authenticateAdmin, async (req, res) => {
   try {
-    const updated = db.updateAttendance(req.params.id, req.body);
+    const updated = await db.updateAttendance(req.params.id, req.body);
     res.json({ success: true, record: updated });
   } catch (err) {
     res.status(404).json({ error: err.message });
   }
 });
 
-app.delete('/api/attendance/:id', authenticateAdmin, (req, res) => {
+app.delete('/api/attendance/:id', authenticateAdmin, async (req, res) => {
   try {
-    db.deleteAttendance(req.params.id);
+    await db.deleteAttendance(req.params.id);
     res.json({ success: true });
   } catch (err) {
     res.status(404).json({ error: err.message });
@@ -103,31 +103,31 @@ app.delete('/api/attendance/:id', authenticateAdmin, (req, res) => {
 
 // --- GENERAL COLLECTIONS CRUD ---
 const setupCollectionRoutes = (name) => {
-  app.get(`/api/${name}`, (req, res) => {
-    res.json(db.getCollection(name));
+  app.get(`/api/${name}`, async (req, res) => {
+    res.json(await db.getCollection(name));
   });
 
-  app.post(`/api/${name}`, authenticateAdmin, (req, res) => {
+  app.post(`/api/${name}`, authenticateAdmin, async (req, res) => {
     try {
-      const item = db.addItem(name, req.body);
+      const item = await db.addItem(name, req.body);
       res.status(201).json({ success: true, item });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   });
 
-  app.put(`/api/${name}/:id`, authenticateAdmin, (req, res) => {
+  app.put(`/api/${name}/:id`, authenticateAdmin, async (req, res) => {
     try {
-      const item = db.updateItem(name, req.params.id, req.body);
+      const item = await db.updateItem(name, req.params.id, req.body);
       res.json({ success: true, item });
     } catch (err) {
       res.status(404).json({ error: err.message });
     }
   });
 
-  app.delete(`/api/${name}/:id`, authenticateAdmin, (req, res) => {
+  app.delete(`/api/${name}/:id`, authenticateAdmin, async (req, res) => {
     try {
-      db.deleteItem(name, req.params.id);
+      await db.deleteItem(name, req.params.id);
       res.json({ success: true });
     } catch (err) {
       res.status(404).json({ error: err.message });
