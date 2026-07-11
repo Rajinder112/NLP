@@ -3,9 +3,9 @@
    ========================================================================== */
 :root {
   /* HSL Tailored Brand Colors */
-  --primary: hsl(218, 69%, 14%);        /* Deep Navy Blue #0A192F */
-  --primary-light: hsl(218, 55%, 22%);  /* Dark Slate Blue */
-  --primary-bg: hsl(218, 69%, 8%);
+  --primary: hsl(348, 55%, 15%);        /* Medanta Corporate Maroon #3B0B11 */
+  --primary-light: hsl(348, 45%, 23%);  /* Medium Crimson/Burgundy */
+  --primary-bg: hsl(348, 55%, 8%);      /* Dark Burgundy Black */
   
   --accent: hsl(40, 50%, 54%);          /* Refined Gold #C5A059 */
   --accent-light: hsl(40, 50%, 65%);
