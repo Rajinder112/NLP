@@ -2211,6 +2211,15 @@ async function uploadFileToServer(file) {
           })
         });
         
+        if (res.status === 401) {
+          sessionStorage.removeItem('adminToken');
+          appState.isLoggedIn = false;
+          showAdminLoginForm();
+          showToast('Session expired. Please log in again.', 'error');
+          resolve(null);
+          return;
+        }
+        
         const data = await res.json();
         if (res.ok) {
           resolve(data.url);
