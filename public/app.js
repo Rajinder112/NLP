@@ -157,27 +157,6 @@ async function deleteGalleryItem(id) {
   }
 }
 
-// Render public gallery grid
-function renderGalleryGrid() {
-  const container = document.getElementById('gallery-container');
-  if (!container) return;
-  
-  container.innerHTML = '';
-  appState.gallery.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'gallery-item';
-    card.setAttribute('data-category', item.category);
-    
-    card.innerHTML = `
-      <img src="${getPhotoUrl(item.url)}" alt="${item.title}">
-      <div class="gallery-overlay">
-        <h3>${item.title}</h3>
-        <p>${item.description || ''}</p>
-      </div>
-    `;
-    container.appendChild(card);
-  });
-}
 
 // ==========================================================================
 // NLP WEBSITE PORTAL - CLIENT APPLICATION CONTROLLER
@@ -1106,6 +1085,32 @@ function openGalleryModal(id) {
   document.getElementById('gallery-modal-desc').textContent = item.description || 'No description provided.';
   
   openModal('gallery-modal');
+}
+
+// Render public overview details cards
+function renderOverview() {
+  const container = document.getElementById('public-overview-container');
+  if (!container) return;
+  
+  if (appState.overview.length === 0) {
+    container.innerHTML = '<p class="text-center">No overview details registered yet.</p>';
+    return;
+  }
+  
+  container.innerHTML = '';
+  appState.overview.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'details-card';
+    
+    card.innerHTML = `
+      <i data-lucide="${item.icon || 'info'}" class="card-icon"></i>
+      <h3>${item.title}</h3>
+      <p>${item.description}</p>
+    `;
+    container.appendChild(card);
+  });
+  
+  lucide.createIcons();
 }
 
 // ==========================================================================
