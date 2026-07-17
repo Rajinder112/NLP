@@ -79,9 +79,6 @@ async function fetchAdminGallery() {
     const row = document.createElement('tr');
     row.innerHTML = `
       <td style="width: 80px;"><img src="${getPhotoUrl(item.url) || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=80'}" style="width: 60px; height: 40px; object-fit: cover; border-radius: var(--radius-sm);"></td>
-      <td><strong>${item.title}</strong></td>
-      <td><span class="profile-role-tag" style="background-color: var(--primary-bg); color: var(--text-light);">${item.category}</span></td>
-      <td>${item.description || 'No description provided.'}</td>
       <td class="table-actions">
         <button class="tbl-btn tbl-btn-edit" onclick="editGalleryItem('${item.id}')" title="Edit Item"><i data-lucide="edit"></i></button>
         <button class="tbl-btn tbl-btn-delete" onclick="deleteGalleryItem('${item.id}')" title="Delete Item"><i data-lucide="trash-2"></i></button>
@@ -123,9 +120,6 @@ async function editGalleryItem(id) {
   if (!item) return;
   
   document.getElementById('gallery-item-id').value = item.id;
-  document.getElementById('gallery-title').value = item.title;
-  document.getElementById('gallery-category').value = item.category;
-  document.getElementById('gallery-desc').value = item.description || '';
   document.getElementById('gallery-url').value = item.url || '';
   const fnEl = document.getElementById('gallery-file-name');
   if (fnEl) fnEl.textContent = 'Or upload a new image file:';
@@ -146,9 +140,6 @@ async function saveGalleryItem(e) {
   e.preventDefault();
   
   const id = document.getElementById('gallery-item-id').value;
-  const title = document.getElementById('gallery-title').value;
-  const category = document.getElementById('gallery-category').value;
-  const description = document.getElementById('gallery-desc').value;
   const fileInput = document.getElementById('gallery-file');
   let url = document.getElementById('gallery-url').value;
   
@@ -162,7 +153,7 @@ async function saveGalleryItem(e) {
     return;
   }
   
-  const payload = { title, category, description, url };
+  const payload = { title: '', category: 'Photos', description: '', url };
   const isEdit = !!id;
   
   // LocalStorage Dual-Write fallback
@@ -1127,17 +1118,12 @@ function renderGalleryGrid() {
   appState.gallery.forEach(item => {
     const card = document.createElement('div');
     card.className = 'gallery-card';
-    card.setAttribute('data-category', item.category);
+    card.setAttribute('data-category', 'all');
     card.onclick = () => openGalleryModal(item.id);
     
     card.innerHTML = `
-      <div class="gallery-photo-wrapper">
-        <img src="${getPhotoUrl(item.url) || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=400'}" alt="${item.title}" loading="lazy">
-      </div>
-      <div class="gallery-card-content">
-        <span class="gallery-card-category">${item.category}</span>
-        <h3 class="gallery-card-title">${item.title}</h3>
-        <p class="gallery-card-desc">${item.description || ''}</p>
+      <div class="gallery-photo-wrapper" style="padding-bottom: 75%; border-radius: var(--radius-md); overflow: hidden;">
+        <img src="${getPhotoUrl(item.url) || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=400'}" alt="Event Photograph" loading="lazy">
       </div>
     `;
     grid.appendChild(card);
@@ -1163,7 +1149,7 @@ function filterGallery(category) {
   const cards = document.querySelectorAll('.gallery-card');
   cards.forEach(card => {
     if (category === 'all' || card.getAttribute('data-category') === category) {
-      card.style.display = 'flex';
+      card.style.display = 'block';
     } else {
       card.style.display = 'none';
     }
@@ -1175,9 +1161,6 @@ function openGalleryModal(id) {
   if (!item) return;
   
   document.getElementById('gallery-modal-img').src = getPhotoUrl(item.url) || '';
-  document.getElementById('gallery-modal-category').textContent = item.category;
-  document.getElementById('gallery-modal-title').textContent = item.title;
-  document.getElementById('gallery-modal-desc').textContent = item.description || 'No description provided.';
   
   openModal('gallery-modal');
 }
