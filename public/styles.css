@@ -2701,6 +2701,10 @@ img {
   align-items: start;
 }
 
+.footer-links {
+  justify-self: end;
+}
+
 .footer-brand .logo-accent {
   display: inline-block;
   margin-bottom: 12px;
@@ -2912,6 +2916,9 @@ img {
     grid-template-columns: 1fr;
   }
   
+  .footer-links {
+    justify-self: start;
+  }
 }
 
 
@@ -2925,6 +2932,10 @@ img {
   .footer-grid {
     grid-template-columns: 1fr !important;
     gap: 16px !important;
+  }
+
+  .footer-links {
+    justify-self: center;
   }
 
   .footer-brand {
