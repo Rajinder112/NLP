@@ -250,6 +250,21 @@ async function initConfig() {
     console.log('Using default API base:', API_BASE);
   }
 }
+
+// Helper to resolve absolute URLs for uploaded images from the Render backend
+function getPhotoUrl(photoPath) {
+  if (!photoPath) return '';
+  if (photoPath.startsWith('http://') || photoPath.startsWith('https://') || photoPath.startsWith('data:')) {
+    return photoPath;
+  }
+  let path = photoPath;
+  if (path.startsWith('/public')) {
+    path = path.substring(7);
+  }
+  const base = API_BASE.replace('/api', '');
+  return `${base}${path.startsWith('/') ? '' : '/'}${path}`;
+}
+
 let appState = {
   settings: {},
   attendance: [],
@@ -806,7 +821,7 @@ function renderLeadersAndCommittee() {
         
         card.innerHTML = `
           <div class="profile-photo-wrapper">
-            <img src="${com.photo || 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200'}" alt="${com.fullName}">
+            <img src="${getPhotoUrl(com.photo) || 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200'}" alt="${com.fullName}">
           </div>
           <h3>${com.fullName}</h3>
           <span class="profile-role-tag">${com.role}</span>
@@ -839,7 +854,7 @@ function renderProfileCardsFiltered(category) {
     
     card.innerHTML = `
       <div class="profile-photo-wrapper">
-        <img src="${lead.photo || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=200'}" alt="${lead.fullName}">
+        <img src="${getPhotoUrl(lead.photo) || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=200'}" alt="${lead.fullName}">
       </div>
       <h3>${lead.fullName}</h3>
       <span class="profile-role-tag">${lead.category}</span>
@@ -864,7 +879,7 @@ function openCommitteeModal(id) {
   const com = appState.committee.find(c => c.id === id);
   if (!com) return;
   
-  document.getElementById('com-modal-photo').src = com.photo || 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=300';
+  document.getElementById('com-modal-photo').src = getPhotoUrl(com.photo) || 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=300';
   document.getElementById('com-modal-name').textContent = com.fullName;
   document.getElementById('com-modal-desig').textContent = com.designation;
   document.getElementById('com-modal-role').textContent = com.role;
@@ -896,7 +911,7 @@ function openLeaderModal(id) {
   const lead = appState.leaders.find(l => l.id === id);
   if (!lead) return;
   
-  document.getElementById('lead-modal-photo').src = lead.photo || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=300';
+  document.getElementById('lead-modal-photo').src = getPhotoUrl(lead.photo) || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=300';
   document.getElementById('lead-modal-name').textContent = lead.fullName;
   document.getElementById('lead-modal-desig').textContent = lead.designation;
   document.getElementById('lead-modal-org').textContent = lead.organisation || 'N/A';
@@ -1837,7 +1852,7 @@ async function loadItemForEdit(type, id) {
     document.getElementById('prof-photo-url').value = item.photo || '';
     
     if (item.photo) {
-      document.getElementById('prof-image-preview').innerHTML = `<img src="${item.photo}" alt="Preview">`;
+      document.getElementById('prof-image-preview').innerHTML = `<img src="${getPhotoUrl(item.photo)}" alt="Preview">`;
     } else {
       document.getElementById('prof-image-preview').innerHTML = '<span>No photograph uploaded</span>';
     }
