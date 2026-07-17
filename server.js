@@ -142,6 +142,8 @@ setupCollectionRoutes('committee');
 setupCollectionRoutes('resources');
 setupCollectionRoutes('feedback');
 setupCollectionRoutes('overview');
+setupCollectionRoutes('gallery');
+
 
 // --- FILE UPLOAD API (Base64 wrapper to avoid multer complexity) ---
 app.post('/api/upload', authenticateAdmin, (req, res) => {
