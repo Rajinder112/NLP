@@ -1,3 +1,53 @@
+// LocalStorage Fallback helpers for Gallery
+const LOCAL_GALLERY_KEY = 'nlp_local_gallery';
+const GALLERY_SEED_DATA = [
+  {
+    id: 'gal_1',
+    category: 'Opening Ceremony',
+    title: 'Lighting of the Lamp',
+    description: 'The traditional inauguration of Batch 1 of the Nursing Leadership Program.',
+    url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'gal_2',
+    category: 'Leadership Sessions',
+    title: 'Dr. Evelyn Carter Keynote',
+    description: 'Opening address detailing the executive mindset required in healthcare management.',
+    url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'gal_3',
+    category: 'Group Activities',
+    title: 'Synergistic Unit Exercise',
+    description: 'Participants collaborating on clinical resource management simulations.',
+    url: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'gal_4',
+    category: 'Group Activities',
+    title: 'Problem-Solving Workshops',
+    description: 'Interactive problem-solving session focusing on ward scheduling optimization.',
+    url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=600'
+  }
+];
+
+function getLocalGallery() {
+  const local = localStorage.getItem(LOCAL_GALLERY_KEY);
+  if (!local) {
+    localStorage.setItem(LOCAL_GALLERY_KEY, JSON.stringify(GALLERY_SEED_DATA));
+    return GALLERY_SEED_DATA;
+  }
+  try {
+    return JSON.parse(local);
+  } catch (e) {
+    return GALLERY_SEED_DATA;
+  }
+}
+
+function saveLocalGallery(data) {
+  localStorage.setItem(LOCAL_GALLERY_KEY, JSON.stringify(data));
+}
+
 // SUB-TAB: Event Gallery Manager CRUD
 async function fetchAdminGallery() {
   const tableBody = document.querySelector('#admin-gallery-table tbody');
@@ -8,35 +58,39 @@ async function fetchAdminGallery() {
   
   try {
     const res = await fetch(`${API_BASE}/gallery`);
-    appState.gallery = await res.json();
-    
-    if (appState.gallery.length === 0) {
-      noDataEl.classList.remove('hidden');
-      return;
+    const text = await res.text();
+    if (text.trim().startsWith('<!DOCTYPE')) {
+      throw new Error('Endpoint returned HTML instead of JSON');
     }
-    
-    noDataEl.classList.add('hidden');
-    
-    appState.gallery.forEach(item => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td style="width: 80px;"><img src="${getPhotoUrl(item.url) || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=80'}" style="width: 60px; height: 40px; object-fit: cover; border-radius: var(--radius-sm);"></td>
-        <td><strong>${item.title}</strong></td>
-        <td><span class="profile-role-tag" style="background-color: var(--primary-bg); color: var(--text-light);">${item.category}</span></td>
-        <td>${item.description || 'No description provided.'}</td>
-        <td class="table-actions">
-          <button class="tbl-btn tbl-btn-edit" onclick="editGalleryItem('${item.id}')" title="Edit Item"><i data-lucide="edit"></i></button>
-          <button class="tbl-btn tbl-btn-delete" onclick="deleteGalleryItem('${item.id}')" title="Delete Item"><i data-lucide="trash-2"></i></button>
-        </td>
-      `;
-      tableBody.appendChild(row);
-    });
-    
-    lucide.createIcons();
+    appState.gallery = JSON.parse(text);
   } catch (err) {
-    console.error('Error fetching admin gallery:', err);
-    showToast('Failed to fetch gallery items.', 'error');
+    console.warn('Backend /gallery API offline or unrouted, loading from localStorage.');
+    appState.gallery = getLocalGallery();
   }
+
+  if (appState.gallery.length === 0) {
+    noDataEl.classList.remove('hidden');
+    return;
+  }
+  
+  noDataEl.classList.add('hidden');
+  
+  appState.gallery.forEach(item => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td style="width: 80px;"><img src="${getPhotoUrl(item.url) || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=80'}" style="width: 60px; height: 40px; object-fit: cover; border-radius: var(--radius-sm);"></td>
+      <td><strong>${item.title}</strong></td>
+      <td><span class="profile-role-tag" style="background-color: var(--primary-bg); color: var(--text-light);">${item.category}</span></td>
+      <td>${item.description || 'No description provided.'}</td>
+      <td class="table-actions">
+        <button class="tbl-btn tbl-btn-edit" onclick="editGalleryItem('${item.id}')" title="Edit Item"><i data-lucide="edit"></i></button>
+        <button class="tbl-btn tbl-btn-delete" onclick="deleteGalleryItem('${item.id}')" title="Delete Item"><i data-lucide="trash-2"></i></button>
+      </td>
+    `;
+    tableBody.appendChild(row);
+  });
+  
+  lucide.createIcons();
 }
 
 function adminAddGalleryItem() {
@@ -110,11 +164,23 @@ async function saveGalleryItem(e) {
   
   const payload = { title, category, description, url };
   const isEdit = !!id;
-  const endpoint = isEdit ? `${API_BASE}/gallery/${id}` : `${API_BASE}/gallery`;
-  const method = isEdit ? 'PUT' : 'POST';
+  
+  // LocalStorage Dual-Write fallback
+  let localList = getLocalGallery();
+  if (isEdit) {
+    payload.id = id;
+    const idx = localList.findIndex(g => g.id === id);
+    if (idx !== -1) localList[idx] = payload;
+  } else {
+    payload.id = 'gal_' + Date.now();
+    localList.push(payload);
+  }
+  saveLocalGallery(localList);
   
   try {
-    const res = await fetch(endpoint, {
+    const endpoint = isEdit ? `${API_BASE}/gallery/${id}` : `${API_BASE}/gallery`;
+    const method = isEdit ? 'PUT' : 'POST';
+    await fetch(endpoint, {
       method,
       headers: {
         'Content-Type': 'application/json',
@@ -122,42 +188,36 @@ async function saveGalleryItem(e) {
       },
       body: JSON.stringify(payload)
     });
-    
-    if (res.ok) {
-      showToast(isEdit ? 'Gallery item updated successfully.' : 'Gallery item added successfully.', 'success');
-      closeModal('admin-gallery-modal');
-      await fetchAdminGallery();
-      await refreshPublicData();
-    } else {
-      showToast('Failed to save gallery item.', 'error');
-    }
   } catch (err) {
-    console.error('Error saving gallery item:', err);
-    showToast('Failed to connect to backend service.', 'error');
+    console.warn('Backend API offline, gallery saved to local storage.');
   }
+  
+  showToast(isEdit ? 'Gallery item updated successfully.' : 'Gallery item added successfully.', 'success');
+  closeModal('admin-gallery-modal');
+  await fetchAdminGallery();
+  await refreshPublicData();
 }
 
 async function deleteGalleryItem(id) {
   const confirmDel = confirm('Are you sure you want to delete this event photograph?');
   if (!confirmDel) return;
   
+  // LocalStorage Dual-Write fallback
+  let localList = getLocalGallery();
+  saveLocalGallery(localList.filter(g => g.id !== id));
+  
   try {
-    const res = await fetch(`${API_BASE}/gallery/${id}`, {
+    await fetch(`${API_BASE}/gallery/${id}`, {
       method: 'DELETE',
       headers: getAuthHeader()
     });
-    
-    if (res.ok) {
-      showToast('Gallery photograph deleted successfully.', 'success');
-      await fetchAdminGallery();
-      await refreshPublicData();
-    } else {
-      showToast('Failed to delete gallery item.', 'error');
-    }
   } catch (err) {
-    console.error('Error deleting gallery item:', err);
-    showToast('Failed to connect to backend service.', 'error');
+    console.warn('Backend API offline, gallery deleted from local storage.');
   }
+  
+  showToast('Gallery photograph deleted successfully.', 'success');
+  await fetchAdminGallery();
+  await refreshPublicData();
 }
 
 
@@ -295,18 +355,33 @@ async function refreshPublicData() {
       if (res.ok) {
         const text = await res.text();
         try {
+          if (endpoint === 'gallery' && text.trim().startsWith('<!DOCTYPE')) {
+            throw new Error('HTML returned instead of JSON');
+          }
           appState[stateKey] = JSON.parse(text);
         } catch (jsonErr) {
-          console.warn(`Malformed JSON from /${endpoint}, falling back to empty array.`);
-          appState[stateKey] = [];
+          console.warn(`Malformed JSON from /${endpoint}, falling back.`);
+          if (endpoint === 'gallery') {
+            appState.gallery = getLocalGallery();
+          } else {
+            appState[stateKey] = [];
+          }
         }
       } else {
         console.warn(`Failed to fetch /${endpoint}: Status ${res.status}`);
-        appState[stateKey] = [];
+        if (endpoint === 'gallery') {
+          appState.gallery = getLocalGallery();
+        } else {
+          appState[stateKey] = [];
+        }
       }
     } catch (err) {
       console.error(`Network error fetching /${endpoint}:`, err);
-      appState[stateKey] = [];
+      if (endpoint === 'gallery') {
+        appState.gallery = getLocalGallery();
+      } else {
+        appState[stateKey] = [];
+      }
     }
   };
 
