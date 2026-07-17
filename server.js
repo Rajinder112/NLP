@@ -18,16 +18,39 @@ if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 }
 
+const crypto = require('crypto');
+
 // Simple Token-based Auth Mock
 const ADMIN_PASSWORD = '#@!Raji#@!1'; // Default Admin Password
-const sessions = new Set(); // Store active session tokens
+const JWT_SECRET = 'nlp_secret_key_12345'; // Simple static secret
+
+function generateToken() {
+  const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+  const payload = JSON.stringify({ expiry });
+  const signature = crypto.createHmac('sha256', JWT_SECRET).update(payload).digest('hex');
+  return Buffer.from(JSON.stringify({ payload, signature })).toString('base64');
+}
+
+function verifyToken(token) {
+  try {
+    const raw = JSON.parse(Buffer.from(token, 'base64').toString('utf8'));
+    const expectedSignature = crypto.createHmac('sha256', JWT_SECRET).update(raw.payload).digest('hex');
+    if (raw.signature !== expectedSignature) return false;
+    
+    const parsedPayload = JSON.parse(raw.payload);
+    if (Date.now() > parsedPayload.expiry) return false;
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
 
 // Authentication Middleware
 const authenticateAdmin = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7);
-    if (sessions.has(token)) {
+    if (verifyToken(token)) {
       return next();
     }
   }
@@ -38,19 +61,13 @@ const authenticateAdmin = (req, res, next) => {
 app.post('/api/auth/login', (req, res) => {
   const { password } = req.body;
   if (password === ADMIN_PASSWORD) {
-    const token = 'token_' + Math.random().toString(36).substr(2) + '_' + Date.now();
-    sessions.add(token);
+    const token = generateToken();
     return res.json({ token });
   }
   return res.status(400).json({ error: 'Incorrect administrator password.' });
 });
 
 app.post('/api/auth/logout', (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    sessions.delete(token);
-  }
   res.json({ success: true });
 });
 

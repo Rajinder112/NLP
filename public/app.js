@@ -48,6 +48,14 @@ function saveLocalGallery(data) {
   localStorage.setItem(LOCAL_GALLERY_KEY, JSON.stringify(data));
 }
 
+function isGalleryLocalOnly() {
+  return localStorage.getItem('nlp_gallery_local_only') === 'true';
+}
+
+function setGalleryLocalOnly(val) {
+  localStorage.setItem('nlp_gallery_local_only', val ? 'true' : 'false');
+}
+
 // SUB-TAB: Event Gallery Manager CRUD
 async function fetchAdminGallery() {
   const tableBody = document.querySelector('#admin-gallery-table tbody');
@@ -57,6 +65,9 @@ async function fetchAdminGallery() {
   tableBody.innerHTML = '';
   
   try {
+    if (isGalleryLocalOnly()) {
+      throw new Error('Gallery local-only mode active');
+    }
     const res = await fetch(`${API_BASE}/gallery`);
     const text = await res.text();
     if (text.trim().startsWith('<!DOCTYPE')) {
@@ -64,7 +75,7 @@ async function fetchAdminGallery() {
     }
     appState.gallery = JSON.parse(text);
   } catch (err) {
-    console.warn('Backend /gallery API offline or unrouted, loading from localStorage.');
+    console.warn('Loading gallery from localStorage:', err.message);
     appState.gallery = getLocalGallery();
   }
 
@@ -183,7 +194,8 @@ async function saveGalleryItem(e) {
       throw new Error(`Server returned status ${res.status}`);
     }
   } catch (err) {
-    console.warn('Backend API offline or error, gallery saved to local storage.');
+    console.warn('Backend API error, enabling gallery local-only mode:', err);
+    setGalleryLocalOnly(true);
   }
   
   showToast(isEdit ? 'Gallery item updated successfully.' : 'Gallery item added successfully.', 'success');
@@ -209,7 +221,8 @@ async function deleteGalleryItem(id) {
       throw new Error(`Server returned status ${res.status}`);
     }
   } catch (err) {
-    console.warn('Backend API offline or error, gallery deleted from local storage.');
+    console.warn('Backend API error, enabling gallery local-only mode:', err);
+    setGalleryLocalOnly(true);
   }
   
   showToast('Gallery photograph deleted successfully.', 'success');
@@ -348,6 +361,9 @@ async function fetchSettings() {
 async function refreshPublicData() {
   const fetchAndSet = async (endpoint, stateKey) => {
     try {
+      if (endpoint === 'gallery' && isGalleryLocalOnly()) {
+        throw new Error('Gallery local-only mode active');
+      }
       const res = await fetch(`${API_BASE}/${endpoint}`);
       if (res.ok) {
         const text = await res.text();
@@ -1467,6 +1483,7 @@ async function handleAdminLogin(e) {
     
     if (res.ok) {
       sessionStorage.setItem('adminToken', data.token);
+      localStorage.removeItem('nlp_gallery_local_only'); // Try backend sync again
       appState.isLoggedIn = true;
       errText.classList.add('hidden');
       document.getElementById('admin-password').value = '';
