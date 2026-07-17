@@ -286,35 +286,52 @@ async function fetchSettings() {
 }
 
 async function refreshPublicData() {
-  try {
-    const [schedRes, annRes, leadRes, commRes, resRes, ovRes, galleryRes] = await Promise.all([
-      fetch(`${API_BASE}/schedule`),
-      fetch(`${API_BASE}/announcements`),
-      fetch(`${API_BASE}/leaders`),
-      fetch(`${API_BASE}/committee`),
-      fetch(`${API_BASE}/resources`),
-      fetch(`${API_BASE}/overview`),
-      fetch(`${API_BASE}/gallery`)
-    ]);
+  const fetchAndSet = async (endpoint, stateKey) => {
+    try {
+      const res = await fetch(`${API_BASE}/${endpoint}`);
+      if (res.ok) {
+        const text = await res.text();
+        try {
+          appState[stateKey] = JSON.parse(text);
+        } catch (jsonErr) {
+          console.warn(`Malformed JSON from /${endpoint}, falling back to empty array.`);
+          appState[stateKey] = [];
+        }
+      } else {
+        console.warn(`Failed to fetch /${endpoint}: Status ${res.status}`);
+        appState[stateKey] = [];
+      }
+    } catch (err) {
+      console.error(`Network error fetching /${endpoint}:`, err);
+      appState[stateKey] = [];
+    }
+  };
 
-    appState.schedule = await schedRes.json();
-    appState.announcements = await annRes.json();
-    appState.leaders = await leadRes.json();
-    appState.committee = await commRes.json();
-    appState.resources = await resRes.json();
-    appState.overview = await ovRes.json();
-    appState.gallery = await galleryRes.json();
+  await Promise.all([
+    fetchAndSet('schedule', 'schedule'),
+    fetchAndSet('announcements', 'announcements'),
+    fetchAndSet('leaders', 'leaders'),
+    fetchAndSet('committee', 'committee'),
+    fetchAndSet('resources', 'resources'),
+    fetchAndSet('overview', 'overview'),
+    fetchAndSet('gallery', 'gallery')
+  ]);
 
-    renderScheduleTimeline();
-    renderAnnouncements();
-    renderLeadersAndCommittee();
-    renderResources();
-    renderOverview();
-    renderGalleryGrid();
-    populateSessionDropdown();
-  } catch (err) {
-    console.error('Error fetching event data:', err);
-  }
+  const safeRender = (renderFn, name) => {
+    try {
+      renderFn();
+    } catch (err) {
+      console.error(`Error rendering section ${name}:`, err);
+    }
+  };
+
+  safeRender(renderScheduleTimeline, 'Schedule');
+  safeRender(renderAnnouncements, 'Announcements');
+  safeRender(renderLeadersAndCommittee, 'Leaders');
+  safeRender(renderResources, 'Resources');
+  safeRender(renderOverview, 'Overview');
+  safeRender(renderGalleryGrid, 'Gallery');
+  safeRender(populateSessionDropdown, 'Sessions');
 }
 
 // Helper to format Date (e.g. 2026-07-24 -> July 24, 2026)
