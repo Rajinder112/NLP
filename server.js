@@ -68,6 +68,38 @@ app.post('/api/settings', authenticateAdmin, async (req, res) => {
   }
 });
 
+// --- SYSTEM STORAGE SPACE API ---
+app.get('/api/system/space', (req, res) => {
+  const getDirSize = (dirPath) => {
+    let size = 0;
+    if (!fs.existsSync(dirPath)) return 0;
+    const files = fs.readdirSync(dirPath);
+    for (let i = 0; i < files.length; i++) {
+      const filePath = path.join(dirPath, files[i]);
+      const stat = fs.statSync(filePath);
+      if (stat.isFile()) {
+        size += stat.size;
+      } else if (stat.isDirectory()) {
+        size += getDirSize(filePath);
+      }
+    }
+    return size;
+  };
+
+  try {
+    const uploadsSize = getDirSize(UPLOADS_DIR);
+    const limitBytes = 250 * 1024 * 1024; // 250 MB
+    res.json({
+      usedBytes: uploadsSize,
+      usedMb: parseFloat((uploadsSize / (1024 * 1024)).toFixed(2)),
+      limitMb: 250,
+      percentage: parseFloat(((uploadsSize / limitBytes) * 100).toFixed(1))
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // --- ATTENDANCE API ---
 app.get('/api/attendance', async (req, res) => {
   // Public or Admin can view depending on requirements, but let's make it open or filterable

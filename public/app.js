@@ -1375,6 +1375,40 @@ function setupFilePreview(fileInputId, previewBoxId, hiddenInputId) {
   });
 }
 
+// Update storage space utilization indicator widget
+async function updateAdminSpaceIndicator() {
+  const textEl = document.getElementById('admin-space-text');
+  const barEl = document.getElementById('admin-space-bar');
+  if (!textEl || !barEl) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/system/space`);
+    if (res.ok) {
+      const data = await res.json();
+      textEl.textContent = `${data.usedMb} MB / ${data.limitMb} MB`;
+      barEl.style.width = `${data.percentage}%`;
+      
+      if (data.percentage > 90) {
+        barEl.style.backgroundColor = '#e53e3e';
+      } else if (data.percentage > 70) {
+        barEl.style.backgroundColor = '#dd6b20';
+      } else {
+        barEl.style.backgroundColor = 'var(--accent)';
+      }
+    } else {
+      throw new Error('Response error');
+    }
+  } catch (err) {
+    // Estimate from local gallery array length + baseline mock value (0.45MB)
+    const count = (appState.gallery || []).length;
+    const estimateMb = parseFloat((0.45 + (count * 0.12)).toFixed(2));
+    const percentage = parseFloat(((estimateMb / 250) * 100).toFixed(1));
+    textEl.textContent = `${estimateMb} MB / 250 MB`;
+    barEl.style.width = `${percentage}%`;
+    barEl.style.backgroundColor = 'var(--accent)';
+  }
+}
+
 // Switch tabs inside dashboard panel
 function switchAdminTab(tabId) {
   appState.currentAdminTab = tabId;
@@ -1397,6 +1431,7 @@ function switchAdminTab(tabId) {
   if (tabId === 'db-resources') fetchAdminResourcesList();
   if (tabId === 'db-gallery') fetchAdminGallery();
   
+  updateAdminSpaceIndicator();
   lucide.createIcons();
 }
 

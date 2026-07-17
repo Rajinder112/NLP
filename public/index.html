@@ -377,6 +377,15 @@
             <button class="sidebar-tab-btn" data-tab="db-announcements"><i data-lucide="bell"></i> Announcements</button>
             <button class="sidebar-tab-btn" data-tab="db-profiles"><i data-lucide="users"></i> Speakers & Committee</button>
             <button class="sidebar-tab-btn" data-tab="db-gallery"><i data-lucide="image"></i> Gallery Manager</button>
+            <div class="sidebar-space-widget" style="padding: 12px; margin: 12px 0; background: rgba(255,255,255,0.05); border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.1);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #a0aec0; margin-bottom: 6px; font-weight: 600;">
+                <span>Server Storage</span>
+                <span id="admin-space-text">0.00 MB / 250 MB</span>
+              </div>
+              <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+                <div id="admin-space-bar" style="width: 0%; height: 100%; background: var(--accent); transition: width 0.5s ease;"></div>
+              </div>
+            </div>
             <button class="sidebar-tab-btn logout-btn" id="admin-logout-btn"><i data-lucide="log-out"></i> Logout Session</button>
           </nav>
         </div>
@@ -1027,6 +1036,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Script Code Loader -->
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>
