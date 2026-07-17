@@ -42,7 +42,8 @@ async function fetchAdminGallery() {
 function adminAddGalleryItem() {
   document.getElementById('admin-gallery-form').reset();
   document.getElementById('gallery-item-id').value = '';
-  document.getElementById('gallery-file-name').textContent = 'Or enter a web URL below:';
+  const fnEl = document.getElementById('gallery-file-name');
+  if (fnEl) fnEl.textContent = 'Or enter a web URL below:';
   document.getElementById('gallery-image-preview').innerHTML = '<span>No image selected</span>';
   document.getElementById('gallery-form-title').textContent = 'Add Gallery Item';
   document.getElementById('gallery-submit-btn').textContent = 'Save Item';
@@ -53,7 +54,8 @@ function adminAddGalleryItem() {
 function previewGalleryUpload(event) {
   const file = event.target.files[0];
   if (file) {
-    document.getElementById('gallery-file-name').textContent = file.name;
+    const fnEl = document.getElementById('gallery-file-name');
+    if (fnEl) fnEl.textContent = file.name;
     const reader = new FileReader();
     reader.onload = (e) => {
       document.getElementById('gallery-image-preview').innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
@@ -71,7 +73,8 @@ async function editGalleryItem(id) {
   document.getElementById('gallery-category').value = item.category;
   document.getElementById('gallery-desc').value = item.description || '';
   document.getElementById('gallery-url').value = item.url || '';
-  document.getElementById('gallery-file-name').textContent = 'Or upload a new image file:';
+  const fnEl = document.getElementById('gallery-file-name');
+  if (fnEl) fnEl.textContent = 'Or upload a new image file:';
   
   if (item.url) {
     document.getElementById('gallery-image-preview').innerHTML = `<img src="${getPhotoUrl(item.url)}" style="width:100%; height:100%; object-fit:cover;">`;

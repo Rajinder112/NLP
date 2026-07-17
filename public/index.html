@@ -1030,14 +1030,18 @@
           </div>
           
           <div class="form-group">
-            <label>Image Source <span class="required">*</span></label>
-            <div class="file-upload-wrapper" style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-              <input type="file" id="gallery-file" accept="image/*" class="file-input-hidden" style="display:none;" onchange="previewGalleryUpload(event)">
-              <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('gallery-file').click()"><i data-lucide="upload"></i> Upload Image File</button>
-              <span class="file-chosen-text" id="gallery-file-name" style="font-size:0.85rem; color:var(--text-muted);">Or enter a web URL below:</span>
-            </div>
-            <input type="text" id="gallery-url" placeholder="e.g., https://unsplash.com/... or auto-filled by upload">
-            <div class="image-upload-preview" id="gallery-image-preview" style="width:100%; height:180px; border:1px dashed var(--border-light); border-radius:var(--radius-sm); margin-top:8px; display:flex; align-items:center; justify-content:center; overflow:hidden; background-color:var(--bg-soft);">
+            <label for="gallery-file">Upload Image File</label>
+            <input type="file" id="gallery-file" accept="image/*" onchange="previewGalleryUpload(event)" style="width: 100%;">
+          </div>
+          
+          <div class="form-group">
+            <label for="gallery-url">Or Image Web URL</label>
+            <input type="text" id="gallery-url" placeholder="e.g. https://images.unsplash.com/photo-...">
+          </div>
+          
+          <div class="form-group">
+            <label>Image Preview</label>
+            <div class="image-upload-preview" id="gallery-image-preview" style="width:100%; height:180px; border:1px dashed var(--border-light); border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; overflow:hidden; background-color:var(--bg-soft);">
               <span style="font-size:0.85rem; color:var(--text-muted);">No image selected</span>
             </div>
           </div>
@@ -1055,6 +1059,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Script Code Loader -->
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
