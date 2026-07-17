@@ -171,7 +171,7 @@ async function saveGalleryItem(e) {
   try {
     const endpoint = isEdit ? `${API_BASE}/gallery/${id}` : `${API_BASE}/gallery`;
     const method = isEdit ? 'PUT' : 'POST';
-    await fetch(endpoint, {
+    const res = await fetch(endpoint, {
       method,
       headers: {
         'Content-Type': 'application/json',
@@ -179,8 +179,11 @@ async function saveGalleryItem(e) {
       },
       body: JSON.stringify(payload)
     });
+    if (!res.ok) {
+      throw new Error(`Server returned status ${res.status}`);
+    }
   } catch (err) {
-    console.warn('Backend API offline, gallery saved to local storage.');
+    console.warn('Backend API offline or error, gallery saved to local storage.');
   }
   
   showToast(isEdit ? 'Gallery item updated successfully.' : 'Gallery item added successfully.', 'success');
@@ -198,12 +201,15 @@ async function deleteGalleryItem(id) {
   saveLocalGallery(localList.filter(g => g.id !== id));
   
   try {
-    await fetch(`${API_BASE}/gallery/${id}`, {
+    const res = await fetch(`${API_BASE}/gallery/${id}`, {
       method: 'DELETE',
       headers: getAuthHeader()
     });
+    if (!res.ok) {
+      throw new Error(`Server returned status ${res.status}`);
+    }
   } catch (err) {
-    console.warn('Backend API offline, gallery deleted from local storage.');
+    console.warn('Backend API offline or error, gallery deleted from local storage.');
   }
   
   showToast('Gallery photograph deleted successfully.', 'success');

@@ -702,6 +702,18 @@ img {
   transform: translateY(-2px);
 }
 
+/* Dashboard Outline Button Override */
+.dashboard-main .btn-outline {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: transparent;
+}
+.dashboard-main .btn-outline:hover {
+  background-color: var(--primary);
+  color: var(--text-light);
+  border-color: var(--primary);
+}
+
 .btn-block {
   display: flex;
   width: 100%;

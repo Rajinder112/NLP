@@ -646,7 +646,7 @@ const db = {
       );
       return newRecord;
     } else {
-      const attendanceList = db.getCollection('attendance');
+      const attendanceList = await db.getCollection('attendance');
       const duplicate = attendanceList.find(r => 
         r.employeeId.trim().toLowerCase() === record.employeeId.trim().toLowerCase() &&
         r.attendanceDate === record.attendanceDate &&
@@ -666,7 +666,7 @@ const db = {
       };
 
       attendanceList.push(newRecord);
-      db.saveCollection('attendance', attendanceList);
+      await db.saveCollection('attendance', attendanceList);
       return newRecord;
     }
   },
@@ -684,12 +684,12 @@ const db = {
       );
       return updatedRecord;
     } else {
-      const attendanceList = db.getCollection('attendance');
+      const attendanceList = await db.getCollection('attendance');
       const index = attendanceList.findIndex(r => r.id === id);
       if (index === -1) throw new Error('Attendance record not found.');
       
       attendanceList[index] = { ...attendanceList[index], ...updatedFields };
-      db.saveCollection('attendance', attendanceList);
+      await db.saveCollection('attendance', attendanceList);
       return attendanceList[index];
     }
   },
@@ -700,10 +700,10 @@ const db = {
       const res = await pool.query("DELETE FROM collections WHERE name = $1 AND id = $2", ['attendance', id]);
       if (res.rowCount === 0) throw new Error('Attendance record not found.');
     } else {
-      const attendanceList = db.getCollection('attendance');
+      const attendanceList = await db.getCollection('attendance');
       const filtered = attendanceList.filter(r => r.id !== id);
       if (filtered.length === attendanceList.length) throw new Error('Attendance record not found.');
-      db.saveCollection('attendance', filtered);
+      await db.saveCollection('attendance', filtered);
     }
   },
 
@@ -719,9 +719,9 @@ const db = {
         [collectionName, newItem.id, JSON.stringify(newItem)]
       );
     } else {
-      const list = db.getCollection(collectionName);
+      const list = await db.getCollection(collectionName);
       list.push(newItem);
-      db.saveCollection(collectionName, list);
+      await db.saveCollection(collectionName, list);
     }
     return newItem;
   },
@@ -739,11 +739,11 @@ const db = {
       );
       return updatedItem;
     } else {
-      const list = db.getCollection(collectionName);
+      const list = await db.getCollection(collectionName);
       const index = list.findIndex(item => item.id === id);
       if (index === -1) throw new Error(`Item not found in ${collectionName}`);
       list[index] = { ...list[index], ...updatedFields };
-      db.saveCollection(collectionName, list);
+      await db.saveCollection(collectionName, list);
       return list[index];
     }
   },
@@ -754,10 +754,10 @@ const db = {
       const res = await pool.query("DELETE FROM collections WHERE name = $1 AND id = $2", [collectionName, id]);
       if (res.rowCount === 0) throw new Error(`Item not found in ${collectionName}`);
     } else {
-      const list = db.getCollection(collectionName);
+      const list = await db.getCollection(collectionName);
       const filtered = list.filter(item => item.id !== id);
       if (filtered.length === list.length) throw new Error(`Item not found in ${collectionName}`);
-      db.saveCollection(collectionName, filtered);
+      await db.saveCollection(collectionName, filtered);
     }
   }
 };
