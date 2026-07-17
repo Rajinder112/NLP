@@ -42,7 +42,7 @@
           <li><a href="#attendance" class="nav-link" data-view="attendance" id="nav-link-attendance">Attendance</a></li>
           <li><a href="#leadership" class="nav-link" data-view="leadership" id="nav-link-leadership">Leadership</a></li>
           <li><a href="#updates" class="nav-link" data-view="updates" id="nav-link-updates">Updates</a></li>
-          <li><a href="#feedback" class="nav-link" data-view="feedback" id="nav-link-feedback">Feedback</a></li>
+          <li><a href="#gallery" class="nav-link" data-view="gallery" id="nav-link-gallery">Gallery</a></li>
         </ul>
       </nav>
 
@@ -72,7 +72,7 @@
         <li><a href="#attendance" class="mobile-link" data-view="attendance" id="m-nav-link-attendance"><i data-lucide="user-check"></i> Attendance</a></li>
         <li><a href="#leadership" class="mobile-link" data-view="leadership" id="m-nav-link-leadership"><i data-lucide="users"></i> Leadership</a></li>
         <li><a href="#updates" class="mobile-link" data-view="updates" id="m-nav-link-updates"><i data-lucide="bell"></i> Updates</a></li>
-        <li><a href="#feedback" class="mobile-link" data-view="feedback" id="m-nav-link-feedback"><i data-lucide="message-square"></i> Feedback</a></li>
+        <li><a href="#gallery" class="mobile-link" data-view="gallery" id="m-nav-link-gallery"><i data-lucide="image"></i> Gallery</a></li>
       </ul>
     </nav>
   </aside>
@@ -318,60 +318,27 @@
 
 
 
-    <!-- 11. FEEDBACK VIEW -->
-    <section class="view-section" id="view-feedback">
-      <div class="container small-container">
+    <!-- 11. GALLERY VIEW -->
+    <section class="view-section" id="view-gallery">
+      <div class="container">
         <div class="section-heading text-center">
-          <span class="section-subtitle">Continuous Improvement</span>
-          <h2>Program Feedback Form</h2>
+          <span class="section-subtitle">Event Memories</span>
+          <h2>NLP Event Gallery</h2>
           <div class="heading-accent"></div>
+          <p class="section-desc">Experience key moments from our batches, facilitator lectures, interactive workshops, and group team building exercises.</p>
         </div>
         
-        <div class="attendance-card">
-          <form id="feedback-form" class="premium-form">
-            <div class="form-group">
-              <label for="fb-employee-id">Employee ID (Optional)</label>
-              <input type="text" id="fb-employee-id" placeholder="e.g. EMP1004">
-            </div>
-            
-            <div class="form-group">
-              <label for="fb-rating">Rate the Overall Event Organization <span class="required">*</span></label>
-              <div class="rating-stars-input">
-                <input type="radio" id="star5" name="fb-rating" value="5" required><label for="star5" title="Excellent"><i data-lucide="star"></i></label>
-                <input type="radio" id="star4" name="fb-rating" value="4"><label for="star4" title="Good"><i data-lucide="star"></i></label>
-                <input type="radio" id="star3" name="fb-rating" value="3"><label for="star3" title="Average"><i data-lucide="star"></i></label>
-                <input type="radio" id="star2" name="fb-rating" value="2"><label for="star2" title="Poor"><i data-lucide="star"></i></label>
-                <input type="radio" id="star1" name="fb-rating" value="1"><label for="star1" title="Very Bad"><i data-lucide="star"></i></label>
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="fb-relevance">How relevant were the leadership sessions to your ward operations? <span class="required">*</span></label>
-              <select id="fb-relevance" required>
-                <option value="" disabled selected>Choose relevance level</option>
-                <option value="highly-relevant">Highly Relevant</option>
-                <option value="relevant">Relevant</option>
-                <option value="neutral">Neutral / Moderately Relevant</option>
-                <option value="not-relevant">Not Relevant</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label for="fb-comments">Suggestions or General Comments <span class="required">*</span></label>
-              <textarea id="fb-comments" rows="5" placeholder="Share your experience or topics you'd like covered in future events..." required></textarea>
-            </div>
-            
-            <button type="submit" class="btn btn-primary btn-block">
-              <i data-lucide="send"></i> Submit Feedback
-            </button>
-          </form>
-          
-          <div id="feedback-success" class="alert-success-card hidden">
-            <i data-lucide="smile" class="success-icon animate-bounce"></i>
-            <h3>Feedback Submitted!</h3>
-            <p>Thank you for helping us improve the Nursing Leadership Program. Your inputs have been recorded.</p>
-            <button class="btn btn-outline btn-sm" onclick="resetFeedbackForm()">Submit Another Feedback</button>
-          </div>
+        <!-- Gallery Filter Controls -->
+        <div class="profile-filter-tabs" id="gallery-filter-tabs">
+          <button class="filter-btn active" data-filter="all">All Photos</button>
+          <button class="filter-btn" data-filter="Opening Ceremony">Opening Ceremony</button>
+          <button class="filter-btn" data-filter="Leadership Sessions">Leadership Sessions</button>
+          <button class="filter-btn" data-filter="Group Activities">Group Activities</button>
+        </div>
+        
+        <!-- Gallery Grid -->
+        <div class="gallery-grid" id="gallery-grid">
+          <!-- Rendered dynamically -->
         </div>
       </div>
     </section>
@@ -412,7 +379,7 @@
             <button class="sidebar-tab-btn" data-tab="db-schedule"><i data-lucide="clock"></i> Manage Schedule</button>
             <button class="sidebar-tab-btn" data-tab="db-announcements"><i data-lucide="bell"></i> Announcements</button>
             <button class="sidebar-tab-btn" data-tab="db-profiles"><i data-lucide="users"></i> Speakers & Committee</button>
-            <button class="sidebar-tab-btn" data-tab="db-feedback"><i data-lucide="message-square"></i> Attendee Feedback</button>
+            <button class="sidebar-tab-btn" data-tab="db-gallery"><i data-lucide="image"></i> Gallery Manager</button>
             <button class="sidebar-tab-btn logout-btn" id="admin-logout-btn"><i data-lucide="log-out"></i> Logout Session</button>
           </nav>
         </div>
@@ -851,48 +818,34 @@
 
 
 
-          <!-- TAB 8: ATTENDEE FEEDBACK -->
-          <div class="dashboard-tab-panel" id="tab-db-feedback">
+          <!-- TAB 8: GALLERY MANAGER -->
+          <div class="dashboard-tab-panel" id="tab-db-gallery">
             <div class="panel-header">
               <div class="header-main-title">
-                <h2>Attendee Feedback Management</h2>
-                <p>Verify overall ratings, register new feedbacks, edit contents, and export logs to Excel.</p>
+                <h2>Gallery Image Management</h2>
+                <p>Register new event photographs, update descriptors, upload image files, and moderate the event gallery.</p>
               </div>
               <div class="header-actions">
-                <button class="btn btn-outline btn-sm" onclick="adminAddFeedback()"><i data-lucide="plus"></i> Add Feedback</button>
-                <button class="btn btn-gold btn-sm" onclick="exportFeedbackReport()"><i data-lucide="download"></i> Export Feedback Excel</button>
+                <button class="btn btn-outline btn-sm" onclick="adminAddGalleryItem()"><i data-lucide="plus"></i> Add Gallery Item</button>
               </div>
             </div>
             
-            <div class="feedback-metrics-strip">
-              <div class="feedback-metric-bubble">
-                <span class="bubble-val" id="fb-average-rating">0.0</span>
-                <span class="bubble-lbl">Average Score</span>
-              </div>
-              <div class="feedback-metric-bubble">
-                <span class="bubble-val" id="fb-total-submissions">0</span>
-                <span class="bubble-lbl">Total Feedbacks</span>
-              </div>
-            </div>
-            
-            <!-- Feedback Data Table -->
             <div class="table-scroll-container">
-              <table class="dashboard-table" id="admin-feedback-table">
+              <table class="dashboard-table" id="admin-gallery-table">
                 <thead>
                   <tr>
-                    <th>Emp ID</th>
-                    <th>Date</th>
-                    <th>Rating</th>
-                    <th>Relevance</th>
-                    <th>Comments</th>
+                    <th>Thumbnail</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Description</th>
                     <th class="actions-header">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- Rows loaded dynamically -->
+                  <!-- Rendered dynamically -->
                 </tbody>
               </table>
-              <div id="feedback-table-no-data" class="table-empty-fallback hidden">No attendee feedback records registered in database.</div>
+              <div id="gallery-table-no-data" class="table-empty-fallback hidden">No gallery images registered in database.</div>
             </div>
           </div>
 
@@ -1028,6 +981,75 @@
   </div>
 
 
+
+  <!-- 4. GALLERY LIGHTBOX MODAL -->
+  <div class="modal-overlay" id="gallery-modal">
+    <div class="modal-card gallery-modal-card">
+      <button class="modal-close-btn" style="position: absolute; right: 16px; top: 16px; z-index: 10;" onclick="closeModal('gallery-modal')">&times;</button>
+      <div class="gallery-lightbox-layout">
+        <div class="gallery-lightbox-photo">
+          <img id="gallery-modal-img" src="" alt="">
+        </div>
+        <div class="gallery-lightbox-details">
+          <span class="gallery-modal-category" id="gallery-modal-category">Opening Ceremony</span>
+          <h2 id="gallery-modal-title">Inauguration Lamp Lighting</h2>
+          <p id="gallery-modal-desc">Detailed descriptions of the event moment.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. ADMIN GALLERY ITEM DIALOG -->
+  <div class="modal-overlay" id="admin-gallery-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="gallery-form-title">Add Gallery Item</h3>
+        <button class="modal-close-btn" onclick="closeModal('admin-gallery-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="admin-gallery-form" class="premium-form-admin" onsubmit="saveGalleryItem(event)">
+          <input type="hidden" id="gallery-item-id">
+          
+          <div class="form-group">
+            <label for="gallery-title">Image Title <span class="required">*</span></label>
+            <input type="text" id="gallery-title" placeholder="e.g. Inauguration Keynote" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="gallery-category">Category <span class="required">*</span></label>
+            <select id="gallery-category" required>
+              <option value="Opening Ceremony">Opening Ceremony</option>
+              <option value="Leadership Sessions">Leadership Sessions</option>
+              <option value="Group Activities">Group Activities</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="gallery-desc">Description</label>
+            <textarea id="gallery-desc" rows="3" placeholder="Brief description of the photograph..."></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label>Image Source <span class="required">*</span></label>
+            <div class="file-upload-wrapper" style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+              <input type="file" id="gallery-file" accept="image/*" class="file-input-hidden" style="display:none;" onchange="previewGalleryUpload(event)">
+              <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('gallery-file').click()"><i data-lucide="upload"></i> Upload Image File</button>
+              <span class="file-chosen-text" id="gallery-file-name" style="font-size:0.85rem; color:var(--text-muted);">Or enter a web URL below:</span>
+            </div>
+            <input type="text" id="gallery-url" placeholder="e.g., https://unsplash.com/... or auto-filled by upload">
+            <div class="image-upload-preview" id="gallery-image-preview" style="width:100%; height:180px; border:1px dashed var(--border-light); border-radius:var(--radius-sm); margin-top:8px; display:flex; align-items:center; justify-content:center; overflow:hidden; background-color:var(--bg-soft);">
+              <span style="font-size:0.85rem; color:var(--text-muted);">No image selected</span>
+            </div>
+          </div>
+          
+          <div class="admin-form-actions" style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px;">
+            <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('admin-gallery-modal')">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-sm" id="gallery-submit-btn">Save Item</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <!-- Toast Notification Overlay -->
   <div id="toast-container" class="toast-container"></div>
