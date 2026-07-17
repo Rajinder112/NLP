@@ -2881,8 +2881,9 @@ img {
   }
   
   .profile-popup-photo img {
-    min-height: 250px;
-    height: 250px;
+    min-height: 280px;
+    height: 280px;
+    object-position: center top;
   }
   
   .profile-popup-content {
