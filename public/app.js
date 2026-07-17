@@ -157,6 +157,28 @@ async function deleteGalleryItem(id) {
   }
 }
 
+// Render public gallery grid
+function renderGalleryGrid() {
+  const container = document.getElementById('gallery-container');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  appState.gallery.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'gallery-item';
+    card.setAttribute('data-category', item.category);
+    
+    card.innerHTML = `
+      <img src="${getPhotoUrl(item.url)}" alt="${item.title}">
+      <div class="gallery-overlay">
+        <h3>${item.title}</h3>
+        <p>${item.description || ''}</p>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
 // ==========================================================================
 // NLP WEBSITE PORTAL - CLIENT APPLICATION CONTROLLER
 // ==========================================================================
@@ -316,6 +338,7 @@ async function refreshPublicData() {
   }
 }
 
+// Helper to format Date (e.g. 2026-07-24 -> July 24, 2026)
 function formatDateString(dateStr) {
   if (!dateStr) return '';
   if (dateStr === '2026-07-26') return '10-11 July & 26 July 2026';
@@ -1014,8 +1037,6 @@ function resetAttendanceForm() {
 }
 
 // ==========================================================================
-
-
 // ==========================================================================
 // EVENT GALLERY CLIENT RENDERING
 // ==========================================================================
@@ -1085,4 +1106,1466 @@ function openGalleryModal(id) {
   document.getElementById('gallery-modal-desc').textContent = item.description || 'No description provided.';
   
   openModal('gallery-modal');
+}
+
+// ==========================================================================
+// TOAST NOTIFICATIONS
+// ==========================================================================
+function showToast(message, type = 'success') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  
+  const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+  
+  toast.innerHTML = `
+    <i data-lucide="${icon}"></i>
+    <span>${message}</span>
+  `;
+  
+  container.appendChild(toast);
+  lucide.createIcons();
+  
+  // Autoclose after 4s
+  setTimeout(() => {
+    toast.classList.add('fade-out');
+    toast.addEventListener('animationend', () => {
+      toast.remove();
+    });
+  }, 4000);
+}
+
+// ==========================================================================
+// ADMINISTRATOR SUB-MODULE
+// ==========================================================================
+
+// Setup listener actions
+function setupAdminListeners() {
+  // Login Form
+  const loginForm = document.getElementById('admin-login-form');
+  if (loginForm) loginForm.addEventListener('submit', handleAdminLogin);
+  
+  // Logout Btn
+  const logoutBtn = document.getElementById('admin-logout-btn');
+  if (logoutBtn) logoutBtn.addEventListener('click', handleAdminLogout);
+  
+  // Dashboard Sidebar switch tabs
+  const tabBtns = document.querySelectorAll('.sidebar-tab-btn:not(.logout-btn)');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      const activeBtn = e.target.closest('.sidebar-tab-btn');
+      activeBtn.classList.add('active');
+      
+      const tabId = activeBtn.getAttribute('data-tab');
+      switchAdminTab(tabId);
+    });
+  });
+
+  // Settings config form
+  const configForm = document.getElementById('config-settings-form');
+  if (configForm) configForm.addEventListener('submit', handleConfigUpdate);
+
+  // Search input on keyup
+  const searchInput = document.getElementById('admin-search-attendance');
+  if (searchInput) {
+    searchInput.addEventListener('input', filterAttendanceTable);
+  }
+  
+  // Filters dropdown
+  const filterElements = ['admin-filter-dept', 'admin-filter-desig', 'admin-filter-session', 'admin-filter-date'];
+  filterElements.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', filterAttendanceTable);
+  });
+
+  // Dynamic Forms CRUD setup
+  document.getElementById('admin-schedule-form').addEventListener('submit', (e) => handleCrudSubmit(e, 'schedule'));
+  document.getElementById('admin-ann-form').addEventListener('submit', (e) => handleCrudSubmit(e, 'announcements'));
+  document.getElementById('admin-profile-form').addEventListener('submit', (e) => handleCrudSubmit(e, 'profiles'));
+  
+  const overviewForm = document.getElementById('admin-overview-form');
+  if (overviewForm) {
+    overviewForm.addEventListener('submit', (e) => handleCrudSubmit(e, 'overview'));
+  }
+  const ovCancelBtn = document.getElementById('ov-cancel-edit-btn');
+  if (ovCancelBtn) {
+    ovCancelBtn.addEventListener('click', () => resetCrudForm('overview'));
+  }
+  const mainpdfForm = document.getElementById('admin-mainpdf-form');
+  if (mainpdfForm) {
+    mainpdfForm.addEventListener('submit', handleMainPdfUpdate);
+  }
+  const resourceForm = document.getElementById('admin-resource-form');
+  if (resourceForm) {
+    resourceForm.addEventListener('submit', handleResourceUpload);
+  }
+
+  // Profile Form Mode (toggle between leaders and committee)
+  const profRadioBtns = document.getElementsByName('profile-type');
+  profRadioBtns.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const mode = e.target.value;
+      toggleProfileFormFields(mode);
+    });
+  });
+
+  // Resource Form Mode
+  const resRadioBtns = document.getElementsByName('res-type');
+  resRadioBtns.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const mode = e.target.value;
+      const pdfForm = document.getElementById('admin-mainpdf-form');
+      const docForm = document.getElementById('admin-resource-form');
+      if (mode === 'booklet') {
+        pdfForm.classList.remove('hidden');
+        docForm.classList.add('hidden');
+      } else {
+        pdfForm.classList.add('hidden');
+        docForm.classList.remove('hidden');
+      }
+    });
+  });
+
+  // Photography selection previews
+  setupFilePreview('prof-photo-file', 'prof-image-preview', 'prof-photo-url');
+
+  // Cancel edit buttons
+  document.getElementById('sch-cancel-edit-btn').addEventListener('click', () => resetCrudForm('schedule'));
+  document.getElementById('ann-cancel-edit-btn').addEventListener('click', () => resetCrudForm('announcements'));
+  document.getElementById('prof-cancel-edit-btn').addEventListener('click', () => resetCrudForm('profiles'));
+}
+
+// Toggle Profile fields
+function toggleProfileFormFields(mode) {
+  const leaderFields = document.getElementById('leader-fields');
+  const leaderDateTime = document.getElementById('leader-datetime-row');
+  const committeeFields = document.getElementById('committee-fields');
+  const catSelect = document.getElementById('prof-category');
+
+  if (mode === 'leader') {
+    leaderFields.classList.remove('hidden');
+    leaderDateTime.classList.remove('hidden');
+    committeeFields.classList.add('hidden');
+    toggleGuestSpeakerFields(catSelect.value);
+    
+    // Add change trigger on category to handle guest speaker details
+    catSelect.addEventListener('change', (e) => toggleGuestSpeakerFields(e.target.value));
+  } else {
+    leaderFields.classList.add('hidden');
+    leaderDateTime.classList.add('hidden');
+    committeeFields.classList.remove('hidden');
+    document.getElementById('guest-speaker-fields').classList.add('hidden');
+  }
+}
+
+function toggleGuestSpeakerFields(category) {
+  const guestBox = document.getElementById('guest-speaker-fields');
+  if (category === 'Guest Speakers') {
+    guestBox.classList.remove('hidden');
+  } else {
+    guestBox.classList.add('hidden');
+  }
+}
+
+// Image loader preview
+function setupFilePreview(fileInputId, previewBoxId, hiddenInputId) {
+  const fileInput = document.getElementById(fileInputId);
+  const previewBox = document.getElementById(previewBoxId);
+  
+  if (!fileInput || !previewBox) return;
+  
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      previewBox.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
+      if (hiddenInputId) {
+        document.getElementById(hiddenInputId).value = event.target.result;
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Switch tabs inside dashboard panel
+function switchAdminTab(tabId) {
+  appState.currentAdminTab = tabId;
+  
+  const panels = document.querySelectorAll('.dashboard-tab-panel');
+  panels.forEach(p => p.classList.remove('active'));
+  
+  const targetPanel = document.getElementById(`tab-${tabId}`);
+  if (targetPanel) {
+    targetPanel.classList.add('active');
+  }
+  
+  // Refresh specific tab information
+  if (tabId === 'db-summary') fetchAdminSummary();
+  if (tabId === 'db-attendance') fetchAdminAttendance();
+  if (tabId === 'db-schedule') fetchAdminScheduleList();
+  if (tabId === 'db-overview') fetchAdminOverviewList();
+  if (tabId === 'db-announcements') fetchAdminAnnouncementsList();
+  if (tabId === 'db-profiles') fetchAdminProfilesList();
+  if (tabId === 'db-resources') fetchAdminResourcesList();
+  if (tabId === 'db-gallery') fetchAdminGallery();
+  
+  lucide.createIcons();
+}
+
+// Request headers generator
+function getAuthHeader() {
+  const token = sessionStorage.getItem('adminToken');
+  return { 'Authorization': `Bearer ${token}` };
+}
+
+// Admin login action
+async function handleAdminLogin(e) {
+  e.preventDefault();
+  
+  const password = document.getElementById('admin-password').value;
+  const errText = document.getElementById('admin-login-error');
+  
+  try {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ password })
+    });
+    
+    const data = await res.json();
+    
+    if (res.ok) {
+      sessionStorage.setItem('adminToken', data.token);
+      appState.isLoggedIn = true;
+      errText.classList.add('hidden');
+      document.getElementById('admin-password').value = '';
+      
+      showAdminDashboard();
+      showToast('Authenticated as Administrator.', 'success');
+    } else {
+      errText.textContent = data.error || 'Authentication failed.';
+      errText.classList.remove('hidden');
+      showToast('Login rejected.', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    errText.textContent = 'Connection to authentication service failed.';
+    errText.classList.remove('hidden');
+  }
+}
+
+function handleAdminLogout() {
+  fetch(`${API_BASE}/auth/logout`, {
+    method: 'POST',
+    headers: getAuthHeader()
+  }).finally(() => {
+    sessionStorage.removeItem('adminToken');
+    appState.isLoggedIn = false;
+    showAdminLoginForm();
+    showToast('Logged out successfully.', 'success');
+  });
+}
+
+function showAdminLoginForm() {
+  document.getElementById('admin-login-box').classList.remove('hidden');
+  document.getElementById('admin-dashboard').classList.add('hidden');
+}
+
+function showAdminDashboard() {
+  document.getElementById('admin-login-box').classList.add('hidden');
+  document.getElementById('admin-dashboard').classList.remove('hidden');
+  
+  // Set default tab on load
+  switchAdminTab(appState.currentAdminTab);
+}
+
+// Config page save settings
+async function handleConfigUpdate(e) {
+  e.preventDefault();
+  
+  const payload = {
+    eventState: document.getElementById('cfg-event-state').value,
+    eventDate: document.getElementById('cfg-event-date').value,
+    eventVenue: document.getElementById('cfg-event-venue').value
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/settings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    if (res.ok) {
+      showToast('Portal configuration saved.', 'success');
+      await fetchSettings();
+    } else {
+      const err = await res.json();
+      showToast(err.error || 'Failed to update config.', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('Configuration write error.', 'error');
+  }
+}
+
+// Fetch Admin tab data
+async function fetchAdminSummary() {
+  try {
+    // Sync settings in case changed
+    await fetchSettings();
+    
+    document.getElementById('cfg-event-state').value = appState.settings.eventState || 'Upcoming';
+    document.getElementById('cfg-event-date').value = appState.settings.eventDate || '';
+    document.getElementById('cfg-event-venue').value = appState.settings.eventVenue || '';
+
+    // Load attendance logs count
+    const res = await fetch(`${API_BASE}/attendance`);
+    const logs = await res.json();
+    appState.attendance = logs;
+    
+    const today = new Date().toISOString().split('T')[0];
+    const todayLogs = logs.filter(l => l.attendanceDate === today);
+    
+    document.getElementById('metric-total-participants').textContent = logs.length;
+    document.getElementById('metric-today-attendance').textContent = todayLogs.length;
+    
+    // Summary listings
+    document.getElementById('metric-total-sessions').textContent = appState.schedule.length;
+    document.getElementById('metric-live-updates').textContent = appState.announcements.length;
+    
+    const metricResources = document.getElementById('metric-resources-count');
+    if (metricResources) {
+      metricResources.textContent = appState.resources.length;
+    }
+    
+    const metricOverview = document.getElementById('metric-overview-count');
+    if (metricOverview) {
+      metricOverview.textContent = appState.overview.length;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function fetchAdminAttendance() {
+  try {
+    const res = await fetch(`${API_BASE}/attendance`);
+    appState.attendance = await res.json();
+    
+    buildFilterDropdowns();
+    populateAttendanceTable(appState.attendance);
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to retrieve register list.', 'error');
+  }
+}
+
+// Build dropdowns dynamic options
+function buildFilterDropdowns() {
+  const depts = new Set();
+  const desigs = new Set();
+  const sessions = new Set();
+  const dates = new Set();
+  
+  appState.attendance.forEach(r => {
+    if (r.department) depts.add(r.department.trim());
+    if (r.designation) desigs.add(r.designation.trim());
+    if (r.session) sessions.add(r.session.trim());
+    if (r.attendanceDate) dates.add(r.attendanceDate);
+  });
+  
+  const populateOptions = (selectId, set, defaultText) => {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    
+    const val = select.value; // Preserve current select val
+    
+    select.innerHTML = `<option value="all">All ${defaultText}</option>`;
+    
+    Array.from(set).sort().forEach(item => {
+      const opt = document.createElement('option');
+      opt.value = item;
+      opt.textContent = item;
+      select.appendChild(opt);
+    });
+    
+    // Restore selection if exists
+    if (Array.from(set).includes(val)) {
+      select.value = val;
+    }
+  };
+  
+  populateOptions('admin-filter-dept', depts, 'Departments');
+  populateOptions('admin-filter-desig', desigs, 'Designations');
+  populateOptions('admin-filter-session', sessions, 'Sessions');
+  populateOptions('admin-filter-date', dates, 'Dates');
+}
+
+// Render filtered table rows
+function populateAttendanceTable(records) {
+  const tbody = document.querySelector('#admin-attendance-table tbody');
+  const fallback = document.getElementById('table-no-data');
+  
+  if (!tbody) return;
+  
+  tbody.innerHTML = '';
+  
+  if (records.length === 0) {
+    fallback.classList.remove('hidden');
+    return;
+  }
+  
+  fallback.classList.add('hidden');
+  
+  records.forEach(rec => {
+    const tr = document.createElement('tr');
+    tr.id = `row-att-${rec.id}`;
+    
+    tr.innerHTML = `
+      <td style="font-weight:600; color:var(--primary);">${rec.employeeId}</td>
+      <td>${rec.fullName}</td>
+      <td>${rec.designation}</td>
+      <td>${rec.department}</td>
+      <td>${rec.attendanceDate}</td>
+      <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${rec.session}">${rec.session}</td>
+      <td>${rec.checkInTime}</td>
+      <td><span class="status-badge status-completed">${rec.status}</span></td>
+      <td>
+        <div class="table-action-btns">
+          <button class="tbl-btn tbl-btn-edit" onclick="editAttendanceRecord('${rec.id}')" title="Edit Entry"><i data-lucide="edit"></i></button>
+          <button class="tbl-btn tbl-btn-delete" onclick="deleteAttendanceRecord('${rec.id}')" title="Delete Entry"><i data-lucide="trash-2"></i></button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  
+  lucide.createIcons();
+}
+
+// Client filter action
+function filterAttendanceTable() {
+  const query = document.getElementById('admin-search-attendance').value.toLowerCase();
+  const dept = document.getElementById('admin-filter-dept').value;
+  const desig = document.getElementById('admin-filter-desig').value;
+  const session = document.getElementById('admin-filter-session').value;
+  const date = document.getElementById('admin-filter-date').value;
+  
+  const filtered = appState.attendance.filter(r => {
+    const matchQuery = r.fullName.toLowerCase().includes(query) || r.employeeId.toLowerCase().includes(query);
+    const matchDept = dept === 'all' || r.department === dept;
+    const matchDesig = desig === 'all' || r.designation === desig;
+    const matchSession = session === 'all' || r.session === session;
+    const matchDate = date === 'all' || r.attendanceDate === date;
+    
+    return matchQuery && matchDept && matchDesig && matchSession && matchDate;
+  });
+  
+  populateAttendanceTable(filtered);
+}
+
+// Delete log check
+async function deleteAttendanceRecord(id) {
+  const confirmDelete = confirm('Are you sure you want to permanently delete this attendance entry?');
+  if (!confirmDelete) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/attendance/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeader()
+    });
+    
+    if (res.ok) {
+      showToast('Attendance log deleted.', 'success');
+      await fetchAdminAttendance();
+    } else {
+      showToast('Deletion error.', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to communicate deletion.', 'error');
+  }
+}
+
+// Edit attendance details via window prompts
+async function editAttendanceRecord(id) {
+  const rec = appState.attendance.find(r => r.id === id);
+  if (!rec) return;
+  
+  const newName = prompt('Modify Name:', rec.fullName);
+  if (newName === null) return; // cancel
+  
+  const newDept = prompt('Modify Department:', rec.department);
+  if (newDept === null) return;
+  
+  const newDesig = prompt('Modify Designation:', rec.designation);
+  if (newDesig === null) return;
+  
+  const newSession = prompt('Modify Session Slot Name:', rec.session);
+  if (newSession === null) return;
+
+  const payload = {
+    fullName: newName.trim(),
+    department: newDept.trim(),
+    designation: newDesig.trim(),
+    session: newSession.trim()
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/attendance/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    if (res.ok) {
+      showToast('Attendance entry updated.', 'success');
+      await fetchAdminAttendance();
+    } else {
+      showToast('Edit save failed.', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// ==========================================================================
+// CRUD CRUD LAYOUT - MANAGE SUB-SECTIONS (SCHEDULE, ANNOUNCEMENT, PROFILE)
+// ==========================================================================
+
+// SUB-TAB: Schedule
+async function fetchAdminScheduleList() {
+  const listEl = document.getElementById('admin-schedule-list');
+  if (!listEl) return;
+  
+  listEl.innerHTML = '';
+  
+  // Fetch newest schedule list
+  const res = await fetch(`${API_BASE}/schedule`);
+  appState.schedule = await res.json();
+  
+  // Sort schedule items numerically by Day, then by Time
+  appState.schedule.sort((a, b) => {
+    const dayA = a.day || 'Day 1';
+    const dayB = b.day || 'Day 1';
+    if (dayA !== dayB) {
+      const numA = parseInt(dayA.replace('Day ', ''), 10) || 0;
+      const numB = parseInt(dayB.replace('Day ', ''), 10) || 0;
+      return numA - numB;
+    }
+    return a.time.localeCompare(b.time);
+  });
+  
+  appState.schedule.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'admin-item-row';
+    
+    row.innerHTML = `
+      <div class="admin-item-info">
+        <h4>${item.title}</h4>
+        <p>[${item.day || 'Day 1'}] ${item.time} | ${item.venue} | ${item.speaker} (${item.status})</p>
+      </div>
+      <div class="table-action-btns">
+        <button class="tbl-btn tbl-btn-edit" onclick="loadItemForEdit('schedule', '${item.id}')"><i data-lucide="edit"></i></button>
+        <button class="tbl-btn tbl-btn-delete" onclick="deleteCrudItem('schedule', '${item.id}')"><i data-lucide="trash-2"></i></button>
+      </div>
+    `;
+    listEl.appendChild(row);
+  });
+  lucide.createIcons();
+}
+
+// SUB-TAB: Announcements
+async function fetchAdminAnnouncementsList() {
+  const listEl = document.getElementById('admin-ann-list');
+  if (!listEl) return;
+  
+  listEl.innerHTML = '';
+  const res = await fetch(`${API_BASE}/announcements`);
+  appState.announcements = await res.json();
+  
+  appState.announcements.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'admin-item-row';
+    
+    row.innerHTML = `
+      <div class="admin-item-info">
+        <h4>${item.title}</h4>
+        <p>${item.date} ${item.time} | Category: ${item.category} | Priority: ${item.priority}</p>
+      </div>
+      <div class="table-action-btns">
+        <button class="tbl-btn tbl-btn-edit" onclick="loadItemForEdit('announcements', '${item.id}')"><i data-lucide="edit"></i></button>
+        <button class="tbl-btn tbl-btn-delete" onclick="deleteCrudItem('announcements', '${item.id}')"><i data-lucide="trash-2"></i></button>
+      </div>
+    `;
+    listEl.appendChild(row);
+  });
+  lucide.createIcons();
+}
+
+// SUB-TAB: Profiles (Leaders + Committee)
+async function fetchAdminProfilesList() {
+  const listEl = document.getElementById('admin-profiles-list');
+  if (!listEl) return;
+  
+  listEl.innerHTML = '';
+  
+  const [resL, resC] = await Promise.all([
+    fetch(`${API_BASE}/leaders`),
+    fetch(`${API_BASE}/committee`)
+  ]);
+  
+  appState.leaders = await resL.json();
+  appState.committee = await resC.json();
+  
+  // Render Leaders list
+  appState.leaders.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'admin-item-row';
+    
+    row.innerHTML = `
+      <div class="admin-item-info">
+        <h4>${item.fullName} <span style="font-size:0.7rem; color:var(--accent); font-weight:700;">[LEADER - ${item.category}]</span></h4>
+        <p>${item.designation} | ${item.organisation}</p>
+      </div>
+      <div class="table-action-btns">
+        <button class="tbl-btn tbl-btn-edit" onclick="loadItemForEdit('leaders', '${item.id}')"><i data-lucide="edit"></i></button>
+        <button class="tbl-btn tbl-btn-delete" onclick="deleteCrudItem('leaders', '${item.id}')"><i data-lucide="trash-2"></i></button>
+      </div>
+    `;
+    listEl.appendChild(row);
+  });
+
+  // Render Committee list
+  appState.committee.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'admin-item-row';
+    
+    row.innerHTML = `
+      <div class="admin-item-info">
+        <h4>${item.fullName} <span style="font-size:0.7rem; color:var(--success); font-weight:700;">[COMMITTEE]</span></h4>
+        <p>${item.role} | ${item.department}</p>
+      </div>
+      <div class="table-action-btns">
+        <button class="tbl-btn tbl-btn-edit" onclick="loadItemForEdit('committee', '${item.id}')"><i data-lucide="edit"></i></button>
+        <button class="tbl-btn tbl-btn-delete" onclick="deleteCrudItem('committee', '${item.id}')"><i data-lucide="trash-2"></i></button>
+      </div>
+    `;
+    listEl.appendChild(row);
+  });
+  
+  lucide.createIcons();
+}
+
+// Edit item loader
+async function loadItemForEdit(type, id) {
+  appState.editingItemId = id;
+  
+  if (type === 'schedule') {
+    const item = appState.schedule.find(s => s.id === id);
+    document.getElementById('sch-item-id').value = item.id;
+    document.getElementById('sch-title').value = item.title;
+    document.getElementById('sch-time').value = item.time;
+    document.getElementById('sch-speaker').value = item.speaker;
+    document.getElementById('sch-type').value = item.type;
+    document.getElementById('sch-venue').value = item.venue;
+    document.getElementById('sch-status').value = item.status;
+    document.getElementById('sch-day').value = item.day || 'Day 1';
+    document.getElementById('sch-details').value = item.details || '';
+    
+    document.getElementById('schedule-form-title').textContent = 'Modify Schedule Event';
+    document.getElementById('sch-cancel-edit-btn').classList.remove('hidden');
+    document.getElementById('sch-submit-btn').textContent = 'Save Changes';
+    
+  } else if (type === 'announcements') {
+    const item = appState.announcements.find(a => a.id === id);
+    document.getElementById('ann-item-id').value = item.id;
+    document.getElementById('ann-title').value = item.title;
+    document.getElementById('ann-category').value = item.category;
+    document.getElementById('ann-priority').value = item.priority;
+    document.getElementById('ann-message').value = item.message;
+    
+    document.getElementById('ann-form-title').textContent = 'Modify Announcement';
+    document.getElementById('ann-cancel-edit-btn').classList.remove('hidden');
+    document.getElementById('ann-submit-btn').textContent = 'Save Changes';
+    
+  } else if (type === 'leaders' || type === 'committee') {
+    const list = type === 'leaders' ? appState.leaders : appState.committee;
+    const item = list.find(p => p.id === id);
+    
+    document.getElementById('prof-item-id').value = item.id;
+    document.getElementById('prof-fullname').value = item.fullName;
+    document.getElementById('prof-designation').value = item.designation;
+    document.getElementById('prof-email').value = item.email || '';
+    document.getElementById('prof-phone').value = item.phoneNumber || '';
+    document.getElementById('prof-bio').value = type === 'leaders' ? (item.shortProfile || '') : (item.responsibility || '');
+    document.getElementById('prof-photo-url').value = item.photo || '';
+    
+    if (item.photo) {
+      document.getElementById('prof-image-preview').innerHTML = `<img src="${getPhotoUrl(item.photo)}" alt="Preview">`;
+    } else {
+      document.getElementById('prof-image-preview').innerHTML = '<span>No photograph uploaded</span>';
+    }
+
+    const radios = document.getElementsByName('profile-type');
+    
+    if (type === 'leaders') {
+      radios[0].checked = true;
+      toggleProfileFormFields('leader');
+      
+      document.getElementById('prof-category').value = item.category;
+      document.getElementById('prof-org').value = item.organisation || '';
+      document.getElementById('prof-role').value = item.roleInEvent || '';
+      document.getElementById('prof-session-title').value = item.sessionTitle || '';
+      document.getElementById('prof-session-datetime').value = item.sessionDateTime || '';
+      
+      if (item.category === 'Guest Speakers') {
+        document.getElementById('prof-topic').value = item.topic || '';
+        document.getElementById('prof-objective').value = item.learningObjective || '';
+      }
+    } else {
+      radios[1].checked = true;
+      toggleProfileFormFields('committee');
+      
+      document.getElementById('prof-committee-role').value = item.role || '';
+      document.getElementById('prof-dept').value = item.department || '';
+    }
+    
+    document.getElementById('prof-cancel-edit-btn').classList.remove('hidden');
+    document.getElementById('prof-submit-btn').textContent = 'Save Changes';
+  } else if (type === 'overview') {
+    const item = appState.overview.find(o => o.id === id);
+    const form = document.getElementById('admin-overview-form');
+    if (form) {
+      document.getElementById('ov-item-id').value = item.id;
+      document.getElementById('ov-title').value = item.title;
+      document.getElementById('ov-icon').value = item.icon || 'info';
+      document.getElementById('ov-description').value = item.description;
+      
+      document.getElementById('ov-form-title').textContent = 'Modify Info Card';
+      document.getElementById('ov-cancel-edit-btn').classList.remove('hidden');
+      document.getElementById('ov-submit-btn').textContent = 'Save Changes';
+    }
+  }
+}
+
+// Reset Form fields
+function resetCrudForm(type) {
+  appState.editingItemId = null;
+  
+  if (type === 'schedule') {
+    document.getElementById('admin-schedule-form').reset();
+    document.getElementById('sch-item-id').value = '';
+    document.getElementById('sch-day').value = 'Day 1';
+    document.getElementById('schedule-form-title').textContent = 'Create Schedule Event';
+    document.getElementById('sch-cancel-edit-btn').classList.add('hidden');
+    document.getElementById('sch-submit-btn').textContent = 'Add Event';
+    
+  } else if (type === 'announcements') {
+    document.getElementById('admin-ann-form').reset();
+    document.getElementById('ann-item-id').value = '';
+    document.getElementById('ann-form-title').textContent = 'Post Announcement';
+    document.getElementById('ann-cancel-edit-btn').classList.add('hidden');
+    document.getElementById('ann-submit-btn').textContent = 'Publish Announcement';
+    
+  } else if (type === 'profiles') {
+    document.getElementById('admin-profile-form').reset();
+    document.getElementById('prof-item-id').value = '';
+    document.getElementById('prof-photo-url').value = '';
+    document.getElementById('prof-image-preview').innerHTML = '<span>No photograph uploaded</span>';
+    document.getElementById('prof-cancel-edit-btn').classList.add('hidden');
+    document.getElementById('prof-submit-btn').textContent = 'Save Profile';
+    toggleProfileFormFields('leader');
+  } else if (type === 'overview') {
+    const form = document.getElementById('admin-overview-form');
+    if (form) {
+      form.reset();
+      document.getElementById('ov-item-id').value = '';
+      document.getElementById('ov-form-title').textContent = 'Create Info Card';
+      document.getElementById('ov-cancel-edit-btn').classList.add('hidden');
+      document.getElementById('ov-submit-btn').textContent = 'Add Card';
+    }
+  }
+}
+
+// CRUD Submit Handler (Covers Schedule, Announcements, Profiles)
+async function handleCrudSubmit(e, formType) {
+  e.preventDefault();
+  
+  let endpoint = '';
+  let payload = {};
+  let isEditing = appState.editingItemId !== null;
+  
+  if (formType === 'schedule') {
+    endpoint = isEditing ? `/schedule/${appState.editingItemId}` : '/schedule';
+    payload = {
+      title: document.getElementById('sch-title').value,
+      time: document.getElementById('sch-time').value,
+      speaker: document.getElementById('sch-speaker').value,
+      type: document.getElementById('sch-type').value,
+      venue: document.getElementById('sch-venue').value,
+      status: document.getElementById('sch-status').value,
+      day: document.getElementById('sch-day').value,
+      details: document.getElementById('sch-details').value
+    };
+    
+  } else if (formType === 'overview') {
+    endpoint = isEditing ? `/overview/${appState.editingItemId}` : '/overview';
+    payload = {
+      title: document.getElementById('ov-title').value.trim(),
+      icon: document.getElementById('ov-icon').value,
+      description: document.getElementById('ov-description').value.trim()
+    };
+    
+  } else if (formType === 'announcements') {
+    endpoint = isEditing ? `/announcements/${appState.editingItemId}` : '/announcements';
+    payload = {
+      title: document.getElementById('ann-title').value,
+      category: document.getElementById('ann-category').value,
+      priority: document.getElementById('ann-priority').value,
+      message: document.getElementById('ann-message').value,
+      date: isEditing ? undefined : new Date().toISOString().split('T')[0],
+      time: isEditing ? undefined : new Date().toLocaleTimeString('en-US', { hour12: false }).substr(0, 5)
+    };
+    
+  } else if (formType === 'profiles') {
+    const isCommittee = document.querySelector('input[name="profile-type"]:checked').value === 'committee';
+    
+    const photoFileEl = document.getElementById('prof-photo-file');
+    let photoUrl = document.getElementById('prof-photo-url').value;
+    
+    // Handle local image upload to server first if file selected
+    if (photoFileEl.files.length > 0) {
+      const uploadUrl = await uploadFileToServer(photoFileEl.files[0]);
+      if (uploadUrl) photoUrl = uploadUrl;
+    }
+    
+    if (isCommittee) {
+      endpoint = isEditing ? `/committee/${appState.editingItemId}` : '/committee';
+      payload = {
+        fullName: document.getElementById('prof-fullname').value,
+        designation: document.getElementById('prof-designation').value,
+        role: document.getElementById('prof-committee-role').value,
+        department: document.getElementById('prof-dept').value,
+        email: document.getElementById('prof-email').value,
+        phoneNumber: document.getElementById('prof-phone').value,
+        responsibility: document.getElementById('prof-bio').value,
+        photo: photoUrl || undefined
+      };
+    } else {
+      endpoint = isEditing ? `/leaders/${appState.editingItemId}` : '/leaders';
+      const cat = document.getElementById('prof-category').value;
+      payload = {
+        fullName: document.getElementById('prof-fullname').value,
+        designation: document.getElementById('prof-designation').value,
+        category: cat,
+        organisation: document.getElementById('prof-org').value,
+        roleInEvent: document.getElementById('prof-role').value,
+        sessionTitle: document.getElementById('prof-session-title').value,
+        sessionDateTime: document.getElementById('prof-session-datetime').value,
+        contactDetails: document.getElementById('prof-email').value,
+        phoneNumber: document.getElementById('prof-phone').value,
+        shortProfile: document.getElementById('prof-bio').value,
+        photo: photoUrl || undefined
+      };
+
+      if (cat === 'Guest Speakers') {
+        payload.topic = document.getElementById('prof-topic').value;
+        payload.learningObjective = document.getElementById('prof-objective').value;
+      }
+    }
+  }
+
+  const method = isEditing ? 'PUT' : 'POST';
+  
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    if (res.ok) {
+      showToast(isEditing ? 'Record updated.' : 'Record added successfully.', 'success');
+      resetCrudForm(formType);
+      
+      // Refresh views
+      if (formType === 'schedule') await fetchAdminScheduleList();
+      if (formType === 'announcements') await fetchAdminAnnouncementsList();
+      if (formType === 'profiles') await fetchAdminProfilesList();
+      if (formType === 'overview') await fetchAdminOverviewList();
+      
+      await refreshPublicData();
+    } else {
+      const err = await res.json();
+      showToast(err.error || 'Failed to submit data.', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('Save query failed.', 'error');
+  }
+}
+
+// Delete item generic
+async function deleteCrudItem(type, id) {
+  const confirmDel = confirm(`Are you sure you want to delete this ${type} item?`);
+  if (!confirmDel) return;
+  
+  try {
+    const res = await fetch(`${API_BASE}/${type}/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeader()
+    });
+    
+    if (res.ok) {
+      showToast('Item deleted successfully.', 'success');
+      
+      if (type === 'schedule') await fetchAdminScheduleList();
+      if (type === 'announcements') await fetchAdminAnnouncementsList();
+      if (type === 'leaders' || type === 'committee') await fetchAdminProfilesList();
+      if (type === 'overview') await fetchAdminOverviewList();
+      
+      await refreshPublicData();
+    } else {
+      showToast('Failed to delete item.', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// File base64 poster
+async function uploadFileToServer(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64Data = e.target.result;
+      try {
+        const res = await fetch(`${API_BASE}/upload`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...getAuthHeader()
+          },
+          body: JSON.stringify({
+            fileName: file.name,
+            fileData: base64Data
+          })
+        });
+        
+        const data = await res.json();
+        if (res.ok) {
+          resolve(data.url);
+        } else {
+          showToast(data.error || 'Upload failed.', 'error');
+          resolve(null);
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('File upload networking error.', 'error');
+        resolve(null);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+
+
+// SUB-TAB: Resources List
+async function fetchAdminResourcesList() {
+  const listEl = document.getElementById('admin-resources-list');
+  if (!listEl) return;
+  
+  listEl.innerHTML = '';
+  const res = await fetch(`${API_BASE}/resources`);
+  appState.resources = await res.json();
+  
+  appState.resources.forEach(doc => {
+    const row = document.createElement('div');
+    row.className = 'admin-item-row';
+    
+    row.innerHTML = `
+      <div class="admin-item-info">
+        <h4>${doc.title} <span style="font-size:0.7rem; color:var(--text-muted);">(${doc.fileName})</span></h4>
+        <p>${doc.category} | Version: ${doc.version} | Size: ${doc.fileSize}</p>
+      </div>
+      <div class="table-action-btns">
+        <button class="tbl-btn tbl-btn-delete" onclick="deleteResourceItem('${doc.id}')"><i data-lucide="trash-2"></i></button>
+      </div>
+    `;
+    listEl.appendChild(row);
+  });
+  lucide.createIcons();
+}
+
+async function handleMainPdfUpdate(e) {
+  e.preventDefault();
+  
+  const fileEl = document.getElementById('mainpdf-file');
+  const ver = document.getElementById('pdf-ver-num').value.trim();
+  
+  if (fileEl.files.length === 0) {
+    showToast('Please select a PDF file.', 'error');
+    return;
+  }
+  
+  const file = fileEl.files[0];
+  const url = await uploadFileToServer(file);
+  
+  if (!url) return;
+  
+  // Post settings update containing PDF details
+  const payload = {
+    pdfVersion: ver,
+    lastUpdatedPdf: new Date().toISOString()
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/settings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    if (res.ok) {
+      showToast('Event Booklet PDF updated successfully.', 'success');
+      const form = document.getElementById('admin-mainpdf-form');
+      if (form) {
+        form.reset();
+        document.getElementById('pdf-ver-num').value = ver; // keep version
+      }
+      await fetchSettings();
+      await refreshPublicData();
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function handleResourceUpload(e) {
+  e.preventDefault();
+  
+  const fileEl = document.getElementById('res-file');
+  if (fileEl.files.length === 0) {
+    showToast('Please select a resource file.', 'error');
+    return;
+  }
+  
+  const file = fileEl.files[0];
+  const url = await uploadFileToServer(file);
+  if (!url) return;
+  
+  // Estimate file size string
+  const sizeKb = (file.size / 1024).toFixed(0);
+  const sizeStr = sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(1)} MB` : `${sizeKb} KB`;
+
+  const payload = {
+    title: document.getElementById('res-title').value.trim(),
+    category: document.getElementById('res-category').value,
+    description: document.getElementById('res-desc').value.trim(),
+    version: document.getElementById('res-ver').value.trim(),
+    fileName: file.name,
+    fileSize: sizeStr,
+    updatedAt: new Date().toISOString(),
+    downloadUrl: url
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/resources`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    if (res.ok) {
+      showToast('Document resource added.', 'success');
+      const form = document.getElementById('admin-resource-form');
+      if (form) {
+        form.reset();
+        document.getElementById('res-ver').value = '1.0';
+      }
+      
+      await fetchAdminResourcesList();
+      await refreshPublicData();
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function deleteResourceItem(id) {
+  const confirmDel = confirm('Are you sure you want to delete this resource file?');
+  if (!confirmDel) return;
+  
+  try {
+    const res = await fetch(`${API_BASE}/resources/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeader()
+    });
+    if (res.ok) {
+      showToast('Resource deleted.', 'success');
+      await fetchAdminResourcesList();
+      await refreshPublicData();
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// SUB-TAB: Attendee Feedback Viewer & Editor CRUD
+async function fetchAdminFeedback() {
+  const tableBody = document.querySelector('#admin-feedback-table tbody');
+  const noDataEl = document.getElementById('feedback-table-no-data');
+  if (!tableBody) return;
+  
+  tableBody.innerHTML = '';
+  
+  const res = await fetch(`${API_BASE}/feedback`);
+  appState.feedback = await res.json();
+  
+  // Calculate average rating score
+  const total = appState.feedback.length;
+  let avg = 0;
+  if (total > 0) {
+    const sum = appState.feedback.reduce((acc, curr) => acc + curr.rating, 0);
+    avg = (sum / total).toFixed(1);
+  }
+  
+  document.getElementById('fb-average-rating').textContent = avg;
+  document.getElementById('fb-total-submissions').textContent = total;
+  
+  if (total === 0) {
+    noDataEl.classList.remove('hidden');
+    return;
+  }
+  
+  noDataEl.classList.add('hidden');
+  
+  appState.feedback.forEach(item => {
+    const row = document.createElement('tr');
+    
+    // Stars representation
+    let starsStr = '★'.repeat(item.rating) + '☆'.repeat(5 - item.rating);
+    
+    row.innerHTML = `
+      <td class="font-bold">${item.employeeId || 'Anonymous'}</td>
+      <td>${item.date}</td>
+      <td class="text-gold">${starsStr} (${item.rating}/5)</td>
+      <td><span class="badge badge-success">${item.relevance}</span></td>
+      <td class="text-italic" style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${item.comments}">"${item.comments}"</td>
+      <td>
+        <div class="table-action-btns">
+          <button class="tbl-btn tbl-btn-edit" onclick="editFeedbackRecord('${item.id}')" title="Edit Feedback"><i data-lucide="edit"></i></button>
+          <button class="tbl-btn tbl-btn-delete" onclick="deleteFeedbackRecord('${item.id}')" title="Delete Feedback"><i data-lucide="trash-2"></i></button>
+        </div>
+      </td>
+    `;
+    tableBody.appendChild(row);
+  });
+  
+  lucide.createIcons();
+}
+
+async function adminAddFeedback() {
+  const empId = prompt('Enter Employee ID (optional):');
+  if (empId === null) return;
+
+  const ratingStr = prompt('Enter Rating (1-5):');
+  if (ratingStr === null) return;
+  const rating = parseInt(ratingStr, 10);
+  if (isNaN(rating) || rating < 1 || rating > 5) {
+    alert('Invalid rating! Must be 1 to 5.');
+    return;
+  }
+
+  const relevance = prompt('Enter Relevance (Highly Relevant / Relevant / Neutral / Not Relevant):', 'Relevant');
+  if (relevance === null) return;
+
+  const comments = prompt('Enter Comments / Suggestions:');
+  if (comments === null || comments.trim() === '') {
+    alert('Comments are required.');
+    return;
+  }
+
+  const payload = {
+    employeeId: empId.trim() || 'Anonymous',
+    rating: rating,
+    relevance: relevance.trim(),
+    comments: comments.trim(),
+    date: new Date().toISOString().split('T')[0]
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/feedback`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      showToast('Feedback log added successfully.', 'success');
+      await fetchAdminFeedback();
+      await refreshPublicData();
+    } else {
+      showToast('Failed to add feedback entry.', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('Server write error.', 'error');
+  }
+}
+
+async function editFeedbackRecord(id) {
+  const rec = appState.feedback.find(f => f.id === id);
+  if (!rec) return;
+
+  const newEmpId = prompt('Modify Employee ID (or leave as is):', rec.employeeId);
+  if (newEmpId === null) return;
+
+  const newRatingStr = prompt('Modify Rating Score (1-5):', rec.rating);
+  if (newRatingStr === null) return;
+  const newRating = parseInt(newRatingStr, 10);
+  if (isNaN(newRating) || newRating < 1 || newRating > 5) {
+    alert('Invalid rating! Rating must be an integer between 1 and 5.');
+    return;
+  }
+
+  const newRelevance = prompt('Modify Relevance (Highly Relevant / Relevant / Neutral / Not Relevant):', rec.relevance);
+  if (newRelevance === null) return;
+
+  const newComments = prompt('Modify Comments / Suggestions:', rec.comments);
+  if (newComments === null) return;
+
+  const payload = {
+    employeeId: newEmpId.trim() || 'Anonymous',
+    rating: newRating,
+    relevance: newRelevance.trim(),
+    comments: newComments.trim(),
+    date: rec.date
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/feedback/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      showToast('Feedback log updated successfully.', 'success');
+      await fetchAdminFeedback();
+      await refreshPublicData();
+    } else {
+      showToast('Failed to update feedback entry.', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('Server update error.', 'error');
+  }
+}
+
+async function deleteFeedbackRecord(id) {
+  const confirmDel = confirm('Are you sure you want to delete this feedback log?');
+  if (!confirmDel) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/feedback/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeader()
+    });
+
+    if (res.ok) {
+      showToast('Feedback log deleted successfully.', 'success');
+      await fetchAdminFeedback();
+      await refreshPublicData();
+    } else {
+      showToast('Failed to delete feedback entry.', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('Server delete error.', 'error');
+  }
+}
+
+function exportFeedbackReport() {
+  if (appState.feedback.length === 0) {
+    showToast('No feedback records to export.', 'error');
+    return;
+  }
+
+  const formattedRows = appState.feedback.map(item => ({
+    'Employee ID': item.employeeId || 'Anonymous',
+    'Submission Date': item.date,
+    'Rating Score (1-5)': item.rating,
+    'Relevance Level': item.relevance,
+    'Comments / Suggestions': item.comments
+  }));
+
+  try {
+    const worksheet = XLSX.utils.json_to_sheet(formattedRows);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Attendee Feedback');
+    
+    XLSX.writeFile(workbook, `NLP_Feedback_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showToast('Feedback Excel report generated and downloaded.', 'success');
+  } catch (err) {
+    console.error('SheetJS Export Error:', err);
+    showToast('Failed to compile Feedback Excel file.', 'error');
+  }
+}
+
+// ==========================================================================
+// EXCEL EXPORTER SERVICE (SHEETJS integration)
+// ==========================================================================
+function exportAttendanceReport(type) {
+  if (appState.attendance.length === 0) {
+    showToast('No attendance records to export.', 'error');
+    return;
+  }
+  
+  let exportData = [];
+  let reportFileName = 'NLP_Attendance_Report';
+  
+  if (type === 'all') {
+    exportData = appState.attendance;
+    reportFileName += '_All';
+  } else if (type === 'filtered') {
+    // Re-apply filter rules to fetch current tables view rows
+    const query = document.getElementById('admin-search-attendance').value.toLowerCase();
+    const dept = document.getElementById('admin-filter-dept').value;
+    const desig = document.getElementById('admin-filter-desig').value;
+    const session = document.getElementById('admin-filter-session').value;
+    const date = document.getElementById('admin-filter-date').value;
+    
+    exportData = appState.attendance.filter(r => {
+      const matchQuery = r.fullName.toLowerCase().includes(query) || r.employeeId.toLowerCase().includes(query);
+      const matchDept = dept === 'all' || r.department === dept;
+      const matchDesig = desig === 'all' || r.designation === desig;
+      const matchSession = session === 'all' || r.session === session;
+      const matchDate = date === 'all' || r.attendanceDate === date;
+      
+      return matchQuery && matchDept && matchDesig && matchSession && matchDate;
+    });
+    
+    reportFileName += '_Filtered';
+  } else if (type === 'day-wise') {
+    // Generate grouped summary report: counts check-ins per session per day
+    const grouped = {};
+    appState.attendance.forEach(rec => {
+      const key = `${rec.attendanceDate} | ${rec.session}`;
+      if (!grouped[key]) {
+        grouped[key] = {
+          'Attendance Date': rec.attendanceDate,
+          'Session Slot': rec.session,
+          'Total Checked In': 0,
+          'Batch Code': rec.batch
+        };
+      }
+      grouped[key]['Total Checked In']++;
+    });
+    
+    exportData = Object.values(grouped);
+    reportFileName += '_DayWiseSummary';
+  }
+  
+  if (exportData.length === 0) {
+    showToast('No filtered entries matching criteria.', 'error');
+    return;
+  }
+
+  // Map to clean readable headings for Excel
+  const formattedRows = exportData.map(item => {
+    if (type === 'day-wise') return item;
+    
+    return {
+      'Employee ID': item.employeeId,
+      'Full Name': item.fullName,
+      'Designation': item.designation,
+      'Department / Unit': item.department,
+      'Mobile Number': item.mobileNumber,
+      'Email Address': item.email || 'N/A',
+      'Attendance Date': item.attendanceDate,
+      'Session Slot': item.session,
+      'Batch': item.batch,
+      'Check-in Time (Local)': item.checkInTime,
+      'Check-in Timestamp (UTC)': item.submissionTimestamp,
+      'Check-in Status': item.status,
+      'Device Identifier': item.deviceIdentifier
+    };
+  });
+  
+  try {
+    // SheetJS Workbook Generation
+    const worksheet = XLSX.utils.json_to_sheet(formattedRows);
+    
+    // Apply styling helper if needed, but standard is auto-sized columns
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Attendance Register');
+    
+    // Write XLSX binary
+    XLSX.writeFile(workbook, `${reportFileName}_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showToast('Excel report generated and downloaded.', 'success');
+  } catch (err) {
+    console.error('SheetJS Export Error:', err);
+    showToast('Failed to compile Excel file.', 'error');
+  }
+}
+
+// SUB-TAB: Overview Info Cards CRUD
+async function fetchAdminOverviewList() {
+  const listEl = document.getElementById('admin-overview-list');
+  if (!listEl) return;
+  
+  listEl.innerHTML = '';
+  const res = await fetch(`${API_BASE}/overview`);
+  appState.overview = await res.json();
+  
+  appState.overview.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'admin-item-row';
+    
+    row.innerHTML = `
+      <div class="admin-item-info">
+        <h4>${item.title} <span style="font-size:0.75rem; color:var(--accent);">(${item.icon})</span></h4>
+        <p style="font-size:0.85rem; color:var(--text-muted); text-overflow:ellipsis; overflow:hidden; white-space:nowrap; max-width:450px;">${item.description}</p>
+      </div>
+      <div class="table-action-btns">
+        <button class="tbl-btn tbl-btn-edit" onclick="loadItemForEdit('overview', '${item.id}')" title="Edit Card"><i data-lucide="edit"></i></button>
+        <button class="tbl-btn tbl-btn-delete" onclick="deleteCrudItem('overview', '${item.id}')" title="Delete Card"><i data-lucide="trash-2"></i></button>
+      </div>
+    `;
+    listEl.appendChild(row);
+  });
+  
+  lucide.createIcons();
 }
