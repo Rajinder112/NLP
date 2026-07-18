@@ -987,10 +987,31 @@
 
   <!-- 4. GALLERY LIGHTBOX MODAL -->
   <div class="modal-overlay" id="gallery-modal">
-    <div class="modal-card gallery-modal-card" style="max-width: 800px; padding: 0; background: transparent; box-shadow: none;">
-      <button class="modal-close-btn" style="position: absolute; right: -40px; top: -40px; color: #fff; font-size: 2.5rem; background: transparent; border: none; cursor: pointer;" onclick="closeModal('gallery-modal')">&times;</button>
-      <div style="display: flex; justify-content: center; align-items: center; overflow: hidden; border-radius: var(--radius-md);">
-        <img id="gallery-modal-img" src="" alt="" style="max-width: 100%; max-height: 80vh; object-fit: contain; border-radius: var(--radius-md);">
+    <div class="modal-card gallery-modal-card" style="max-width: 900px; padding: 0; background: transparent; box-shadow: none; position: relative;">
+      
+      <!-- Close / Cancel Button -->
+      <button class="gallery-lightbox-btn close-btn" onclick="closeModal('gallery-modal')" style="position: absolute; right: 16px; top: 16px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.5); border: none; color: white; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;" title="Close Gallery">
+        &times;
+      </button>
+
+      <!-- Main Lightbox Layout -->
+      <div style="display: flex; align-items: center; justify-content: center; position: relative; gap: 20px;">
+        
+        <!-- Previous Button -->
+        <button class="gallery-lightbox-btn prev-btn" onclick="navigateGallery(-1)" style="width: 50px; height: 50px; border-radius: 50%; background: rgba(0,0,0,0.5); border: none; color: white; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; z-index: 90;" title="Previous Photo">
+          &#8249;
+        </button>
+
+        <!-- Image Container -->
+        <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center; overflow: hidden; border-radius: var(--radius-md); background: #000; box-shadow: var(--shadow-lg);">
+          <img id="gallery-modal-img" src="" alt="" style="max-width: 100%; max-height: 80vh; object-fit: contain;">
+        </div>
+
+        <!-- Next Button -->
+        <button class="gallery-lightbox-btn next-btn" onclick="navigateGallery(1)" style="width: 50px; height: 50px; border-radius: 50%; background: rgba(0,0,0,0.5); border: none; color: white; font-size: 1.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; z-index: 90;" title="Next Photo">
+          &#8250;
+        </button>
+        
       </div>
     </div>
   </div>
@@ -1036,6 +1057,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Script Code Loader -->
-  <script src="app.js?v=11"></script>
+  <script src="app.js?v=12"></script>
 </body>
 </html>

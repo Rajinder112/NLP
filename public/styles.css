@@ -3051,3 +3051,15 @@ img {
   }
 
 }
+
+/* Lightbox Navigation Buttons Hover Styles */
+.gallery-lightbox-btn {
+  transition: background 0.2s, transform 0.2s !important;
+}
+.gallery-lightbox-btn:hover {
+  background: rgba(0, 0, 0, 0.8) !important;
+  transform: scale(1.08);
+}
+.gallery-lightbox-btn:active {
+  transform: scale(0.92);
+}

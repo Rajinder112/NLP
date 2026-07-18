@@ -202,21 +202,21 @@ app.post('/api/upload', authenticateAdmin, (req, res) => {
   }
 
   try {
-    // Extract base64 data format e.g. "data:image/png;base64,iVBORw0KG..."
-    const matches = fileData.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-    if (!matches || matches.length !== 3) {
-      return res.status(400).json({ error: 'Invalid base64 format.' });
+    // Write locally as cache fallback
+    try {
+      const matches = fileData.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      if (matches && matches.length === 3) {
+        const buffer = Buffer.from(matches[2], 'base64');
+        const safeName = Date.now() + '_' + path.basename(fileName).replace(/[^a-zA-Z0-9.-]/g, '_');
+        const destPath = path.join(UPLOADS_DIR, safeName);
+        fs.writeFileSync(destPath, buffer);
+      }
+    } catch (e) {
+      console.warn('Failed to cache file on disk:', e.message);
     }
 
-    const buffer = Buffer.from(matches[2], 'base64');
-    
-    // Clean filename to prevent path traversal
-    const safeName = Date.now() + '_' + path.basename(fileName).replace(/[^a-zA-Z0-9.-]/g, '_');
-    const destPath = path.join(UPLOADS_DIR, safeName);
-    
-    fs.writeFileSync(destPath, buffer);
-    const fileUrl = `/uploads/${safeName}`;
-    res.json({ success: true, url: fileUrl });
+    // Return the base64 data URL directly so it gets saved inside the Postgres SQL tables
+    res.json({ success: true, url: fileData });
   } catch (err) {
     console.error('Upload error', err);
     res.status(500).json({ error: 'File upload failed: ' + err.message });
