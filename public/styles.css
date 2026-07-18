@@ -714,6 +714,18 @@ img {
   border-color: var(--primary);
 }
 
+/* Modal Card Outline Button Override */
+.modal-card .btn-outline {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: transparent;
+}
+.modal-card .btn-outline:hover {
+  background-color: var(--primary);
+  color: var(--text-light);
+  border-color: var(--primary);
+}
+
 .btn-block {
   display: flex;
   width: 100%;
