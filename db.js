@@ -622,11 +622,11 @@ const db = {
       await pgInitPromise;
       const attendanceList = await db.getCollection('attendance');
       
-      const duplicate = attendanceList.find(r => 
-        r.employeeId.trim().toLowerCase() === record.employeeId.trim().toLowerCase() &&
+      const duplicate = (record.employeeId && record.employeeId.trim()) ? attendanceList.find(r => 
+        r.employeeId && r.employeeId.trim().toLowerCase() === record.employeeId.trim().toLowerCase() &&
         r.attendanceDate === record.attendanceDate &&
         r.session.trim().toLowerCase() === record.session.trim().toLowerCase()
-      );
+      ) : null;
 
       if (duplicate) {
         throw new Error(`Attendance already marked for Employee ID ${record.employeeId} under session '${record.session}' on this day.`);
@@ -647,11 +647,11 @@ const db = {
       return newRecord;
     } else {
       const attendanceList = await db.getCollection('attendance');
-      const duplicate = attendanceList.find(r => 
-        r.employeeId.trim().toLowerCase() === record.employeeId.trim().toLowerCase() &&
+      const duplicate = (record.employeeId && record.employeeId.trim()) ? attendanceList.find(r => 
+        r.employeeId && r.employeeId.trim().toLowerCase() === record.employeeId.trim().toLowerCase() &&
         r.attendanceDate === record.attendanceDate &&
         r.session.trim().toLowerCase() === record.session.trim().toLowerCase()
-      );
+      ) : null;
 
       if (duplicate) {
         throw new Error(`Attendance already marked for Employee ID ${record.employeeId} under session '${record.session}' on this day.`);

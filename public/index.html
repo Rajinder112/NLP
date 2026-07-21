@@ -181,53 +181,92 @@
           </div>
           
           <form id="attendance-form" class="premium-form">
+            <!-- Row 1: Category & Conditional Category Specify -->
             <div class="form-row">
-              <div class="form-group">
-                <label for="att-employee-id">Employee ID <span class="required">*</span></label>
-                <input type="text" id="att-employee-id" placeholder="e.g. EMP1004" required>
+              <div class="form-group" style="flex: 1; min-width: 250px;">
+                <label for="att-category">Participant Category <span class="required">*</span></label>
+                <select id="att-category" required onchange="handleCategoryChange()">
+                  <option value="" disabled selected>Select Category</option>
+                  <option value="Delegate">Delegate</option>
+                  <option value="Nursing Leadership">Nursing Leadership</option>
+                  <option value="Faculty">Faculty</option>
+                  <option value="Guest Speaker">Guest Speaker</option>
+                  <option value="Organizing Committee">Organizing Committee</option>
+                  <option value="Support Team">Support Team</option>
+                  <option value="Sponsor / Partner">Sponsor / Partner</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
-              <div class="form-group">
+              <div class="form-group hidden" id="group-category-specify" style="flex: 1; min-width: 250px;">
+                <label for="att-category-specify">Participant Category (Specify) <span class="required">*</span></label>
+                <input type="text" id="att-category-specify" placeholder="Please specify your category">
+              </div>
+            </div>
+
+            <!-- Row 2: Employee ID (Conditional for Delegate) & Full Name -->
+            <div class="form-row">
+              <div class="form-group hidden" id="group-employee-id" style="flex: 1; min-width: 250px;">
+                <label for="att-employee-id">Employee ID <span class="required">*</span></label>
+                <input type="text" id="att-employee-id" placeholder="Enter Employee ID">
+              </div>
+              <div class="form-group" style="flex: 1; min-width: 250px;">
                 <label for="att-full-name">Full Name <span class="required">*</span></label>
                 <input type="text" id="att-full-name" placeholder="e.g. Nurse Clara Johnson" required>
               </div>
             </div>
             
+            <!-- Row 3: Designation & Organization / Hospital -->
             <div class="form-row">
-              <div class="form-group">
+              <div class="form-group" style="flex: 1; min-width: 250px;">
                 <label for="att-designation">Designation <span class="required">*</span></label>
-                <select id="att-designation" required>
-                  <option value="" disabled selected>Select Designation</option>
-                  <option value="Nursing Superintendent">Nursing Superintendent</option>
-                  <option value="Assistant Nursing Superintendent">Assistant Nursing Superintendent</option>
-                  <option value="Ward Incharge">Ward Incharge</option>
-                  <option value="Clinical Instructor">Clinical Instructor</option>
-                  <option value="Senior Nurse Staff">Senior Nurse Staff</option>
-                  <option value="Other">Other Admin Designation</option>
+                <input type="text" id="att-designation" placeholder="e.g. Ward Incharge" required>
+              </div>
+              <div class="form-group" style="flex: 1; min-width: 250px;">
+                <label for="att-organization">Organization / Hospital <span class="required">*</span></label>
+                <select id="att-organization" required onchange="handleOrganizationChange()">
+                  <option value="" disabled selected>Select Organization / Hospital</option>
+                  <option value="Medanta – Gurugram">Medanta – Gurugram</option>
+                  <option value="Medanta – Lucknow">Medanta – Lucknow</option>
+                  <option value="Medanta – Noida">Medanta – Noida</option>
+                  <option value="Medanta – Ranchi">Medanta – Ranchi</option>
+                  <option value="Medanta – Patna">Medanta – Patna</option>
+                  <option value="Medanta – Indore">Medanta – Indore</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
-              <div class="form-group">
+            </div>
+
+            <!-- Row 4: Conditional Organization Specify & Department / Unit -->
+            <div class="form-row">
+              <div class="form-group hidden" id="group-org-specify" style="flex: 1; min-width: 250px;">
+                <label for="att-org-specify">Organization / Hospital Name <span class="required">*</span></label>
+                <input type="text" id="att-org-specify" placeholder="Please specify your organization name">
+              </div>
+              <div class="form-group" style="flex: 1; min-width: 250px;">
                 <label for="att-department">Department / Unit <span class="required">*</span></label>
                 <input type="text" id="att-department" placeholder="e.g. Emergency Department" required>
               </div>
             </div>
             
+            <!-- Row 5: Mobile Number & Email Address -->
             <div class="form-row">
-              <div class="form-group">
+              <div class="form-group" style="flex: 1; min-width: 250px;">
                 <label for="att-mobile">Mobile Number <span class="required">*</span></label>
                 <input type="tel" id="att-mobile" placeholder="e.g. +91 XXXXX XXXXX" required>
               </div>
-              <div class="form-group">
+              <div class="form-group" style="flex: 1; min-width: 250px;">
                 <label for="att-email">Email Address</label>
                 <input type="email" id="att-email" placeholder="e.g. c.johnson@hospital.org">
               </div>
             </div>
             
+            <!-- Row 6: Attendance Date & Session / Event Day -->
             <div class="form-row">
-              <div class="form-group">
+              <div class="form-group" style="flex: 1; min-width: 250px;">
                 <label for="att-date">Attendance Date <span class="required">*</span></label>
                 <input type="date" id="att-date" required readonly>
               </div>
-              <div class="form-group">
+              <div class="form-group" style="flex: 1; min-width: 250px;">
                 <label for="att-session">Session / Event Day <span class="required">*</span></label>
                 <select id="att-session" required>
                   <!-- Dynamically loaded sessions -->
@@ -235,8 +274,9 @@
               </div>
             </div>
             
+            <!-- Row 7: Batch -->
             <div class="form-row">
-              <div class="form-group">
+              <div class="form-group" style="flex: 1; min-width: 250px;">
                 <label for="att-batch">Batch <span class="required">*</span></label>
                 <input type="text" id="att-batch" value="Batch 1" readonly>
               </div>
@@ -1057,6 +1097,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Script Code Loader -->
-  <script src="app.js?v=12"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>

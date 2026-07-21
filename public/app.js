@@ -1043,12 +1043,59 @@ function populateSessionDropdown() {
 // ==========================================================================
 // ATTENDANCE SUBMISSION & DUPLICATION CHECKS
 // ==========================================================================
+function handleCategoryChange() {
+  const category = document.getElementById('att-category').value;
+  const specifyGroup = document.getElementById('group-category-specify');
+  const specifyInput = document.getElementById('att-category-specify');
+  const empGroup = document.getElementById('group-employee-id');
+  const empInput = document.getElementById('att-employee-id');
+
+  // Handle Category = Other
+  if (category === 'Other') {
+    specifyGroup.classList.remove('hidden');
+    specifyInput.required = true;
+  } else {
+    specifyGroup.classList.add('hidden');
+    specifyInput.required = false;
+    specifyInput.value = '';
+  }
+
+  // Handle Category = Delegate
+  if (category === 'Delegate') {
+    empGroup.classList.remove('hidden');
+    empInput.required = true;
+  } else {
+    empGroup.classList.add('hidden');
+    empInput.required = false;
+    empInput.value = '';
+  }
+}
+
+function handleOrganizationChange() {
+  const org = document.getElementById('att-organization').value;
+  const specifyGroup = document.getElementById('group-org-specify');
+  const specifyInput = document.getElementById('att-org-specify');
+
+  if (org === 'Other') {
+    specifyGroup.classList.remove('hidden');
+    specifyInput.required = true;
+  } else {
+    specifyGroup.classList.add('hidden');
+    specifyInput.required = false;
+    specifyInput.value = '';
+  }
+}
+
 async function handleAttendanceSubmit(e) {
   e.preventDefault();
   
+  const category = document.getElementById('att-category').value;
+  const categorySpecify = document.getElementById('att-category-specify').value.trim();
   const empId = document.getElementById('att-employee-id').value.trim();
   const name = document.getElementById('att-full-name').value.trim();
-  const desig = document.getElementById('att-designation').value;
+  const desig = document.getElementById('att-designation').value.trim();
+  const organization = document.getElementById('att-organization').value;
+  const orgSpecify = document.getElementById('att-org-specify').value.trim();
   const dept = document.getElementById('att-department').value.trim();
   const mobile = document.getElementById('att-mobile').value.trim();
   const email = document.getElementById('att-email').value.trim();
@@ -1056,8 +1103,24 @@ async function handleAttendanceSubmit(e) {
   const session = document.getElementById('att-session').value;
   const batch = document.getElementById('att-batch').value;
   
-  if (!empId || !name || !desig || !dept || !mobile || !date || !session) {
-    showToast('Please fill in all required credentials.', 'error');
+  if (!category) {
+    showToast('Please select a Participant Category.', 'error');
+    return;
+  }
+  if (category === 'Other' && !categorySpecify) {
+    showToast('Please specify your Participant Category.', 'error');
+    return;
+  }
+  if (category === 'Delegate' && !empId) {
+    showToast('Please enter your Employee ID.', 'error');
+    return;
+  }
+  if (!name || !desig || !organization || !dept || !mobile || !date || !session) {
+    showToast('Please fill in all mandatory fields.', 'error');
+    return;
+  }
+  if (organization === 'Other' && !orgSpecify) {
+    showToast('Please specify your Organization / Hospital Name.', 'error');
     return;
   }
   
@@ -1067,9 +1130,12 @@ async function handleAttendanceSubmit(e) {
   submitBtn.innerHTML = '<i class="animate-pulse">Recording...</i>';
   
   const payload = {
-    employeeId: empId,
+    category,
+    categorySpecify: category === 'Other' ? categorySpecify : undefined,
+    employeeId: category === 'Delegate' ? empId : '',
     fullName: name,
     designation: desig,
+    organization: organization === 'Other' ? orgSpecify : organization,
     department: dept,
     mobileNumber: mobile,
     email: email || undefined,
@@ -1118,6 +1184,10 @@ function resetAttendanceForm() {
   document.getElementById('attendance-form').reset();
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('att-date').value = today;
+  
+  // Hide conditional fields on reset
+  handleCategoryChange();
+  handleOrganizationChange();
   
   document.getElementById('attendance-form').classList.remove('hidden');
   document.getElementById('attendance-success').classList.add('hidden');
@@ -1715,7 +1785,7 @@ function populateAttendanceTable(records) {
     tr.id = `row-att-${rec.id}`;
     
     tr.innerHTML = `
-      <td style="font-weight:600; color:var(--primary);">${rec.employeeId}</td>
+      <td style="font-weight:600; color:var(--primary);">${rec.employeeId || '-'}</td>
       <td>${rec.fullName}</td>
       <td>${rec.designation}</td>
       <td>${rec.department}</td>
@@ -1745,7 +1815,7 @@ function filterAttendanceTable() {
   const date = document.getElementById('admin-filter-date').value;
   
   const filtered = appState.attendance.filter(r => {
-    const matchQuery = r.fullName.toLowerCase().includes(query) || r.employeeId.toLowerCase().includes(query);
+    const matchQuery = (r.fullName || '').toLowerCase().includes(query) || (r.employeeId || '').toLowerCase().includes(query);
     const matchDept = dept === 'all' || r.department === dept;
     const matchDesig = desig === 'all' || r.designation === desig;
     const matchSession = session === 'all' || r.session === session;
