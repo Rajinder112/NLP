@@ -1816,7 +1816,8 @@ function populateAttendanceTable(records) {
     tr.id = `row-att-${rec.id}`;
     
     tr.innerHTML = `
-      <td style="font-weight:600; color:var(--primary);">${rec.employeeId || '-'}</td>
+      <td style="font-weight:600; color:var(--primary);">${rec.category === 'Other' ? `Other (${rec.categorySpecify || ''})` : (rec.category || 'Delegate')}</td>
+      <td>${rec.employeeId || '-'}</td>
       <td>${rec.fullName}</td>
       <td>${rec.designation}</td>
       <td>${rec.department}</td>
@@ -2953,19 +2954,20 @@ function exportAttendanceReport(type) {
     return;
   }
 
-  // Map to clean readable headings for Excel
   const formattedRows = exportData.map(item => {
     if (type === 'day-wise') return item;
     
     return {
-      'Employee ID': item.employeeId,
+      'Participant Category': item.category === 'Other' ? `Other (${item.categorySpecify || ''})` : (item.category || 'Delegate'),
+      'Employee ID': item.employeeId || '-',
       'Full Name': item.fullName,
       'Designation': item.designation,
+      'Organization / Hospital': item.organization || 'Medanta',
       'Department / Unit': item.department,
       'Mobile Number': item.mobileNumber,
       'Email Address': item.email || 'N/A',
       'Attendance Date': item.attendanceDate,
-      'Session Slot': item.session,
+      'Event Day': item.session,
       'Batch': item.batch,
       'Check-in Time (Local)': item.checkInTime,
       'Check-in Timestamp (UTC)': item.submissionTimestamp,
