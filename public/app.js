@@ -274,6 +274,7 @@ let appState = {
   leaders: [],
   committee: [],
   gallery: [],
+  event_days: [],
   resources: [],
   feedback: [],
   overview: [],
@@ -405,7 +406,8 @@ async function refreshPublicData() {
     fetchAndSet('committee', 'committee'),
     fetchAndSet('resources', 'resources'),
     fetchAndSet('overview', 'overview'),
-    fetchAndSet('gallery', 'gallery')
+    fetchAndSet('gallery', 'gallery'),
+    fetchAndSet('event_days', 'event_days')
   ]);
 
   const safeRender = (renderFn, name) => {
@@ -1027,17 +1029,38 @@ function populateSessionDropdown() {
   const dropdown = document.getElementById('att-session');
   if (!dropdown) return;
   
-  dropdown.innerHTML = '<option value="" disabled selected>Select Session Slot</option>';
+  dropdown.innerHTML = '<option value="" disabled selected>Select Event Day</option>';
   
-  appState.schedule.forEach(session => {
-    // Only allow selecting actual lectures, keynotes, activities or workshops (exclude reception/socials)
-    if (['Keynote', 'Lecture', 'Workshop', 'Activity', 'Panel'].includes(session.type)) {
-      const opt = document.createElement('option');
-      opt.value = session.title;
-      opt.textContent = `[${session.day || 'Day 1'}] ${session.time} - ${session.title}`;
-      dropdown.appendChild(opt);
+  // Sort event days by day number
+  const sortedDays = (appState.event_days || []).slice().sort((a, b) => Number(a.dayNumber) - Number(b.dayNumber));
+  
+  const todayStr = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+  let matchedDayValue = '';
+  
+  sortedDays.forEach(item => {
+    const opt = document.createElement('option');
+    
+    let formattedDate = item.date;
+    try {
+      const dateParts = item.date.split('-');
+      if (dateParts.length === 3) {
+        const d = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+        formattedDate = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+      }
+    } catch (e) {}
+    
+    opt.value = `Day ${item.dayNumber}`;
+    opt.textContent = `Day ${item.dayNumber} - ${formattedDate}`;
+    dropdown.appendChild(opt);
+    
+    if (item.date === todayStr) {
+      matchedDayValue = `Day ${item.dayNumber}`;
     }
   });
+  
+  if (matchedDayValue) {
+    dropdown.value = matchedDayValue;
+  }
 }
 
 // ==========================================================================
@@ -1563,6 +1586,7 @@ function switchAdminTab(tabId) {
   if (tabId === 'db-profiles') fetchAdminProfilesList();
   if (tabId === 'db-resources') fetchAdminResourcesList();
   if (tabId === 'db-gallery') fetchAdminGallery();
+  if (tabId === 'db-event-days') fetchAdminEventDays();
   
   updateAdminSpaceIndicator();
   lucide.createIcons();
@@ -1893,6 +1917,160 @@ async function editAttendanceRecord(id) {
   } catch (err) {
     console.error(err);
   }
+}
+
+// SUB-TAB: Event Days Management CRUD
+async function fetchAdminEventDays() {
+  const tableBody = document.querySelector('#admin-event-days-table tbody');
+  const noDataEl = document.getElementById('event-days-table-no-data');
+  if (!tableBody) return;
+  
+  tableBody.innerHTML = '';
+  
+  try {
+    const res = await fetch(`${API_BASE}/event_days`);
+    const text = await res.text();
+    if (text.trim().startsWith('<!DOCTYPE')) {
+      throw new Error('Endpoint returned HTML instead of JSON');
+    }
+    appState.event_days = JSON.parse(text);
+  } catch (err) {
+    console.warn('Backend /event_days API offline or unrouted, loading from localStorage.');
+    const local = localStorage.getItem('nlp_local_event_days');
+    appState.event_days = local ? JSON.parse(local) : [
+      { id: 'day_1', dayNumber: 1, date: '2026-07-10' },
+      { id: 'day_2', dayNumber: 2, date: '2026-07-11' },
+      { id: 'day_3', dayNumber: 3, date: '2026-07-12' },
+      { id: 'day_4', dayNumber: 4, date: '2026-07-26' }
+    ];
+  }
+
+  // Sort days by dayNumber
+  appState.event_days.sort((a, b) => Number(a.dayNumber) - Number(b.dayNumber));
+
+  if (appState.event_days.length === 0) {
+    noDataEl.classList.remove('hidden');
+    return;
+  }
+  
+  noDataEl.classList.add('hidden');
+  
+  appState.event_days.forEach(item => {
+    let displayDate = item.date;
+    try {
+      const parts = item.date.split('-');
+      if (parts.length === 3) {
+        const d = new Date(parts[0], parts[1] - 1, parts[2]);
+        displayDate = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+      }
+    } catch (e) {}
+
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td style="font-weight: 600; color: var(--primary);">Day ${item.dayNumber}</td>
+      <td>${displayDate}</td>
+      <td class="table-actions">
+        <button class="tbl-btn tbl-btn-edit" onclick="editEventDayItem('${item.id}')" title="Edit Item"><i data-lucide="edit"></i></button>
+        <button class="tbl-btn tbl-btn-delete" onclick="deleteEventDayItem('${item.id}')" title="Delete Item"><i data-lucide="trash-2"></i></button>
+      </td>
+    `;
+    tableBody.appendChild(row);
+  });
+  
+  lucide.createIcons();
+}
+
+function adminAddEventDay() {
+  document.getElementById('event-days-form-title').textContent = 'Add Event Day';
+  document.getElementById('event-days-item-id').value = '';
+  document.getElementById('event-days-number').value = '';
+  document.getElementById('event-days-date').value = '';
+  openModal('admin-event-days-modal');
+}
+
+function editEventDayItem(id) {
+  const item = appState.event_days.find(d => d.id === id);
+  if (!item) return;
+  
+  document.getElementById('event-days-form-title').textContent = 'Edit Event Day';
+  document.getElementById('event-days-item-id').value = item.id;
+  document.getElementById('event-days-number').value = item.dayNumber;
+  document.getElementById('event-days-date').value = item.date;
+  openModal('admin-event-days-modal');
+}
+
+async function deleteEventDayItem(id) {
+  const confirmDel = confirm('Are you sure you want to delete this event day?');
+  if (!confirmDel) return;
+  
+  let localList = appState.event_days.filter(d => d.id !== id);
+  localStorage.setItem('nlp_local_event_days', JSON.stringify(localList));
+  
+  try {
+    const res = await fetch(`${API_BASE}/event_days/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeader()
+    });
+    if (!res.ok) {
+      throw new Error(`Server returned status ${res.status}`);
+    }
+  } catch (err) {
+    console.warn('Backend API error, saved locally:', err);
+  }
+  
+  showToast('Event day deleted successfully.', 'success');
+  await fetchAdminEventDays();
+  await refreshPublicData();
+}
+
+async function saveEventDayItem(e) {
+  e.preventDefault();
+  
+  const id = document.getElementById('event-days-item-id').value;
+  const dayNumber = document.getElementById('event-days-number').value;
+  const date = document.getElementById('event-days-date').value;
+  
+  if (!dayNumber || !date) {
+    showToast('Please enter both Day Number and Date.', 'error');
+    return;
+  }
+  
+  const payload = { dayNumber: Number(dayNumber), date };
+  const isEdit = !!id;
+  
+  let localList = appState.event_days.slice();
+  if (isEdit) {
+    payload.id = id;
+    const idx = localList.findIndex(d => d.id === id);
+    if (idx !== -1) localList[idx] = payload;
+  } else {
+    payload.id = 'day_' + Date.now();
+    localList.push(payload);
+  }
+  localStorage.setItem('nlp_local_event_days', JSON.stringify(localList));
+  
+  try {
+    const endpoint = isEdit ? `${API_BASE}/event_days/${id}` : `${API_BASE}/event_days`;
+    const method = isEdit ? 'PUT' : 'POST';
+    const res = await fetch(endpoint, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+      throw new Error(`Server status ${res.status}`);
+    }
+  } catch (err) {
+    console.warn('Backend API error, saved locally:', err);
+  }
+  
+  showToast(isEdit ? 'Event day updated successfully.' : 'Event day added successfully.', 'success');
+  closeModal('admin-event-days-modal');
+  await fetchAdminEventDays();
+  await refreshPublicData();
 }
 
 // ==========================================================================

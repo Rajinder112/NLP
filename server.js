@@ -192,6 +192,7 @@ setupCollectionRoutes('resources');
 setupCollectionRoutes('feedback');
 setupCollectionRoutes('overview');
 setupCollectionRoutes('gallery');
+setupCollectionRoutes('event_days');
 
 
 // --- FILE UPLOAD API (Base64 wrapper to avoid multer complexity) ---

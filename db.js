@@ -69,7 +69,8 @@ function initDb() {
       gallery: [],
       resources: [],
       feedback: [],
-      overview: []
+      overview: [],
+      event_days: []
     };
     fs.writeFileSync(DB_FILE, JSON.stringify(initialSchema, null, 2), 'utf8');
   }
@@ -500,7 +501,13 @@ async function seedPostgres() {
         description: 'All newly appointed and senior Middle-Level Incharges across regional campuses registered under Batch 1.'
       }
     ],
-    feedback: []
+    feedback: [],
+    event_days: [
+      { id: 'day_1', dayNumber: 1, date: '2026-07-10' },
+      { id: 'day_2', dayNumber: 2, date: '2026-07-11' },
+      { id: 'day_3', dayNumber: 3, date: '2026-07-12' },
+      { id: 'day_4', dayNumber: 4, date: '2026-07-26' }
+    ]
   };
 
   // Seed settings
@@ -513,7 +520,7 @@ async function seedPostgres() {
 
   // Seed collections
   const collections = [
-    'attendance', 'schedule', 'announcements', 'leaders', 'committee', 'gallery', 'resources', 'overview', 'feedback'
+    'attendance', 'schedule', 'announcements', 'leaders', 'committee', 'gallery', 'resources', 'overview', 'feedback', 'event_days'
   ];
   for (const name of collections) {
     const list = seedData[name] || [];
