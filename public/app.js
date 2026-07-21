@@ -905,7 +905,14 @@ function renderProfileCardsFiltered(category) {
 
 // Open modals helper
 function openModal(modalId) {
-  document.getElementById(modalId).classList.add('active');
+  // Close all modal overlays to prevent stacking blocking overlays
+  const overlays = document.querySelectorAll('.modal-overlay');
+  overlays.forEach(o => o.classList.remove('active'));
+  
+  const target = document.getElementById(modalId);
+  if (target) {
+    target.classList.add('active');
+  }
 }
 
 function closeModal(modalId) {
@@ -2027,15 +2034,19 @@ async function saveEventDayItem(e) {
   e.preventDefault();
   
   const id = document.getElementById('event-days-item-id').value;
-  const dayNumber = document.getElementById('event-days-number').value;
+  const dayNumberRaw = document.getElementById('event-days-number').value.trim();
   const date = document.getElementById('event-days-date').value;
   
-  if (!dayNumber || !date) {
+  if (!dayNumberRaw || !date) {
     showToast('Please enter both Day Number and Date.', 'error');
     return;
   }
   
-  const payload = { dayNumber: Number(dayNumber), date };
+  // Extract only numeric digits from input, e.g. "Day 4" becomes 4, default to 1 if no digits
+  const digitsOnly = dayNumberRaw.replace(/[^0-9]/g, '');
+  const parsedDayNum = parseInt(digitsOnly, 10) || 1;
+  
+  const payload = { dayNumber: parsedDayNum, date };
   const isEdit = !!id;
   
   let localList = appState.event_days.slice();
