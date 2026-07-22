@@ -343,12 +343,15 @@ async function fetchSettings() {
     appState.settings = await res.json();
     
     // Update Hero elements based on retrieved settings
-    document.getElementById('hero-date-text').textContent = formatDateString(appState.settings.eventDate);
-    document.getElementById('hero-venue-text').textContent = appState.settings.eventVenue;
+    const displayDate = appState.settings.eventDateDisplay || formatDateString(appState.settings.eventDate);
+    const heroDateEl = document.getElementById('hero-date-text');
+    if (heroDateEl) heroDateEl.textContent = displayDate;
+    const heroVenueEl = document.getElementById('hero-venue-text');
+    if (heroVenueEl) heroVenueEl.textContent = appState.settings.eventVenue;
     
     // Update Details section elements based on retrieved settings
     const detailsDate = document.getElementById('details-date-text');
-    if (detailsDate) detailsDate.textContent = formatDateString(appState.settings.eventDate);
+    if (detailsDate) detailsDate.textContent = displayDate;
     const detailsVenue = document.getElementById('details-venue-text');
     if (detailsVenue) detailsVenue.textContent = appState.settings.eventVenue;
     
@@ -1768,6 +1771,7 @@ async function handleConfigUpdate(e) {
   const payload = {
     eventState: document.getElementById('cfg-event-state').value,
     eventDate: document.getElementById('cfg-event-date').value,
+    eventDateDisplay: document.getElementById('cfg-event-date-display').value,
     eventVenue: document.getElementById('cfg-event-venue').value
   };
 
@@ -1802,6 +1806,8 @@ async function fetchAdminSummary() {
     
     document.getElementById('cfg-event-state').value = appState.settings.eventState || 'Upcoming';
     document.getElementById('cfg-event-date').value = appState.settings.eventDate || '';
+    const dateDispEl = document.getElementById('cfg-event-date-display');
+    if (dateDispEl) dateDispEl.value = appState.settings.eventDateDisplay || '10-11 July & 26 July 2026';
     document.getElementById('cfg-event-venue').value = appState.settings.eventVenue || '';
 
     // Load attendance logs count

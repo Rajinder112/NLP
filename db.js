@@ -56,7 +56,8 @@ function initDb() {
     const initialSchema = {
       settings: {
         eventState: 'Upcoming',
-        eventDate: '2026-07-24',
+        eventDate: '2026-07-26',
+        eventDateDisplay: '10-11 July & 26 July 2026',
         eventVenue: 'Grand Executive Healthcare Hall, Main Block',
         lastUpdatedPdf: new Date().toISOString(),
         pdfVersion: '1.0'
@@ -102,6 +103,7 @@ async function seedPostgres() {
     settings: {
       eventState: 'Upcoming',
       eventDate: '2026-07-26',
+      eventDateDisplay: '10-11 July & 26 July 2026',
       eventVenue: '10th Floor ITC Department (In-House) & Outbound Facility',
       lastUpdatedPdf: new Date().toISOString(),
       pdfVersion: '1.0'
