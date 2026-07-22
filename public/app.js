@@ -669,6 +669,47 @@ function startCountdown(targetDateStr) {
 // RENDER MODULES (TIMELINE, ANNOUNCEMENTS, PROFILES, GALLERY)
 // ==========================================================================
 
+// Date formatter helper
+function formatEventDateString(dateStr) {
+  if (!dateStr) return '';
+  try {
+    const dateParts = dateStr.split('-');
+    if (dateParts.length === 3) {
+      const d = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+      return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+  } catch (e) {}
+  return dateStr;
+}
+
+// Live session calculator helper
+function calculateSessionLiveStatus(timeStr, nowObj) {
+  if (!timeStr) return 'Upcoming';
+  const parts = timeStr.split('-').map(s => s.trim());
+  if (parts.length < 2) return 'Upcoming';
+  
+  const parseTime = (tStr) => {
+    const match = tStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (!match) return null;
+    let h = parseInt(match[1], 10);
+    const m = parseInt(match[2], 10);
+    const ampm = match[3].toUpperCase();
+    if (ampm === 'PM' && h < 12) h += 12;
+    if (ampm === 'AM' && h === 12) h = 0;
+    return h * 60 + m;
+  };
+  
+  const startMins = parseTime(parts[0]);
+  const endMins = parseTime(parts[1]);
+  if (startMins === null || endMins === null) return 'Upcoming';
+  
+  const nowMins = nowObj.getHours() * 60 + nowObj.getMinutes();
+  
+  if (nowMins < startMins) return 'Upcoming';
+  if (nowMins >= startMins && nowMins <= endMins) return 'Live Now';
+  return 'Completed';
+}
+
 // Timeline schedule
 function renderScheduleTimeline() {
   const container = document.getElementById('schedule-timeline');
@@ -676,39 +717,68 @@ function renderScheduleTimeline() {
   
   if (!container) return;
   
-  if (appState.schedule.length === 0) {
+  // Extract event days list dynamically from appState.event_days
+  let eventDaysList = [];
+  if (appState.event_days && appState.event_days.length > 0) {
+    eventDaysList = appState.event_days.slice().sort((a, b) => Number(a.dayNumber) - Number(b.dayNumber));
+  } else {
+    // Fallback if event_days array is empty
+    const uniqueDays = [...new Set(appState.schedule.map(item => item.day || 'Day 1'))].sort((a, b) => {
+      const numA = parseInt(a.replace(/[^0-9]/g, ''), 10) || 0;
+      const numB = parseInt(b.replace(/[^0-9]/g, ''), 10) || 0;
+      return numA - numB;
+    });
+    eventDaysList = uniqueDays.map((dayLabel, idx) => ({
+      id: `fallback-${idx}`,
+      dayNumber: parseInt(dayLabel.replace(/[^0-9]/g, ''), 10) || (idx + 1),
+      date: ''
+    }));
+  }
+  
+  if (eventDaysList.length === 0 && appState.schedule.length === 0) {
     container.innerHTML = '<p class="text-center">No schedule events populated yet.</p>';
     if (dayFilters) dayFilters.innerHTML = '';
     return;
   }
   
-  // Dynamically extract unique days and sort numerically
-  const uniqueDays = [...new Set(appState.schedule.map(item => item.day || 'Day 1'))].sort((a, b) => {
-    const numA = parseInt(a.replace('Day ', ''), 10) || 0;
-    const numB = parseInt(b.replace('Day ', ''), 10) || 0;
-    return numA - numB;
-  });
+  const todayStr = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+  const dayKeys = eventDaysList.map(d => `Day ${d.dayNumber}`);
   
-  // Set fallback active day if invalid
-  if (uniqueDays.length > 0 && !uniqueDays.includes(appState.activeScheduleDay)) {
-    appState.activeScheduleDay = uniqueDays[0];
+  // Auto-selection of active day based on system date if not locked by user
+  if (!appState.activeScheduleDay || !dayKeys.includes(appState.activeScheduleDay)) {
+    const todayMatch = eventDaysList.find(d => d.date === todayStr);
+    if (todayMatch) {
+      appState.activeScheduleDay = `Day ${todayMatch.dayNumber}`;
+    } else {
+      const upcomingMatch = eventDaysList.find(d => d.date && d.date >= todayStr);
+      if (upcomingMatch) {
+        appState.activeScheduleDay = `Day ${upcomingMatch.dayNumber}`;
+      } else if (dayKeys.length > 0) {
+        appState.activeScheduleDay = dayKeys[0];
+      }
+    }
   }
-  
+
   // Render Day Selector Tabs
   if (dayFilters) {
     dayFilters.innerHTML = '';
-    if (uniqueDays.length > 1) {
-      uniqueDays.forEach(day => {
-        const btn = document.createElement('button');
-        btn.className = `filter-btn ${appState.activeScheduleDay === day ? 'active' : ''}`;
-        btn.textContent = day;
-        btn.addEventListener('click', () => {
-          appState.activeScheduleDay = day;
-          renderScheduleTimeline();
-        });
-        dayFilters.appendChild(btn);
+    eventDaysList.forEach(item => {
+      const dayKey = `Day ${item.dayNumber}`;
+      const formattedDate = formatEventDateString(item.date);
+      const isToday = item.date === todayStr;
+      
+      const btn = document.createElement('button');
+      btn.className = `filter-btn ${appState.activeScheduleDay === dayKey ? 'active' : ''} ${isToday ? 'today-day-tab' : ''}`;
+      btn.innerHTML = `
+        <span class="tab-day-label">${dayKey}</span>
+        ${formattedDate ? `<span class="tab-date-subtext">${formattedDate}</span>` : ''}
+      `;
+      btn.addEventListener('click', () => {
+        appState.activeScheduleDay = dayKey;
+        renderScheduleTimeline();
       });
-    }
+      dayFilters.appendChild(btn);
+    });
   }
   
   container.innerHTML = '';
@@ -717,18 +787,35 @@ function renderScheduleTimeline() {
   const filteredSchedule = appState.schedule.filter(item => (item.day || 'Day 1') === appState.activeScheduleDay);
   
   if (filteredSchedule.length === 0) {
-    container.innerHTML = '<p class="text-center">No sessions scheduled for this day.</p>';
+    container.innerHTML = `<p class="text-center" style="padding: 40px; color: var(--text-muted);">No sessions scheduled for ${appState.activeScheduleDay}.</p>`;
     return;
   }
+  
+  // Find active day's date config
+  const activeDayConfig = (appState.event_days || []).find(d => `Day ${d.dayNumber}` === appState.activeScheduleDay);
+  const activeDayDate = activeDayConfig ? activeDayConfig.date : '';
+  const now = new Date();
   
   filteredSchedule.forEach(item => {
     const row = document.createElement('div');
     row.className = 'timeline-row';
     row.setAttribute('onclick', `openSessionDetail('${item.id}')`);
     
+    // Calculate status dynamically based on day date & current time
+    let statusText = item.status || 'Upcoming';
+    if (activeDayDate) {
+      if (activeDayDate < todayStr) {
+        statusText = 'Completed';
+      } else if (activeDayDate > todayStr) {
+        statusText = 'Upcoming';
+      } else if (activeDayDate === todayStr) {
+        statusText = calculateSessionLiveStatus(item.time, now);
+      }
+    }
+    
     let statusClass = 'status-upcoming';
-    if (item.status === 'Live Now') statusClass = 'status-live';
-    if (item.status === 'Completed') statusClass = 'status-completed';
+    if (statusText === 'Live Now') statusClass = 'status-live';
+    if (statusText === 'Completed' || statusText === 'Past') statusClass = 'status-completed';
     
     row.innerHTML = `
       <div class="timeline-dot"></div>
@@ -741,7 +828,7 @@ function renderScheduleTimeline() {
             <span><i data-lucide="map-pin"></i> ${item.venue}</span>
           </div>
         </div>
-        <span class="status-badge ${statusClass}">${item.status}</span>
+        <span class="status-badge ${statusClass}">${statusText}</span>
       </div>
     `;
     
@@ -2090,10 +2177,38 @@ async function saveEventDayItem(e) {
 // ==========================================================================
 
 // SUB-TAB: Schedule
+function populateAdminScheduleDayDropdown() {
+  const selectEl = document.getElementById('sch-day');
+  if (!selectEl) return;
+  const currentVal = selectEl.value;
+  selectEl.innerHTML = '';
+  
+  const daysList = (appState.event_days || []).slice().sort((a, b) => Number(a.dayNumber) - Number(b.dayNumber));
+  if (daysList.length === 0) {
+    selectEl.innerHTML = '<option value="Day 1">Day 1</option><option value="Day 2">Day 2</option><option value="Day 3">Day 3</option><option value="Day 4">Day 4</option>';
+    if (currentVal) selectEl.value = currentVal;
+    return;
+  }
+  
+  daysList.forEach(d => {
+    const opt = document.createElement('option');
+    const dayVal = `Day ${d.dayNumber}`;
+    const dateFormatted = formatEventDateString(d.date);
+    opt.value = dayVal;
+    opt.textContent = dateFormatted ? `${dayVal} (${dateFormatted})` : dayVal;
+    selectEl.appendChild(opt);
+  });
+  
+  if (currentVal && Array.from(selectEl.options).some(o => o.value === currentVal)) {
+    selectEl.value = currentVal;
+  }
+}
+
 async function fetchAdminScheduleList() {
   const listEl = document.getElementById('admin-schedule-list');
   if (!listEl) return;
   
+  populateAdminScheduleDayDropdown();
   listEl.innerHTML = '';
   
   // Fetch newest schedule list
@@ -2218,6 +2333,7 @@ async function loadItemForEdit(type, id) {
   appState.editingItemId = id;
   
   if (type === 'schedule') {
+    populateAdminScheduleDayDropdown();
     const item = appState.schedule.find(s => s.id === id);
     document.getElementById('sch-item-id').value = item.id;
     document.getElementById('sch-title').value = item.title;
@@ -2310,6 +2426,7 @@ function resetCrudForm(type) {
   appState.editingItemId = null;
   
   if (type === 'schedule') {
+    populateAdminScheduleDayDropdown();
     document.getElementById('admin-schedule-form').reset();
     document.getElementById('sch-item-id').value = '';
     document.getElementById('sch-day').value = 'Day 1';
