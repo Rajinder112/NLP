@@ -660,16 +660,12 @@ img {
 
 .countdown-lbl {
   font-size: 0.75rem;
+  font-weight: 700;
   text-transform: uppercase;
-  color: #64748b;
-  letter-spacing: 1px;
-}
-
-.countdown-lbl {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  color: var(--text-light);
-  letter-spacing: 1px;
+  color: #334155;
+  letter-spacing: 1.5px;
+  display: block;
+  margin-top: 4px;
 }
 
 /* Live indicators */
