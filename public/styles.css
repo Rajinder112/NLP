@@ -1553,13 +1553,13 @@ img {
 
 /* Home highlight item */
 .announcement-highlight-card {
-  background: linear-gradient(135deg, hsl(348, 55%, 15%), hsl(348, 50%, 8%));
-  border: 1px solid var(--accent);
-  color: var(--text-light);
+  background: #ffffff;
+  border: 2px solid var(--accent);
+  color: #0f172a;
   border-radius: var(--radius-lg);
   padding: 36px;
   text-align: center;
-  box-shadow: 0 16px 40px rgba(59, 11, 17, 0.25);
+  box-shadow: 0 12px 32px rgba(59, 11, 17, 0.08);
   max-width: 800px;
   margin: 0 auto;
   position: relative;
@@ -1567,15 +1567,15 @@ img {
 }
 
 .announcement-highlight-card h3 {
-  color: var(--accent);
+  color: #3b0b11;
   font-size: 1.4rem;
   margin-bottom: 12px;
 }
 
 .announcement-highlight-card p {
+  color: #334155;
   font-size: 1.05rem;
   margin-bottom: 16px;
-  opacity: 0.9;
 }
 
 /* ==========================================================================
@@ -2852,11 +2852,12 @@ img {
    GLOBAL FOOTER STYLING
    ========================================================================== */
 .main-footer {
-  background-color: var(--primary-bg);
-  border-top: 3px solid var(--accent);
-  color: var(--text-light);
-  padding: 30px 0;
-  margin-top: auto;
+  background: linear-gradient(135deg, #2b080d 0%, #3b0b11 50%, #1e0508 100%);
+  border-top: 4px solid var(--accent);
+  color: #ffffff;
+  padding: 48px 0 28px 0;
+  margin-top: 60px;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
 }
 
 .footer-grid {
@@ -2876,51 +2877,51 @@ img {
 }
 
 .footer-brand h3 {
-  color: var(--text-light);
+  color: #ffffff;
   font-size: 1.3rem;
   margin-bottom: 8px;
 }
 
 .footer-brand p {
-  color: var(--text-muted);
-  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
   margin-bottom: 0;
 }
 
 .footer-links h4,
 .footer-meta h4 {
-  color: var(--accent);
+  color: #c5a059;
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   text-transform: uppercase;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   letter-spacing: 1px;
 }
 
 .footer-links li {
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .footer-links a {
-  font-size: 0.85rem;
-  color: var(--text-muted);
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .footer-links a:hover {
-  color: var(--accent-light);
+  color: #c5a059;
   padding-left: 4px;
 }
 
 .footer-bottom {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
   padding-top: 20px;
-  margin-top: 24px;
+  margin-top: 32px;
   width: 100%;
 }
 
 .footer-meta {
-  font-size: 0.82rem;
-  color: var(--text-muted);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
   text-align: center;
 }
 
