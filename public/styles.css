@@ -7,9 +7,9 @@
   --primary-light: hsl(348, 45%, 23%);  /* Medium Crimson/Burgundy */
   --primary-bg: hsl(348, 55%, 8%);      /* Dark Burgundy Black */
   
-  --accent: hsl(40, 50%, 54%);          /* Refined Gold #C5A059 */
-  --accent-light: hsl(40, 50%, 65%);
-  --accent-dark: hsl(40, 50%, 42%);
+  --accent: hsl(40, 60%, 52%);          /* Refined Gold #C5A059 */
+  --accent-light: hsl(40, 70%, 65%);
+  --accent-dark: hsl(40, 60%, 42%);
   
   --highlight: hsl(359, 69%, 54%);      /* Subtle Red for live/urgent badges */
   --highlight-light: hsl(359, 69%, 95%);
@@ -25,15 +25,25 @@
   --text-muted: hsl(210, 12%, 46%);     /* Muted Grey */
   --text-light: hsl(210, 20%, 98%);     /* Off-White */
   
+  /* Modern Glassmorphism & Card Tokens */
+  --glass-bg: rgba(255, 255, 255, 0.78);
+  --glass-bg-dark: rgba(15, 23, 42, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-border-gold: rgba(197, 160, 89, 0.3);
+  --glass-blur: blur(16px) saturate(180%);
+  --glass-shadow: 0 10px 30px 0 rgba(31, 38, 135, 0.07);
+  --glass-shadow-hover: 0 20px 40px 0 rgba(59, 11, 17, 0.14);
+  
   /* Borders and Shadow tokens */
   --border-light: hsl(210, 14%, 88%);
-  --border-gold: hsla(40, 50%, 54%, 0.3);
-  --shadow-sm: 0 2px 8px rgba(11, 28, 60, 0.05);
-  --shadow-md: 0 8px 24px rgba(11, 28, 60, 0.08);
-  --shadow-lg: 0 16px 48px rgba(11, 28, 60, 0.12);
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --border-gold: hsla(40, 50%, 54%, 0.35);
+  --shadow-sm: 0 4px 12px rgba(11, 28, 60, 0.04);
+  --shadow-md: 0 12px 28px rgba(11, 28, 60, 0.08);
+  --shadow-lg: 0 20px 48px rgba(11, 28, 60, 0.14);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
   
   /* Animations */
@@ -59,7 +69,10 @@ html {
 body {
   font-family: 'Inter', sans-serif;
   color: var(--text-dark);
-  background-color: var(--bg-soft);
+  background: radial-gradient(circle at 10% 15%, rgba(197, 160, 89, 0.05) 0%, transparent 40%),
+              radial-gradient(circle at 90% 85%, rgba(59, 11, 17, 0.06) 0%, transparent 40%),
+              hsl(210, 20%, 97%);
+  background-attachment: fixed;
   line-height: 1.6;
   min-height: 100vh;
   display: flex;
@@ -133,11 +146,12 @@ img {
 .main-header {
   position: sticky;
   top: 0;
-  background-color: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-light);
+  background-color: rgba(255, 255, 255, 0.82);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border-gold);
   z-index: 1000;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
   transition: var(--transition);
 }
 
@@ -406,12 +420,12 @@ img {
    PREMIUM HERO SECTION & EVENT STATE CARDS
    ========================================================================== */
 .hero-block {
-  background: linear-gradient(rgba(11, 28, 60, 0.88), rgba(11, 28, 60, 0.88)), url('/assets/medanta_building.png');
+  background: linear-gradient(135deg, rgba(24, 7, 12, 0.92), rgba(15, 23, 42, 0.92)), url('/assets/medanta_building.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   color: var(--text-light);
-  padding: 100px 24px 80px 24px;
+  padding: 110px 24px 90px 24px;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -528,14 +542,15 @@ img {
 
 /* --- EVENT STATE WIDGETS --- */
 .hero-status-card {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: var(--radius-lg);
-  padding: 24px;
-  max-width: 600px;
+  padding: 28px;
+  max-width: 620px;
   margin: 0 auto 40px auto;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .status-indicator {
@@ -661,43 +676,52 @@ img {
   cursor: pointer;
   transition: var(--transition);
   border: 2px solid transparent;
+  backdrop-filter: blur(8px);
 }
 
 .btn-primary {
-  background-color: var(--primary);
+  background: linear-gradient(135deg, hsl(348, 55%, 15%), hsl(348, 45%, 23%));
   color: var(--accent);
-  border-color: var(--primary);
+  border-color: var(--accent);
+  box-shadow: 0 4px 16px rgba(59, 11, 17, 0.35);
 }
 
 .btn-primary:hover {
-  background-color: var(--bg-pure);
+  background: var(--bg-pure);
   color: var(--primary);
   border-color: var(--primary);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(59, 11, 17, 0.4);
 }
 
 .btn-gold {
-  background-color: var(--accent);
+  background: linear-gradient(135deg, hsl(40, 60%, 55%), hsl(40, 50%, 42%));
   color: var(--primary);
-  border-color: var(--accent);
+  border-color: var(--accent-light);
+  box-shadow: 0 4px 16px rgba(197, 160, 89, 0.35);
 }
 
 .btn-gold:hover {
-  background-color: transparent;
+  background: transparent;
   color: var(--text-light);
   border-color: var(--accent);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(197, 160, 89, 0.45);
 }
 
 .btn-outline {
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.45);
   color: var(--text-light);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
 }
 
 .btn-outline:hover {
   background-color: white;
   color: var(--primary);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
+}
   border-color: white;
   transform: translateY(-2px);
 }
@@ -903,18 +927,20 @@ img {
 }
 
 .details-card {
-  background-color: var(--bg-card);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   padding: 32px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border-gold);
+  box-shadow: var(--glass-shadow);
   transition: var(--transition);
 }
 
 .details-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-6px);
   border-color: var(--accent);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--glass-shadow-hover);
 }
 
 .card-icon {
@@ -1011,11 +1037,14 @@ img {
 
 .timeline-card {
   flex-grow: 1;
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  padding: 20px 24px;
-  box-shadow: var(--shadow-sm);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border-gold);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 22px 28px;
+  box-shadow: var(--glass-shadow);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1023,9 +1052,9 @@ img {
 }
 
 .timeline-row:hover .timeline-card {
-  transform: translateX(5px);
-  border-color: var(--accent-light);
-  box-shadow: var(--shadow-md);
+  transform: translateX(6px) translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: var(--glass-shadow-hover);
 }
 
 .timeline-time {
@@ -1104,13 +1133,22 @@ img {
 }
 
 .activity-card {
-  background-color: var(--bg-card);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   padding: 40px 32px;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--glass-border-gold);
+  box-shadow: var(--glass-shadow);
   position: relative;
   overflow: hidden;
+  transition: var(--transition);
+}
+
+.activity-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--glass-shadow-hover);
+  border-color: var(--accent);
 }
 
 .activity-card::before {
@@ -1157,11 +1195,13 @@ img {
    MODULE: ATTENDANCE REGISTRY
    ========================================================================== */
 .attendance-card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-top: 4px solid var(--accent);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border-gold);
+  border-top: 5px solid var(--accent);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--glass-shadow);
   overflow: hidden;
 }
 
@@ -1350,12 +1390,14 @@ img {
 
 /* Profile Card Styling */
 .profile-card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-light);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border-gold);
   border-radius: var(--radius-lg);
-  padding: 32px 24px;
+  padding: 36px 24px;
   text-align: center;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--glass-shadow);
   transition: var(--transition);
   cursor: pointer;
 }
@@ -1363,7 +1405,7 @@ img {
 .profile-card:hover {
   transform: translateY(-8px);
   border-color: var(--accent);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--glass-shadow-hover);
 }
 
 .profile-photo-wrapper {
@@ -1419,23 +1461,26 @@ img {
 }
 
 .announcement-card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  padding: 24px 32px;
-  box-shadow: var(--shadow-sm);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border-gold);
+  border-radius: var(--radius-lg);
+  padding: 28px 36px;
+  box-shadow: var(--glass-shadow);
   position: relative;
   transition: var(--transition);
 }
 
 .announcement-card.priority-high {
   border: 2px solid var(--highlight);
-  background-color: hsla(359, 69%, 54%, 0.02);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(254, 242, 242, 0.85));
 }
 
 .announcement-card:hover {
-  transform: translateX(3px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-4px) translateX(4px);
+  box-shadow: var(--glass-shadow-hover);
+  border-color: var(--accent);
 }
 
 .ann-header {
@@ -1490,15 +1535,17 @@ img {
 
 /* Home highlight item */
 .announcement-highlight-card {
-  background-color: var(--primary);
+  background: linear-gradient(135deg, hsl(348, 55%, 15%), hsl(348, 50%, 8%));
   border: 1px solid var(--accent);
   color: var(--text-light);
-  border-radius: var(--radius-md);
-  padding: 32px;
+  border-radius: var(--radius-lg);
+  padding: 36px;
   text-align: center;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 16px 40px rgba(59, 11, 17, 0.25);
   max-width: 800px;
   margin: 0 auto;
+  position: relative;
+  overflow: hidden;
 }
 
 .announcement-highlight-card h3 {
@@ -1714,11 +1761,13 @@ img {
    ADMIN PORTAL & LOGIN PANEL
    ========================================================================== */
 .admin-login-card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-light);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border-gold);
   border-radius: var(--radius-lg);
   padding: 48px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--glass-shadow-hover);
   max-width: 500px;
   margin: 80px auto;
 }
@@ -1752,11 +1801,13 @@ img {
   display: grid;
   grid-template-columns: 260px 1fr;
   min-height: 700px;
-  border: 1px solid var(--border-light);
-  background-color: var(--bg-card);
+  border: 1px solid var(--glass-border-gold);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--glass-shadow-hover);
   max-width: 1200px;
   margin: 0 auto 40px auto;
 }
@@ -1895,13 +1946,21 @@ img {
 }
 
 .metric-card {
-  background-color: var(--bg-soft);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(245, 247, 250, 0.85));
+  border: 1px solid var(--glass-border-gold);
+  border-radius: var(--radius-lg);
   padding: 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: var(--glass-shadow);
+  transition: var(--transition);
+}
+
+.metric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--glass-shadow-hover);
+  border-color: var(--accent);
 }
 
 .metric-val {
