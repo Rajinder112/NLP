@@ -744,15 +744,18 @@ function renderScheduleTimeline() {
   const todayStr = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
   const dayKeys = eventDaysList.map(d => `Day ${d.dayNumber}`);
   
-  // Auto-selection of active day based on system date if not locked by user
-  if (!appState.activeScheduleDay || !dayKeys.includes(appState.activeScheduleDay)) {
-    const todayMatch = eventDaysList.find(d => d.date === todayStr);
-    if (todayMatch) {
-      appState.activeScheduleDay = `Day ${todayMatch.dayNumber}`;
+  // Auto-selection of active day based on system date if not locked by manual user click
+  if (!appState.userManuallySelectedScheduleDay || !dayKeys.includes(appState.activeScheduleDay)) {
+    // Find closest upcoming event day (d.date >= todayStr)
+    const upcomingMatch = eventDaysList.find(d => d.date && d.date >= todayStr);
+    
+    if (upcomingMatch) {
+      appState.activeScheduleDay = `Day ${upcomingMatch.dayNumber}`;
     } else {
-      const upcomingMatch = eventDaysList.find(d => d.date && d.date >= todayStr);
-      if (upcomingMatch) {
-        appState.activeScheduleDay = `Day ${upcomingMatch.dayNumber}`;
+      // If every event has finished (today is after the last event), automatically select the latest event day
+      const latestEventDay = eventDaysList[eventDaysList.length - 1];
+      if (latestEventDay) {
+        appState.activeScheduleDay = `Day ${latestEventDay.dayNumber}`;
       } else if (dayKeys.length > 0) {
         appState.activeScheduleDay = dayKeys[0];
       }
@@ -766,14 +769,16 @@ function renderScheduleTimeline() {
       const dayKey = `Day ${item.dayNumber}`;
       const formattedDate = formatEventDateString(item.date);
       const isToday = item.date === todayStr;
+      const isActive = appState.activeScheduleDay === dayKey;
       
       const btn = document.createElement('button');
-      btn.className = `filter-btn ${appState.activeScheduleDay === dayKey ? 'active' : ''} ${isToday ? 'today-day-tab' : ''}`;
+      btn.className = `filter-btn ${isActive ? 'active' : ''} ${isToday ? 'today-day-tab' : ''}`;
       btn.innerHTML = `
         <span class="tab-day-label">${dayKey}</span>
-        ${formattedDate ? `<span class="tab-date-subtext">${formattedDate}</span>` : ''}
+        ${formattedDate ? `<span class="tab-date-sep">•</span><span class="tab-date-subtext">${formattedDate}</span>` : ''}
       `;
       btn.addEventListener('click', () => {
+        appState.userManuallySelectedScheduleDay = true;
         appState.activeScheduleDay = dayKey;
         renderScheduleTimeline();
       });

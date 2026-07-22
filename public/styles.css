@@ -1472,22 +1472,53 @@ img {
 
 .filter-btn {
   font-family: 'Montserrat', sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 10px 20px;
+  padding: 10px 22px;
   border-radius: var(--radius-full);
-  border: 1px solid var(--border-light);
-  background-color: var(--bg-card);
-  color: var(--text-dark);
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #0f172a;
   cursor: pointer;
   transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  white-space: nowrap;
+}
+
+.tab-day-label {
+  font-weight: 700;
+}
+
+.tab-date-sep {
+  opacity: 0.6;
+  font-size: 0.8rem;
+  margin: 0 3px;
+  color: inherit;
+}
+
+.tab-date-subtext {
+  font-size: 0.82rem;
+  font-weight: 500;
+  opacity: 0.85;
+  color: inherit;
 }
 
 .filter-btn:hover,
 .filter-btn.active {
-  background-color: var(--primary);
-  color: var(--accent);
-  border-color: var(--primary);
+  background-color: #3b0b11;
+  color: #c5a059;
+  border-color: #3b0b11;
+  box-shadow: 0 6px 18px rgba(59, 11, 17, 0.25);
+  transform: translateY(-2px);
+}
+
+.filter-btn:hover .tab-date-sep,
+.filter-btn.active .tab-date-sep {
+  color: #c5a059;
+  opacity: 1;
 }
 
 .profiles-grid {
@@ -3174,6 +3205,17 @@ img {
   
   .footer-links {
     justify-self: start;
+  }
+  
+  /* Mobile schedule tab labels (< 768px) */
+  .tab-date-sep,
+  .tab-date-subtext {
+    display: none !important;
+  }
+  
+  .filter-btn {
+    padding: 8px 16px;
+    font-size: 0.8rem;
   }
 }
 
