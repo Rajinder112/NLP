@@ -324,11 +324,13 @@ async function initApp() {
   setupGalleryFilters();
 
   // Setup Global Modal Backdrop & Escape Key Listeners
-  document.addEventListener('click', (e) => {
+  const handleBackdropClose = (e) => {
     if (e.target && e.target.classList && e.target.classList.contains('modal-overlay')) {
       e.target.classList.remove('active');
     }
-  });
+  };
+  document.addEventListener('click', handleBackdropClose);
+  document.addEventListener('touchend', handleBackdropClose);
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {

@@ -2665,26 +2665,30 @@ img {
 }
 
 .modal-close-btn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(15, 23, 42, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  font-size: 1.4rem;
+  background: #ffffff;
+  border: 2px solid #3b0b11;
+  font-size: 1.6rem;
   font-weight: 700;
   line-height: 1;
-  color: #334155;
+  color: #3b0b11;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  z-index: 999 !important;
+  z-index: 10000 !important;
   pointer-events: auto !important;
   user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 }
 
-.modal-close-btn:hover {
+.modal-close-btn:hover,
+.modal-close-btn:active {
   background: #dc2626;
   color: #ffffff;
   border-color: #dc2626;
@@ -2754,9 +2758,9 @@ img {
 
 .profile-close {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 999 !important;
+  top: 14px;
+  right: 14px;
+  z-index: 10000 !important;
   pointer-events: auto !important;
 }
 
@@ -3192,6 +3196,18 @@ img {
   
   .profile-popup-content {
     padding: 24px;
+  }
+
+  .profile-close {
+    top: 12px !important;
+    right: 12px !important;
+    width: 44px !important;
+    height: 44px !important;
+    background: #ffffff !important;
+    color: #3b0b11 !important;
+    border: 2px solid #3b0b11 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+    z-index: 10000 !important;
   }
   
   .cta-banner {
