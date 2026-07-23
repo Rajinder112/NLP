@@ -280,6 +280,7 @@ let appState = {
   overview: [],
   currentAdminTab: 'db-summary',
   editingItemId: null, // Track currently edited item ID
+  editingProfileType: null, // Track original collection type of edited profile ('leaders' | 'committee')
   isLoggedIn: false,
   activeScheduleDay: 'Day 1'
 };
@@ -2414,6 +2415,7 @@ async function loadItemForEdit(type, id) {
     document.getElementById('ann-submit-btn').textContent = 'Save Changes';
     
   } else if (type === 'leaders' || type === 'committee') {
+    appState.editingProfileType = type;
     const list = type === 'leaders' ? appState.leaders : appState.committee;
     const item = list.find(p => p.id === id);
     
@@ -2494,6 +2496,7 @@ function resetCrudForm(type) {
     document.getElementById('ann-submit-btn').textContent = 'Publish Announcement';
     
   } else if (type === 'profiles') {
+    appState.editingProfileType = null;
     document.getElementById('admin-profile-form').reset();
     document.getElementById('prof-item-id').value = '';
     document.getElementById('prof-photo-url').value = '';
@@ -2565,29 +2568,33 @@ async function handleCrudSubmit(e, formType) {
       if (uploadUrl) photoUrl = uploadUrl;
     }
     
+    const targetType = isCommittee ? 'committee' : 'leaders';
+    const originalType = appState.editingProfileType;
+    const isConvertingRole = isEditing && originalType && originalType !== targetType;
+
     if (isCommittee) {
-      endpoint = isEditing ? `/committee/${appState.editingItemId}` : '/committee';
+      endpoint = (isEditing && !isConvertingRole) ? `/committee/${appState.editingItemId}` : '/committee';
       payload = {
         fullName: document.getElementById('prof-fullname').value,
         designation: document.getElementById('prof-designation').value,
-        role: document.getElementById('prof-committee-role').value,
-        department: document.getElementById('prof-dept').value,
+        role: document.getElementById('prof-committee-role').value || 'Organising Committee',
+        department: document.getElementById('prof-dept').value || 'Hospital Administration',
         email: document.getElementById('prof-email').value,
         phoneNumber: document.getElementById('prof-phone').value,
         responsibility: document.getElementById('prof-bio').value,
         photo: photoUrl || undefined
       };
     } else {
-      endpoint = isEditing ? `/leaders/${appState.editingItemId}` : '/leaders';
+      endpoint = (isEditing && !isConvertingRole) ? `/leaders/${appState.editingItemId}` : '/leaders';
       const cat = document.getElementById('prof-category').value;
       payload = {
         fullName: document.getElementById('prof-fullname').value,
         designation: document.getElementById('prof-designation').value,
-        category: cat,
-        organisation: document.getElementById('prof-org').value,
-        roleInEvent: document.getElementById('prof-role').value,
-        sessionTitle: document.getElementById('prof-session-title').value,
-        sessionDateTime: document.getElementById('prof-session-datetime').value,
+        category: cat || 'Program Leadership',
+        organisation: document.getElementById('prof-org').value || 'Medanta Lucknow',
+        roleInEvent: document.getElementById('prof-role').value || 'Speaker / Facilitator',
+        sessionTitle: document.getElementById('prof-session-title').value || '',
+        sessionDateTime: document.getElementById('prof-session-datetime').value || '',
         contactDetails: document.getElementById('prof-email').value,
         phoneNumber: document.getElementById('prof-phone').value,
         shortProfile: document.getElementById('prof-bio').value,
@@ -2599,6 +2606,45 @@ async function handleCrudSubmit(e, formType) {
         payload.learningObjective = document.getElementById('prof-objective').value;
       }
     }
+
+    const method = (isEditing && !isConvertingRole) ? 'PUT' : 'POST';
+    
+    try {
+      const res = await fetch(`${API_BASE}${endpoint}`, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader()
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      if (res.ok) {
+        // If converting role from another collection, clean up old entry from original collection
+        if (isConvertingRole && appState.editingItemId) {
+          try {
+            await fetch(`${API_BASE}/${originalType}/${appState.editingItemId}`, {
+              method: 'DELETE',
+              headers: getAuthHeader()
+            });
+          } catch (delErr) {
+            console.warn('Error cleaning up converted profile item:', delErr);
+          }
+        }
+
+        showToast(isConvertingRole ? 'Profile converted to new role successfully.' : (isEditing ? 'Record updated.' : 'Record added successfully.'), 'success');
+        resetCrudForm(formType);
+        await fetchAdminProfilesList();
+        await refreshPublicData();
+      } else {
+        const err = await res.json();
+        showToast(err.error || 'Failed to submit data.', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Error saving profile.', 'error');
+    }
+    return;
   }
 
   const method = isEditing ? 'PUT' : 'POST';
