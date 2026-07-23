@@ -355,7 +355,7 @@ async function initApp() {
 // ==========================================================================
 async function fetchSettings() {
   try {
-    const res = await fetch(`${API_BASE}/settings`);
+    const res = await fetch(`${API_BASE}/settings?_t=${Date.now()}`, { cache: 'no-store' });
     appState.settings = await res.json();
     
     // Update Hero elements based on retrieved settings
@@ -384,7 +384,7 @@ async function refreshPublicData() {
       if (endpoint === 'gallery' && isGalleryLocalOnly()) {
         throw new Error('Gallery local-only mode active');
       }
-      const res = await fetch(`${API_BASE}/${endpoint}`);
+      const res = await fetch(`${API_BASE}/${endpoint}?_t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const text = await res.text();
         try {
@@ -2076,20 +2076,22 @@ async function fetchAdminEventDays() {
   tableBody.innerHTML = '';
   
   try {
-    const res = await fetch(`${API_BASE}/event_days`);
+    const res = await fetch(`${API_BASE}/event_days?_t=${Date.now()}`, { cache: 'no-store' });
     const text = await res.text();
     if (text.trim().startsWith('<!DOCTYPE')) {
       throw new Error('Endpoint returned HTML instead of JSON');
     }
     appState.event_days = JSON.parse(text);
+    localStorage.setItem('nlp_local_event_days', JSON.stringify(appState.event_days));
   } catch (err) {
     console.warn('Backend /event_days API offline or unrouted, loading from localStorage.');
     const local = localStorage.getItem('nlp_local_event_days');
     appState.event_days = local ? JSON.parse(local) : [
       { id: 'day_1', dayNumber: 1, date: '2026-07-10' },
       { id: 'day_2', dayNumber: 2, date: '2026-07-11' },
-      { id: 'day_3', dayNumber: 3, date: '2026-07-12' },
-      { id: 'day_4', dayNumber: 4, date: '2026-07-26' }
+      { id: 'day_3', dayNumber: 3, date: '2026-07-17' },
+      { id: 'day_4', dayNumber: 4, date: '2026-07-26' },
+      { id: 'day_5', dayNumber: 5, date: '2026-07-26' }
     ];
   }
 
@@ -2265,7 +2267,7 @@ async function fetchAdminScheduleList() {
   listEl.innerHTML = '';
   
   // Fetch newest schedule list
-  const res = await fetch(`${API_BASE}/schedule`);
+  const res = await fetch(`${API_BASE}/schedule?_t=${Date.now()}`, { cache: 'no-store' });
   appState.schedule = await res.json();
   
   // Sort schedule items numerically by Day, then by Time
@@ -2305,7 +2307,7 @@ async function fetchAdminAnnouncementsList() {
   if (!listEl) return;
   
   listEl.innerHTML = '';
-  const res = await fetch(`${API_BASE}/announcements`);
+  const res = await fetch(`${API_BASE}/announcements?_t=${Date.now()}`, { cache: 'no-store' });
   appState.announcements = await res.json();
   
   appState.announcements.forEach(item => {
@@ -2335,8 +2337,8 @@ async function fetchAdminProfilesList() {
   listEl.innerHTML = '';
   
   const [resL, resC] = await Promise.all([
-    fetch(`${API_BASE}/leaders`),
-    fetch(`${API_BASE}/committee`)
+    fetch(`${API_BASE}/leaders?_t=${Date.now()}`, { cache: 'no-store' }),
+    fetch(`${API_BASE}/committee?_t=${Date.now()}`, { cache: 'no-store' })
   ]);
   
   appState.leaders = await resL.json();
