@@ -2467,7 +2467,7 @@ function populateAdminScheduleDayDropdown() {
   
   const daysList = (appState.event_days || []).slice().sort((a, b) => Number(a.dayNumber) - Number(b.dayNumber));
   if (daysList.length === 0) {
-    selectEl.innerHTML = '<option value="Day 1">Day 1</option><option value="Day 2">Day 2</option><option value="Day 3">Day 3</option><option value="Day 4">Day 4</option>';
+    selectEl.innerHTML = '<option value="Day 1">Day 1</option><option value="Day 2">Day 2</option><option value="Day 3">Day 3</option><option value="Day 4">Day 4</option><option value="Day 5">Day 5</option>';
     if (currentVal) selectEl.value = currentVal;
     return;
   }
@@ -2493,9 +2493,27 @@ async function fetchAdminScheduleList() {
   populateAdminScheduleDayDropdown();
   listEl.innerHTML = '';
   
-  // Fetch newest schedule list
-  const res = await fetch(`${API_BASE}/schedule?_t=${Date.now()}`, { cache: 'no-store' });
-  appState.schedule = await res.json();
+  // Fetch newest schedule list safely
+  try {
+    const res = await fetch(`${API_BASE}/schedule?_t=${Date.now()}`, { cache: 'no-store' });
+    const text = await res.text();
+    if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+      throw new Error('Endpoint returned HTML document instead of JSON data');
+    }
+    const parsed = JSON.parse(text);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      appState.schedule = parsed;
+    } else {
+      if (!appState.schedule || appState.schedule.length === 0) {
+        appState.schedule = SEED_SCHEDULE;
+      }
+    }
+  } catch (err) {
+    console.warn('Backend API offline or returned non-JSON schedule, using in-memory / SEED_SCHEDULE:', err.message);
+    if (!appState.schedule || appState.schedule.length === 0) {
+      appState.schedule = SEED_SCHEDULE;
+    }
+  }
   
   // Sort schedule items numerically by Day, then by Time
   appState.schedule.sort((a, b) => {
