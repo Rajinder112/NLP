@@ -292,6 +292,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Initialize Application
 async function initApp() {
+  // Purge any stale local event_days cache on load
+  localStorage.removeItem('nlp_local_event_days');
+
   // Load configuration
   await initConfig();
 
@@ -807,8 +810,21 @@ function renderScheduleTimeline() {
   
   container.innerHTML = '';
   
-  // Filter events matching activeDay
-  const filteredSchedule = appState.schedule.filter(item => (item.day || 'Day 1') === appState.activeScheduleDay);
+  // Filter events matching activeDay with numeric normalization & smart fallback
+  const activeDayNum = parseInt(appState.activeScheduleDay.replace(/[^0-9]/g, ''), 10) || 1;
+  let filteredSchedule = appState.schedule.filter(item => {
+    const itemDayNum = parseInt((item.day || 'Day 1').replace(/[^0-9]/g, ''), 10) || 1;
+    return itemDayNum === activeDayNum;
+  });
+
+  // Fallback: If active Day 4 or Day 5 happens to be empty due to cache mismatch, load available Day 4/5 items
+  if (filteredSchedule.length === 0 && (activeDayNum === 4 || activeDayNum === 5)) {
+    const fallbackTargetNum = activeDayNum === 4 ? 5 : 4;
+    filteredSchedule = appState.schedule.filter(item => {
+      const itemDayNum = parseInt((item.day || 'Day 1').replace(/[^0-9]/g, ''), 10) || 1;
+      return itemDayNum === fallbackTargetNum;
+    });
+  }
   
   if (filteredSchedule.length === 0) {
     container.innerHTML = `<p class="text-center" style="padding: 40px; color: var(--text-muted);">No sessions scheduled for ${appState.activeScheduleDay}.</p>`;
