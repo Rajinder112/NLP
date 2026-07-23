@@ -588,6 +588,12 @@ async function fetchSettings() {
     const detailsVenue = document.getElementById('details-venue-text');
     if (detailsVenue) detailsVenue.textContent = appState.settings.eventVenue;
     
+    // Update Hero Download PDF button href if uploaded
+    const heroPdfBtn = document.getElementById('hero-download-pdf-btn');
+    if (heroPdfBtn && appState.settings.pdfUrl) {
+      heroPdfBtn.setAttribute('href', appState.settings.pdfUrl);
+    }
+    
     updateEventStateWidget();
   } catch (err) {
     console.error('Error fetching settings:', err);
@@ -2043,6 +2049,15 @@ async function handleConfigUpdate(e) {
     eventDateDisplay: document.getElementById('cfg-event-date-display').value,
     eventVenue: document.getElementById('cfg-event-venue').value
   };
+
+  const pdfFileEl = document.getElementById('cfg-event-pdf-file');
+  if (pdfFileEl && pdfFileEl.files.length > 0) {
+    const uploadedPdfUrl = await uploadFileToServer(pdfFileEl.files[0]);
+    if (uploadedPdfUrl) {
+      payload.pdfUrl = uploadedPdfUrl;
+      payload.lastUpdatedPdf = new Date().toISOString();
+    }
+  }
 
   try {
     const res = await fetch(`${API_BASE}/settings`, {
