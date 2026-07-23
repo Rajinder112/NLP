@@ -279,6 +279,160 @@ async function seedPostgres() {
         venue: 'Medanta Lucknow Outbound Facility',
         status: 'Upcoming',
         details: 'Review of cohort achievements, closing remarks, and presentation of certificate awards.'
+      },
+      {
+        id: 'sch_day5_1',
+        day: 'Day 5',
+        time: '08:30 AM - 09:00 AM',
+        title: 'Registration',
+        speaker: 'Organising Committee',
+        type: 'Activity',
+        venue: 'Main Auditorium / 10th Floor ITC',
+        status: 'Upcoming',
+        details: 'Participant Registration'
+      },
+      {
+        id: 'sch_day5_2',
+        day: 'Day 5',
+        time: '09:00 AM - 09:30 AM',
+        title: 'Welcome Address & Lamp Lighting',
+        speaker: 'Management',
+        type: 'Keynote',
+        venue: 'Main Auditorium',
+        status: 'Upcoming',
+        details: 'Medanta Leadership'
+      },
+      {
+        id: 'sch_day5_3',
+        day: 'Day 5',
+        time: '09:30 AM - 09:45 AM',
+        title: 'Message to the Group & Clinical Governance',
+        speaker: 'Vice President – Operations',
+        type: 'Keynote',
+        venue: 'Main Auditorium',
+        status: 'Upcoming',
+        details: '• Organization\'s Expectations'
+      },
+      {
+        id: 'sch_day5_4',
+        day: 'Day 5',
+        time: '09:45 AM - 10:00 AM',
+        title: 'Programme Introduction',
+        speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh',
+        type: 'Workshop',
+        venue: 'Main Auditorium',
+        status: 'Upcoming',
+        details: '• Programme Expectations • Curriculum Overview • Learning Objectives'
+      },
+      {
+        id: 'sch_day5_5',
+        day: 'Day 5',
+        time: '10:00 AM - 10:15 AM',
+        title: 'Tea Break',
+        speaker: 'Organising Committee',
+        type: 'Break',
+        venue: 'Dining Area',
+        status: 'Upcoming',
+        details: 'Morning Refreshment Break'
+      },
+      {
+        id: 'sch_day5_6',
+        day: 'Day 5',
+        time: '10:15 AM - 12:00 PM',
+        title: 'The Role of Middle Management',
+        speaker: 'External Speaker',
+        type: 'Lecture',
+        venue: 'Main Auditorium',
+        status: 'Upcoming',
+        details: '• Middle Management Skills • Managing Upward and Downward • Bridging Leadership and Teams • Effective Leadership for Middle Managers • Aligning Top Management Vision with Team Execution • Achieving Middle Management Excellence • Managing Leadership Expectations and Team Performance'
+      },
+      {
+        id: 'sch_day5_7',
+        day: 'Day 5',
+        time: '12:00 PM - 01:00 PM',
+        title: 'Team Building Activity',
+        speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh',
+        type: 'Activity',
+        venue: 'Main Auditorium / Activity Hall',
+        status: 'Upcoming',
+        details: '• Building an Effective Team • Role of the Nurse Manager • Staffing in Nursing Units • Managing Team Members\' Performance • Interviewing Skills'
+      },
+      {
+        id: 'sch_day5_8',
+        day: 'Day 5',
+        time: '01:00 PM - 02:00 PM',
+        title: 'Lunch Break',
+        speaker: 'Organising Committee',
+        type: 'Break',
+        venue: 'Dining Area',
+        status: 'Upcoming',
+        details: 'Networking Lunch'
+      },
+      {
+        id: 'sch_day5_9',
+        day: 'Day 5',
+        time: '02:00 PM - 02:30 PM',
+        title: 'SWOT Analysis',
+        speaker: 'Training Team',
+        type: 'Workshop',
+        venue: 'Main Auditorium',
+        status: 'Upcoming',
+        details: '• Interactive Warm-up Activity • Individual & Team SWOT Exercise'
+      },
+      {
+        id: 'sch_day5_10',
+        day: 'Day 5',
+        time: '02:30 PM - 03:30 PM',
+        title: 'Nursing Leadership Skills',
+        speaker: 'Ms. Precila Fernandes',
+        type: 'Lecture',
+        venue: 'Main Auditorium',
+        status: 'Upcoming',
+        details: '• Personal Branding for Nurse Leaders • Leadership Marketing & Professional Image • Quality Improvement & Performance Excellence • Practical Implementation of Leadership Skills'
+      },
+      {
+        id: 'sch_day5_11',
+        day: 'Day 5',
+        time: '03:30 PM - 04:00 PM',
+        title: 'Team Building',
+        speaker: 'Training Team',
+        type: 'Activity',
+        venue: 'Activity Hall',
+        status: 'Upcoming',
+        details: '• Interactive Team-Building Activity'
+      },
+      {
+        id: 'sch_day5_12',
+        day: 'Day 5',
+        time: '04:00 PM - 04:15 PM',
+        title: 'Tea Break',
+        speaker: 'Organising Committee',
+        type: 'Break',
+        venue: 'Dining Area',
+        status: 'Upcoming',
+        details: 'Afternoon Refreshment Break'
+      },
+      {
+        id: 'sch_day5_13',
+        day: 'Day 5',
+        time: '04:15 PM - 05:00 PM',
+        title: 'Group Assignment Presentation',
+        speaker: 'Training Team',
+        type: 'Workshop',
+        venue: 'Main Auditorium',
+        status: 'Upcoming',
+        details: '• Group Presentations • Peer Learning & Feedback'
+      },
+      {
+        id: 'sch_day5_14',
+        day: 'Day 5',
+        time: '05:00 PM - 06:00 PM',
+        title: 'Discussion & Conclusion',
+        speaker: 'Ms. Precila Fernandes',
+        type: 'Keynote',
+        venue: 'Main Auditorium',
+        status: 'Upcoming',
+        details: '• Open Discussion • Key Takeaways • Action Plan • Closing Remarks & Vote of Thanks'
       }
     ],
     announcements: [
