@@ -1,5 +1,219 @@
 // LocalStorage Fallback helpers for Gallery
 const LOCAL_GALLERY_KEY = 'nlp_local_gallery';
+
+const SEED_EVENT_DAYS = [
+  { id: 'day_1', dayNumber: 1, date: '2026-07-10' },
+  { id: 'day_2', dayNumber: 2, date: '2026-07-11' },
+  { id: 'day_3', dayNumber: 3, date: '2026-07-17' },
+  { id: 'day_4', dayNumber: 4, date: '2026-07-26' },
+  { id: 'day_5', dayNumber: 5, date: '2026-07-26' }
+];
+
+const SEED_SCHEDULE = [
+  // Day 1 (5 items)
+  {
+    id: 'sch_day1_1',
+    day: 'Day 1',
+    time: '03:00 PM - 03:10 PM',
+    title: 'Activity',
+    speaker: 'Mr. Rohit Singh, Dr. Pallavi',
+    type: 'Activity',
+    venue: '10th Floor ITC Department',
+    status: 'Completed',
+    details: 'Welcome and Warm up'
+  },
+  {
+    id: 'sch_day1_2',
+    day: 'Day 1',
+    time: '03:10 PM - 03:30 PM',
+    title: 'Communication',
+    speaker: 'Mr. Rohit Singh & Dr. Pallavi',
+    type: 'Workshop',
+    venue: '10th Floor ITC Department',
+    status: 'Completed',
+    details: '• Scripting – A tool for communication • Dept. vision mission/Conflict Management • Assertive communication • Deliver complex messages in a simple-to-understand way • Listen with suspended judgment & active intent'
+  },
+  {
+    id: 'sch_day1_3',
+    day: 'Day 1',
+    time: '03:30 PM - 04:00 PM',
+    title: 'Presentation Skill',
+    speaker: 'Ms. Precila Fernandes',
+    type: 'Workshop',
+    venue: '10th Floor ITC Department',
+    status: 'Completed',
+    details: '• Tips Power point presentation'
+  },
+  {
+    id: 'sch_day1_4',
+    day: 'Day 1',
+    time: '04:00 PM - 05:30 PM',
+    title: 'Developing the Individuals',
+    speaker: 'Mr. Rohit Singh & Dr. Pallavi',
+    type: 'Lecture',
+    venue: '10th Floor ITC Department',
+    status: 'Completed',
+    details: '• How to groom a Nurse to the next level • What motivates individual members of the team • Coaching style based on needs of each individual • Performance feedback • Leverage strengths of individual team members • Back to basics (Customer Feedback Presentation) • Punctuality'
+  },
+  {
+    id: 'sch_day1_5',
+    day: 'Day 1',
+    time: '05:30 PM - 06:00 PM',
+    title: 'Discussion on Assignment & Agenda for next day',
+    speaker: 'Team',
+    type: 'Activity',
+    venue: '10th Floor ITC Department',
+    status: 'Completed',
+    details: 'Wrap up'
+  },
+
+  // Day 2 (4 items)
+  {
+    id: 'sch_day2_1',
+    day: 'Day 2',
+    time: '03:00 PM - 03:15 PM',
+    title: 'Recap of the Previous day',
+    speaker: 'Team',
+    type: 'Activity',
+    venue: '10th Floor ITC Department',
+    status: 'Completed',
+    details: 'Candidates'
+  },
+  {
+    id: 'sch_day2_2',
+    day: 'Day 2',
+    time: '03:15 PM - 04:15 PM',
+    title: 'Managing Unit performance',
+    speaker: 'Mr. Rohit Singh & Dr. Pallavi',
+    type: 'Lecture',
+    venue: '10th Floor ITC Department',
+    status: 'Completed',
+    details: '• Time management • Take joint ownership & accountability • Develop and pursue goals that cross departmental lines daily, Monthly & Yearly basis • Grooming • Managing change in the organization • Service excellence and communication'
+  },
+  {
+    id: 'sch_day2_3',
+    day: 'Day 2',
+    time: '04:15 PM - 05:15 PM',
+    title: 'Foundational Leadership',
+    speaker: 'Mr. Rohit Singh & Dr. Pallavi',
+    type: 'Lecture',
+    venue: '10th Floor ITC Department',
+    status: 'Completed',
+    details: '• How leaders grow • Leadership Competency Model, Leadership styles • Transformational Leadership • Leadership qualities • Distinction between Leadership and Management • Self Assessment'
+  },
+  {
+    id: 'sch_day2_4',
+    day: 'Day 2',
+    time: '05:15 PM - 06:00 PM',
+    title: 'Discussion on Assignment',
+    speaker: 'Team',
+    type: 'Activity',
+    venue: '10th Floor ITC Department',
+    status: 'Completed',
+    details: 'Group Making'
+  },
+
+  // Day 3 (6 items)
+  {
+    id: 'sch_day3_1',
+    day: 'Day 3',
+    time: '03:00 PM - 03:15 PM',
+    title: 'Recap of the Previous day',
+    speaker: 'Team',
+    type: 'Activity',
+    venue: '10th Floor ITC Department',
+    status: 'Completed',
+    details: 'Candidates'
+  },
+  {
+    id: 'sch_day3_2',
+    day: 'Day 3',
+    time: '03:15 PM - 04:15 PM',
+    title: 'How to prepare power point slide',
+    speaker: 'Ms. Precila Fernandes',
+    type: 'Workshop',
+    venue: '10th Floor ITC Department',
+    status: 'Completed',
+    details: 'Planning the Presentation • Designing Effective Slides • Using Visuals & Charts • Presentation Tips • Common Mistakes to Avoid • Conclusion'
+  },
+  {
+    id: 'sch_day3_3',
+    day: 'Day 3',
+    time: '04:15 PM - 05:00 PM',
+    title: 'RCA',
+    speaker: 'Mr. Rohit Singh, Dr. Pallavi',
+    type: 'Lecture',
+    venue: '10th Floor ITC Department',
+    status: 'Completed',
+    details: 'Fish bone analysis'
+  },
+  {
+    id: 'sch_day3_4',
+    day: 'Day 3',
+    time: '05:00 PM - 06:00 PM',
+    title: 'Coaching',
+    speaker: 'Mr. Rohit Singh, Dr. Pallavi',
+    type: 'Lecture',
+    venue: '10th Floor ITC Department',
+    status: 'Completed',
+    details: 'Coaching & Mentoring Principles'
+  },
+  {
+    id: 'sch_day3_5',
+    day: 'Day 3',
+    time: '06:00 PM - 06:30 PM',
+    title: 'Discussion on Assignment',
+    speaker: 'Team',
+    type: 'Workshop',
+    venue: '10th Floor ITC Department',
+    status: 'Completed',
+    details: 'How to Make an Assignment: • Choose and understand the topic. • Collect information from reliable sources. • Organize the content with an introduction, main body, and conclusion. • Use clear language, proper formatting, and cite references if required.'
+  },
+  {
+    id: 'sch_day3_6',
+    day: 'Day 3',
+    time: '06:30 PM',
+    title: 'Wrap UP',
+    speaker: 'Team',
+    type: 'Activity',
+    venue: '10th Floor ITC Department',
+    status: 'Completed',
+    details: 'Wrap UP & Day 3 Conclusion'
+  },
+
+  // Day 4 (14 items)
+  { id: 'sch_day4_1', day: 'Day 4', time: '08:30 AM - 09:00 AM', title: 'Registration', speaker: 'Organising Committee', type: 'Activity', venue: 'Main Auditorium / 10th Floor ITC', status: 'Upcoming', details: 'Participant Registration' },
+  { id: 'sch_day4_2', day: 'Day 4', time: '09:00 AM - 09:30 AM', title: 'Welcome Address & Lamp Lighting', speaker: 'Management', type: 'Keynote', venue: 'Main Auditorium', status: 'Upcoming', details: 'Medanta Leadership' },
+  { id: 'sch_day4_3', day: 'Day 4', time: '09:30 AM - 09:45 AM', title: 'Message to the Group & Clinical Governance', speaker: 'Vice President – Operations', type: 'Keynote', venue: 'Main Auditorium', status: 'Upcoming', details: '• Organization\'s Expectations' },
+  { id: 'sch_day4_4', day: 'Day 4', time: '09:45 AM - 10:00 AM', title: 'Programme Introduction', speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh', type: 'Workshop', venue: 'Main Auditorium', status: 'Upcoming', details: '• Programme Expectations • Curriculum Overview • Learning Objectives' },
+  { id: 'sch_day4_5', day: 'Day 4', time: '10:00 AM - 10:15 AM', title: 'Tea Break', speaker: 'Organising Committee', type: 'Break', venue: 'Dining Area', status: 'Upcoming', details: 'Morning Refreshment Break' },
+  { id: 'sch_day4_6', day: 'Day 4', time: '10:15 AM - 12:00 PM', title: 'The Role of Middle Management', speaker: 'External Speaker', type: 'Lecture', venue: 'Main Auditorium', status: 'Upcoming', details: '• Middle Management Skills • Managing Upward and Downward • Bridging Leadership and Teams • Effective Leadership for Middle Managers • Aligning Top Management Vision with Team Execution • Achieving Middle Management Excellence • Managing Leadership Expectations and Team Performance' },
+  { id: 'sch_day4_7', day: 'Day 4', time: '12:00 PM - 01:00 PM', title: 'Team Building Activity', speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh', type: 'Activity', venue: 'Main Auditorium / Activity Hall', status: 'Upcoming', details: '• Building an Effective Team • Role of the Nurse Manager • Staffing in Nursing Units • Managing Team Members\' Performance • Interviewing Skills' },
+  { id: 'sch_day4_8', day: 'Day 4', time: '01:00 PM - 02:00 PM', title: 'Lunch Break', speaker: 'Organising Committee', type: 'Break', venue: 'Dining Area', status: 'Upcoming', details: 'Networking Lunch' },
+  { id: 'sch_day4_9', day: 'Day 4', time: '02:00 PM - 02:30 PM', title: 'SWOT Analysis', speaker: 'Training Team', type: 'Workshop', venue: 'Main Auditorium', status: 'Upcoming', details: '• Interactive Warm-up Activity • Individual & Team SWOT Exercise' },
+  { id: 'sch_day4_10', day: 'Day 4', time: '02:30 PM - 03:30 PM', title: 'Nursing Leadership Skills', speaker: 'Ms. Precila Fernandes', type: 'Lecture', venue: 'Main Auditorium', status: 'Upcoming', details: '• Personal Branding for Nurse Leaders • Leadership Marketing & Professional Image • Quality Improvement & Performance Excellence • Practical Implementation of Leadership Skills' },
+  { id: 'sch_day4_11', day: 'Day 4', time: '03:30 PM - 04:00 PM', title: 'Team Building', speaker: 'Training Team', type: 'Activity', venue: 'Activity Hall', status: 'Upcoming', details: '• Interactive Team-Building Activity' },
+  { id: 'sch_day4_12', day: 'Day 4', time: '04:00 PM - 04:15 PM', title: 'Tea Break', speaker: 'Organising Committee', type: 'Break', venue: 'Dining Area', status: 'Upcoming', details: 'Afternoon Refreshment Break' },
+  { id: 'sch_day4_13', day: 'Day 4', time: '04:15 PM - 05:00 PM', title: 'Group Assignment Presentation', speaker: 'Training Team', type: 'Workshop', venue: 'Main Auditorium', status: 'Upcoming', details: '• Group Presentations • Peer Learning & Feedback' },
+  { id: 'sch_day4_14', day: 'Day 4', time: '05:00 PM - 06:00 PM', title: 'Discussion & Conclusion', speaker: 'Ms. Precila Fernandes', type: 'Keynote', venue: 'Main Auditorium', status: 'Upcoming', details: '• Open Discussion • Key Takeaways • Action Plan • Closing Remarks & Vote of Thanks' },
+
+  // Day 5 (14 items)
+  { id: 'sch_day5_1', day: 'Day 5', time: '08:30 AM - 09:00 AM', title: 'Registration', speaker: 'Organising Committee', type: 'Activity', venue: 'Main Auditorium / 10th Floor ITC', status: 'Upcoming', details: 'Participant Registration' },
+  { id: 'sch_day5_2', day: 'Day 5', time: '09:00 AM - 09:30 AM', title: 'Welcome Address & Lamp Lighting', speaker: 'Management', type: 'Keynote', venue: 'Main Auditorium', status: 'Upcoming', details: 'Medanta Leadership' },
+  { id: 'sch_day5_3', day: 'Day 5', time: '09:30 AM - 09:45 AM', title: 'Message to the Group & Clinical Governance', speaker: 'Vice President – Operations', type: 'Keynote', venue: 'Main Auditorium', status: 'Upcoming', details: '• Organization\'s Expectations' },
+  { id: 'sch_day5_4', day: 'Day 5', time: '09:45 AM - 10:00 AM', title: 'Programme Introduction', speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh', type: 'Workshop', venue: 'Main Auditorium', status: 'Upcoming', details: '• Programme Expectations • Curriculum Overview • Learning Objectives' },
+  { id: 'sch_day5_5', day: 'Day 5', time: '10:00 AM - 10:15 AM', title: 'Tea Break', speaker: 'Organising Committee', type: 'Break', venue: 'Dining Area', status: 'Upcoming', details: 'Morning Refreshment Break' },
+  { id: 'sch_day5_6', day: 'Day 5', time: '10:15 AM - 12:00 PM', title: 'The Role of Middle Management', speaker: 'External Speaker', type: 'Lecture', venue: 'Main Auditorium', status: 'Upcoming', details: '• Middle Management Skills • Managing Upward and Downward • Bridging Leadership and Teams • Effective Leadership for Middle Managers • Aligning Top Management Vision with Team Execution • Achieving Middle Management Excellence • Managing Leadership Expectations and Team Performance' },
+  { id: 'sch_day5_7', day: 'Day 5', time: '12:00 PM - 01:00 PM', title: 'Team Building Activity', speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh', type: 'Activity', venue: 'Main Auditorium / Activity Hall', status: 'Upcoming', details: '• Building an Effective Team • Role of the Nurse Manager • Staffing in Nursing Units • Managing Team Members\' Performance • Interviewing Skills' },
+  { id: 'sch_day5_8', day: 'Day 5', time: '01:00 PM - 02:00 PM', title: 'Lunch Break', speaker: 'Organising Committee', type: 'Break', venue: 'Dining Area', status: 'Upcoming', details: 'Networking Lunch' },
+  { id: 'sch_day5_9', day: 'Day 5', time: '02:00 PM - 02:30 PM', title: 'SWOT Analysis', speaker: 'Training Team', type: 'Workshop', venue: 'Main Auditorium', status: 'Upcoming', details: '• Interactive Warm-up Activity • Individual & Team SWOT Exercise' },
+  { id: 'sch_day5_10', day: 'Day 5', time: '02:30 PM - 03:30 PM', title: 'Nursing Leadership Skills', speaker: 'Ms. Precila Fernandes', type: 'Lecture', venue: 'Main Auditorium', status: 'Upcoming', details: '• Personal Branding for Nurse Leaders • Leadership Marketing & Professional Image • Quality Improvement & Performance Excellence • Practical Implementation of Leadership Skills' },
+  { id: 'sch_day5_11', day: 'Day 5', time: '03:30 PM - 04:00 PM', title: 'Team Building', speaker: 'Training Team', type: 'Activity', venue: 'Activity Hall', status: 'Upcoming', details: '• Interactive Team-Building Activity' },
+  { id: 'sch_day5_12', day: 'Day 5', time: '04:00 PM - 04:15 PM', title: 'Tea Break', speaker: 'Organising Committee', type: 'Break', venue: 'Dining Area', status: 'Upcoming', details: 'Afternoon Refreshment Break' },
+  { id: 'sch_day5_13', day: 'Day 5', time: '04:15 PM - 05:00 PM', title: 'Group Assignment Presentation', speaker: 'Training Team', type: 'Workshop', venue: 'Main Auditorium', status: 'Upcoming', details: '• Group Presentations • Peer Learning & Feedback' },
+  { id: 'sch_day5_14', day: 'Day 5', time: '05:00 PM - 06:00 PM', title: 'Discussion & Conclusion', speaker: 'Ms. Precila Fernandes', type: 'Keynote', venue: 'Main Auditorium', status: 'Upcoming', details: '• Open Discussion • Key Takeaways • Action Plan • Closing Remarks & Vote of Thanks' }
+];
+
 const GALLERY_SEED_DATA = [
   {
     id: 'gal_1',
@@ -390,34 +604,31 @@ async function refreshPublicData() {
       const res = await fetch(`${API_BASE}/${endpoint}?_t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const text = await res.text();
-        try {
-          if (endpoint === 'gallery' && text.trim().startsWith('<!DOCTYPE')) {
-            throw new Error('HTML returned instead of JSON');
-          }
-          appState[stateKey] = JSON.parse(text);
-        } catch (jsonErr) {
-          console.warn(`Malformed JSON from /${endpoint}, falling back.`);
-          if (endpoint === 'gallery') {
-            appState.gallery = getLocalGallery();
-          } else {
-            appState[stateKey] = [];
-          }
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+          throw new Error(`Endpoint /${endpoint} returned HTML document instead of JSON data`);
+        }
+        const parsed = JSON.parse(text);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          appState[stateKey] = parsed;
+        } else {
+          // Fallback to embedded seed if empty
+          if (endpoint === 'schedule') appState.schedule = SEED_SCHEDULE;
+          else if (endpoint === 'event_days') appState.event_days = SEED_EVENT_DAYS;
+          else appState[stateKey] = parsed;
         }
       } else {
         console.warn(`Failed to fetch /${endpoint}: Status ${res.status}`);
-        if (endpoint === 'gallery') {
-          appState.gallery = getLocalGallery();
-        } else {
-          appState[stateKey] = [];
-        }
+        if (endpoint === 'gallery') appState.gallery = getLocalGallery();
+        else if (endpoint === 'schedule') appState.schedule = SEED_SCHEDULE;
+        else if (endpoint === 'event_days') appState.event_days = SEED_EVENT_DAYS;
+        else appState[stateKey] = [];
       }
     } catch (err) {
-      console.error(`Network error fetching /${endpoint}:`, err);
-      if (endpoint === 'gallery') {
-        appState.gallery = getLocalGallery();
-      } else {
-        appState[stateKey] = [];
-      }
+      console.warn(`Fallback active for /${endpoint}:`, err.message);
+      if (endpoint === 'gallery') appState.gallery = getLocalGallery();
+      else if (endpoint === 'schedule') appState.schedule = SEED_SCHEDULE;
+      else if (endpoint === 'event_days') appState.event_days = SEED_EVENT_DAYS;
+      else appState[stateKey] = [];
     }
   };
 
