@@ -323,8 +323,18 @@ async function initApp() {
   // Setup Gallery filters
   setupGalleryFilters();
 
-  // Setup Admin Listeners
-  setupAdminListeners();
+  // Setup Global Modal Backdrop & Escape Key Listeners
+  document.addEventListener('click', (e) => {
+    if (e.target && e.target.classList && e.target.classList.contains('modal-overlay')) {
+      e.target.classList.remove('active');
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
 
   // Load active session from sessionStorage
   const token = sessionStorage.getItem('adminToken');
@@ -1011,7 +1021,18 @@ function openModal(modalId) {
 }
 
 function closeModal(modalId) {
-  document.getElementById(modalId).classList.remove('active');
+  if (!modalId) {
+    const overlays = document.querySelectorAll('.modal-overlay');
+    overlays.forEach(o => o.classList.remove('active'));
+    return;
+  }
+  const el = typeof modalId === 'string' ? document.getElementById(modalId) : modalId;
+  if (el) {
+    el.classList.remove('active');
+  } else {
+    const overlays = document.querySelectorAll('.modal-overlay');
+    overlays.forEach(o => o.classList.remove('active'));
+  }
 }
 
 // Committee Member details popup
