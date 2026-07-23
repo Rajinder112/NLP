@@ -323,6 +323,9 @@ async function initApp() {
   // Setup Gallery filters
   setupGalleryFilters();
 
+  // Setup Admin Listeners
+  setupAdminListeners();
+
   // Setup Global Modal Backdrop & Escape Key Listeners
   const handleBackdropClose = (e) => {
     if (e.target && e.target.classList && e.target.classList.contains('modal-overlay')) {
@@ -1505,8 +1508,13 @@ function showToast(message, type = 'success') {
 // ADMINISTRATOR SUB-MODULE
 // ==========================================================================
 
+let adminListenersInitialized = false;
+
 // Setup listener actions
 function setupAdminListeners() {
+  if (adminListenersInitialized) return;
+  adminListenersInitialized = true;
+
   // Login Form
   const loginForm = document.getElementById('admin-login-form');
   if (loginForm) loginForm.addEventListener('submit', handleAdminLogin);
@@ -1515,18 +1523,17 @@ function setupAdminListeners() {
   const logoutBtn = document.getElementById('admin-logout-btn');
   if (logoutBtn) logoutBtn.addEventListener('click', handleAdminLogout);
   
-  // Dashboard Sidebar switch tabs
-  const tabBtns = document.querySelectorAll('.sidebar-tab-btn:not(.logout-btn)');
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      tabBtns.forEach(b => b.classList.remove('active'));
-      const activeBtn = e.target.closest('.sidebar-tab-btn');
-      activeBtn.classList.add('active');
-      
-      const tabId = activeBtn.getAttribute('data-tab');
-      switchAdminTab(tabId);
+  // Dashboard Sidebar switch tabs (both element & delegation binding)
+  const sidebarNav = document.querySelector('.sidebar-nav');
+  if (sidebarNav) {
+    sidebarNav.addEventListener('click', (e) => {
+      const btn = e.target.closest('.sidebar-tab-btn:not(.logout-btn)');
+      if (btn) {
+        const tabId = btn.getAttribute('data-tab');
+        if (tabId) switchAdminTab(tabId);
+      }
     });
-  });
+  }
 
   // Settings config form
   const configForm = document.getElementById('config-settings-form');
@@ -1692,8 +1699,19 @@ async function updateAdminSpaceIndicator() {
 
 // Switch tabs inside dashboard panel
 function switchAdminTab(tabId) {
+  if (!tabId) return;
   appState.currentAdminTab = tabId;
   
+  // Highlight active sidebar tab button
+  const tabBtns = document.querySelectorAll('.sidebar-tab-btn:not(.logout-btn)');
+  tabBtns.forEach(b => {
+    if (b.getAttribute('data-tab') === tabId) {
+      b.classList.add('active');
+    } else {
+      b.classList.remove('active');
+    }
+  });
+
   const panels = document.querySelectorAll('.dashboard-tab-panel');
   panels.forEach(p => p.classList.remove('active'));
   

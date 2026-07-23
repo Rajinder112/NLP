@@ -15,7 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="styles.css?v=14">
+  <link rel="stylesheet" href="styles.css?v=15">
   
   <!-- SheetJS for client-side Excel exporting -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -411,13 +411,13 @@
             <h3>NLP Manager</h3>
           </div>
           <nav class="sidebar-nav">
-            <button class="sidebar-tab-btn active" data-tab="db-summary"><i data-lucide="layout-dashboard"></i> Summary Overview</button>
-            <button class="sidebar-tab-btn" data-tab="db-attendance"><i data-lucide="user-check"></i> Attendance Records</button>
-            <button class="sidebar-tab-btn" data-tab="db-schedule"><i data-lucide="clock"></i> Manage Schedule</button>
-            <button class="sidebar-tab-btn" data-tab="db-announcements"><i data-lucide="bell"></i> Announcements</button>
-            <button class="sidebar-tab-btn" data-tab="db-profiles"><i data-lucide="users"></i> Speakers & Committee</button>
-            <button class="sidebar-tab-btn" data-tab="db-gallery"><i data-lucide="image"></i> Gallery Manager</button>
-            <button class="sidebar-tab-btn" data-tab="db-event-days"><i data-lucide="calendar"></i> Event Days</button>
+            <button class="sidebar-tab-btn active" data-tab="db-summary" onclick="switchAdminTab('db-summary')" ontouchend="switchAdminTab('db-summary')"><i data-lucide="layout-dashboard"></i> Summary Overview</button>
+            <button class="sidebar-tab-btn" data-tab="db-attendance" onclick="switchAdminTab('db-attendance')" ontouchend="switchAdminTab('db-attendance')"><i data-lucide="user-check"></i> Attendance Records</button>
+            <button class="sidebar-tab-btn" data-tab="db-schedule" onclick="switchAdminTab('db-schedule')" ontouchend="switchAdminTab('db-schedule')"><i data-lucide="clock"></i> Manage Schedule</button>
+            <button class="sidebar-tab-btn" data-tab="db-announcements" onclick="switchAdminTab('db-announcements')" ontouchend="switchAdminTab('db-announcements')"><i data-lucide="bell"></i> Announcements</button>
+            <button class="sidebar-tab-btn" data-tab="db-profiles" onclick="switchAdminTab('db-profiles')" ontouchend="switchAdminTab('db-profiles')"><i data-lucide="users"></i> Speakers & Committee</button>
+            <button class="sidebar-tab-btn" data-tab="db-gallery" onclick="switchAdminTab('db-gallery')" ontouchend="switchAdminTab('db-gallery')"><i data-lucide="image"></i> Gallery Manager</button>
+            <button class="sidebar-tab-btn" data-tab="db-event-days" onclick="switchAdminTab('db-event-days')" ontouchend="switchAdminTab('db-event-days')"><i data-lucide="calendar"></i> Event Days</button>
             <div class="sidebar-space-widget" style="padding: 12px; margin: 12px 0; background: rgba(255,255,255,0.05); border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.1);">
               <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #a0aec0; margin-bottom: 6px; font-weight: 600;">
                 <span>Server Storage</span>
@@ -1172,6 +1172,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Script Code Loader -->
-  <script src="app.js?v=30"></script>
+  <script src="app.js?v=31"></script>
 </body>
 </html>
