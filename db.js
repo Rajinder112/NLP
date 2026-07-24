@@ -41,8 +41,10 @@ if (process.env.DATABASE_URL) {
       `);
 
       const res = await pool.query("SELECT COUNT(*) FROM settings");
-      if (parseInt(res.rows[0].count, 10) === 0) {
-        console.log("Postgres database is empty. Running initial seeder...");
+      const schRes = await pool.query("SELECT COUNT(*) FROM collections WHERE name = 'schedule'");
+      const schCount = parseInt(schRes.rows[0].count, 10);
+      if (parseInt(res.rows[0].count, 10) === 0 || schCount < 35) {
+        console.log("Postgres database seeding/updating 5-day schedule...");
         await seedPostgres();
       }
     } catch (err) {

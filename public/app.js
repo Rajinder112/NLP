@@ -1070,14 +1070,14 @@ async function refreshPublicData() {
       if (!text.trim().startsWith('<!DOCTYPE') && !text.trim().startsWith('<html')) {
         const data = JSON.parse(text);
         if (data.settings) appState.settings = { ...appState.settings, ...data.settings };
-        if (data.schedule && data.schedule.length > 0) appState.schedule = data.schedule; else appState.schedule = SEED_SCHEDULE;
+        if (data.schedule && Array.isArray(data.schedule) && data.schedule.length >= 35) appState.schedule = data.schedule; else appState.schedule = SEED_SCHEDULE;
         if (data.announcements) appState.announcements = data.announcements;
         if (data.leaders && Array.isArray(data.leaders) && data.leaders.length > 0) appState.leaders = data.leaders; else appState.leaders = SEED_LEADERS;
         if (data.committee && Array.isArray(data.committee) && data.committee.length > 0) appState.committee = data.committee; else appState.committee = SEED_COMMITTEE;
         if (data.resources) appState.resources = data.resources;
         if (data.overview) appState.overview = data.overview;
         if (data.gallery && !isGalleryLocalOnly()) appState.gallery = data.gallery; else if (isGalleryLocalOnly()) appState.gallery = getLocalGallery();
-        if (data.event_days && data.event_days.length > 0) appState.event_days = data.event_days; else appState.event_days = SEED_EVENT_DAYS;
+        if (data.event_days && Array.isArray(data.event_days) && data.event_days.length >= 5) appState.event_days = data.event_days; else appState.event_days = SEED_EVENT_DAYS;
         bootstrapSuccess = true;
       }
     }
@@ -1099,7 +1099,9 @@ async function refreshPublicData() {
           }
           const parsed = JSON.parse(text);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            appState[stateKey] = parsed;
+            if (endpoint === 'schedule' && parsed.length < 35) appState.schedule = SEED_SCHEDULE;
+            else if (endpoint === 'event_days' && parsed.length < 5) appState.event_days = SEED_EVENT_DAYS;
+            else appState[stateKey] = parsed;
           } else {
             if (endpoint === 'schedule') appState.schedule = SEED_SCHEDULE;
             else if (endpoint === 'event_days') appState.event_days = SEED_EVENT_DAYS;
