@@ -958,23 +958,63 @@ document.addEventListener('DOMContentLoaded', () => {
   initApp();
 });
 
+// Register Cross-Browser Service Worker (iOS Safari / Android Chrome / Desktop)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').then((reg) => {
+      console.log('[ServiceWorker] Successfully registered with scope:', reg.scope);
+    }).catch((err) => {
+      console.warn('[ServiceWorker] Registration error (graceful fallback):', err.message);
+    });
+  });
+}
+
+// Splash Screen & Preloading Controller
+function setSplashProgress(percentage, statusText) {
+  const bar = document.getElementById('splash-progress-bar');
+  const txt = document.getElementById('splash-status-text');
+  if (bar) bar.style.width = `${percentage}%`;
+  if (txt && statusText) txt.textContent = statusText;
+}
+
+function dismissSplashScreen() {
+  const splash = document.getElementById('app-splash-screen');
+  if (!splash) return;
+  setSplashProgress(100, 'Ready');
+  setTimeout(() => {
+    splash.style.opacity = '0';
+    splash.style.visibility = 'hidden';
+    setTimeout(() => {
+      if (splash.parentNode) splash.parentNode.removeChild(splash);
+    }, 500);
+  }, 250);
+}
+
 // Initialize Application
 async function initApp() {
+  setSplashProgress(25, 'Preloading Configuration...');
+  
   // Purge any stale local event_days and schedule cache on load
   localStorage.removeItem('nlp_local_event_days');
   localStorage.removeItem('nlp_local_schedule');
 
   // Load configuration
   await initConfig();
+  setSplashProgress(50, 'Hydrating Event Data & Assets...');
 
-  // Load initial public configurations
-  await fetchSettings();
-  await refreshPublicData();
-  
-  // Setup Router
+  // Pre-render & hydrate data with Promise.all for speed
+  try {
+    await Promise.all([
+      fetchSettings(),
+      refreshPublicData()
+    ]);
+  } catch (err) {
+    console.warn('Pre-rendering network notice (using offline cache fallback):', err.message);
+  }
+  setSplashProgress(85, 'Rendering Navigation & Layouts...');
+
+  // Setup Router & Navigation
   setupRouter();
-  
-  // Setup Navbar & Drawer Event Listeners
   setupNavigation();
   
   // Initialize lucide icons
@@ -1030,6 +1070,9 @@ async function initApp() {
     appState.isLoggedIn = true;
     showAdminDashboard();
   }
+
+  // Dismiss splash screen smoothly after layout render
+  dismissSplashScreen();
 }
 
 // ==========================================================================
