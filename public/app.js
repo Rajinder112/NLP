@@ -270,6 +270,8 @@ function setGalleryLocalOnly(val) {
   localStorage.setItem('nlp_gallery_local_only', val ? 'true' : 'false');
 }
 
+let galleryDraggedRowIndex = null;
+
 // SUB-TAB: Event Gallery Manager CRUD
 async function fetchAdminGallery() {
   const tableBody = document.querySelector('#admin-gallery-table tbody');
@@ -300,12 +302,25 @@ async function fetchAdminGallery() {
   
   noDataEl.classList.add('hidden');
   
-  appState.gallery.forEach(item => {
+  appState.gallery.forEach((item, index) => {
     const row = document.createElement('tr');
+    row.className = 'admin-drag-row';
+    row.setAttribute('draggable', 'true');
+    row.setAttribute('data-index', index);
+
     const displayCat = (item.category && item.category !== 'Blank' && item.category !== 'None') ? item.category : 'General / Pre-Event';
+    const isFirst = index === 0;
+
     row.innerHTML = `
+      <td style="text-align: center; white-space: nowrap; width: 100px;">
+        <div style="display: inline-flex; align-items: center; gap: 4px;">
+          <span class="drag-handle" title="Drag to reorder" style="cursor: grab; color: var(--text-muted); padding: 2px 4px;"><i data-lucide="grip-vertical"></i></span>
+          <button class="btn-reorder-up" onclick="moveGalleryItemUp(${index})" title="Move Up" ${isFirst ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''}><i data-lucide="chevron-up"></i></button>
+          <button class="btn-reorder-down" onclick="moveGalleryItemDown(${index})" title="Move Down" ${index === appState.gallery.length - 1 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''}><i data-lucide="chevron-down"></i></button>
+        </div>
+      </td>
       <td style="width: 80px;"><img src="${getPhotoUrl(item.url) || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=80'}" style="width: 60px; height: 40px; object-fit: cover; border-radius: var(--radius-sm);"></td>
-      <td style="font-weight: 600; color: var(--primary);">${item.title || 'Untitled Photograph'}</td>
+      <td style="font-weight: 600; color: var(--primary);">${item.title || 'Untitled Photograph'} ${isFirst ? '<span class="badge badge-gold" style="font-size: 0.65rem; margin-left: 6px; text-transform: uppercase;">★ 1ST FEATURED</span>' : ''}</td>
       <td><span class="badge badge-gold">${displayCat}</span></td>
       <td style="font-size: 0.85rem; color: var(--text-muted);">${item.description || '-'}</td>
       <td class="table-actions" style="text-align: right;">
@@ -313,10 +328,86 @@ async function fetchAdminGallery() {
         <button class="tbl-btn tbl-btn-delete" onclick="deleteGalleryItem('${item.id}')" title="Delete Item"><i data-lucide="trash-2"></i></button>
       </td>
     `;
+
+    // HTML5 Drag & Drop Events
+    row.addEventListener('dragstart', (e) => {
+      galleryDraggedRowIndex = index;
+      row.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', index);
+    });
+
+    row.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      row.classList.add('drag-over');
+    });
+
+    row.addEventListener('dragleave', () => {
+      row.classList.remove('drag-over');
+    });
+
+    row.addEventListener('drop', (e) => {
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      const targetIndex = index;
+      if (galleryDraggedRowIndex !== null && galleryDraggedRowIndex !== targetIndex) {
+        const movedItem = appState.gallery.splice(galleryDraggedRowIndex, 1)[0];
+        appState.gallery.splice(targetIndex, 0, movedItem);
+        saveGalleryOrder();
+      }
+    });
+
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      galleryDraggedRowIndex = null;
+      document.querySelectorAll('.admin-drag-row').forEach(r => r.classList.remove('drag-over'));
+    });
+
     tableBody.appendChild(row);
   });
   
   lucide.createIcons();
+}
+
+async function moveGalleryItemUp(index) {
+  if (index <= 0 || !appState.gallery[index]) return;
+  const temp = appState.gallery[index];
+  appState.gallery[index] = appState.gallery[index - 1];
+  appState.gallery[index - 1] = temp;
+  await saveGalleryOrder();
+}
+
+async function moveGalleryItemDown(index) {
+  if (index >= appState.gallery.length - 1 || !appState.gallery[index]) return;
+  const temp = appState.gallery[index];
+  appState.gallery[index] = appState.gallery[index + 1];
+  appState.gallery[index + 1] = temp;
+  await saveGalleryOrder();
+}
+
+async function saveGalleryOrder() {
+  saveLocalGallery(appState.gallery);
+  renderGalleryGrid();
+  
+  if (appState.isLoggedIn) {
+    try {
+      const token = sessionStorage.getItem('adminToken');
+      await fetch(`${API_BASE}/gallery/reorder`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ items: appState.gallery })
+      });
+      showToast('Gallery image display order updated successfully!');
+    } catch (err) {
+      console.warn('Reorder API sync warning:', err.message);
+    }
+  }
+  fetchAdminGallery();
+  updateAdminSpaceIndicator();
 }
 
 function adminAddGalleryItem() {

@@ -220,6 +220,19 @@ const setupCollectionRoutes = (name) => {
       res.status(404).json({ error: err.message });
     }
   });
+
+  app.put(`/api/${name}/reorder`, authenticateAdmin, async (req, res) => {
+    try {
+      const { items } = req.body;
+      if (Array.isArray(items)) {
+        await db.saveCollection(name, items);
+        return res.json({ success: true, count: items.length });
+      }
+      res.status(400).json({ error: 'Items array is required.' });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
 };
 
 setupCollectionRoutes('schedule');
