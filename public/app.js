@@ -980,9 +980,10 @@ function setSplashProgress(percentage, statusText) {
 function dismissSplashScreen() {
   const splash = document.getElementById('app-splash-screen');
   if (!splash) return;
-  setSplashProgress(100, 'Ready');
+  setSplashProgress(100, 'Syncing application state...');
   setTimeout(() => {
     splash.style.opacity = '0';
+    splash.style.transform = 'scale(0.98)';
     splash.style.visibility = 'hidden';
     setTimeout(() => {
       if (splash.parentNode) splash.parentNode.removeChild(splash);
