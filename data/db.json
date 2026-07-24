@@ -1272,30 +1272,30 @@
   "gallery": [
     {
       "id": "gal_1",
-      "category": "Opening Ceremony",
-      "title": "Lighting of the Lamp",
-      "description": "The traditional inauguration of Batch 1 of the Nursing Leadership Program.",
-      "url": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=600"
-    },
-    {
-      "id": "gal_2",
-      "category": "Leadership Sessions",
-      "title": "Dr. Evelyn Carter Keynote",
-      "description": "Opening address detailing the executive mindset required in healthcare management.",
-      "url": "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&q=80&w=600"
-    },
-    {
-      "id": "gal_3",
-      "category": "Group Activities",
-      "title": "Synergistic Unit Exercise",
-      "description": "Participants collaborating on clinical resource management simulations.",
+      "category": "Day 1",
+      "title": "Day 1 - Team Building Activity",
+      "description": "Interactive group activity, problem-solving, and communication session with Mr. Rohit Singh & Dr. Pallavi in 10th Floor ITC Department.",
       "url": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=600"
     },
     {
+      "id": "gal_2",
+      "category": "Day 1",
+      "title": "Day 1 - Opening Ceremony & Lamp Lighting",
+      "description": "Traditional inauguration ceremony for Batch 1 of the Nursing Leadership Program.",
+      "url": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=600"
+    },
+    {
+      "id": "gal_3",
+      "category": "Day 2",
+      "title": "Day 2 - Foundational Leadership Session",
+      "description": "Leadership Competency Model presentation and self-assessment workshop.",
+      "url": "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&q=80&w=600"
+    },
+    {
       "id": "gal_4",
-      "category": "Team Exercises",
-      "title": "Problem-Solving Workshops",
-      "description": "Interactive problem-solving session focusing on ward scheduling optimization.",
+      "category": "Day 3",
+      "title": "Day 3 - Problem-Solving & Fishbone Analysis",
+      "description": "Root Cause Analysis (RCA) and Fishbone diagram problem-solving workshop.",
       "url": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=600"
     }
   ],
