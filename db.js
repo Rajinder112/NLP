@@ -759,17 +759,24 @@ const db = {
   },
 
   getCollection: async (name) => {
+    if (ramCache[name]) {
+      return ramCache[name];
+    }
+    let result = [];
     if (isPg) {
       await pgInitPromise;
       const res = await pool.query("SELECT data FROM collections WHERE name = $1", [name]);
-      return res.rows.map(row => row.data);
+      result = res.rows.map(row => row.data);
     } else {
       const data = readData();
-      return data[name] || [];
+      result = data[name] || [];
     }
+    ramCache[name] = result;
+    return result;
   },
 
   saveCollection: async (name, items) => {
+    ramCache[name] = items;
     if (isPg) {
       await pgInitPromise;
       const client = await pool.connect();
@@ -797,6 +804,7 @@ const db = {
   },
 
   getSettings: async () => {
+    if (ramSettingsCache) return ramSettingsCache;
     if (isPg) {
       await pgInitPromise;
       const res = await pool.query("SELECT key, value FROM settings");
@@ -812,6 +820,7 @@ const db = {
   },
 
   saveSettings: async (settings) => {
+    ramSettingsCache = null;
     if (isPg) {
       await pgInitPromise;
       for (const [key, value] of Object.entries(settings)) {
@@ -830,6 +839,7 @@ const db = {
   getAttendance: async () => db.getCollection('attendance'),
 
   addAttendance: async (record) => {
+    delete ramCache['attendance'];
     if (isPg) {
       await pgInitPromise;
       const attendanceList = await db.getCollection('attendance');
@@ -884,6 +894,7 @@ const db = {
   },
 
   updateAttendance: async (id, updatedFields) => {
+    delete ramCache['attendance'];
     if (isPg) {
       await pgInitPromise;
       const res = await pool.query("SELECT data FROM collections WHERE name = $1 AND id = $2", ['attendance', id]);
@@ -907,6 +918,7 @@ const db = {
   },
 
   deleteAttendance: async (id) => {
+    delete ramCache['attendance'];
     if (isPg) {
       await pgInitPromise;
       const res = await pool.query("DELETE FROM collections WHERE name = $1 AND id = $2", ['attendance', id]);
@@ -920,6 +932,7 @@ const db = {
   },
 
   addItem: async (collectionName, item) => {
+    delete ramCache[collectionName];
     const newItem = {
       id: collectionName.substr(0, 3) + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
       ...item
@@ -939,6 +952,7 @@ const db = {
   },
 
   updateItem: async (collectionName, id, updatedFields) => {
+    delete ramCache[collectionName];
     if (isPg) {
       await pgInitPromise;
       const res = await pool.query("SELECT data FROM collections WHERE name = $1 AND id = $2", [collectionName, id]);
@@ -961,6 +975,7 @@ const db = {
   },
 
   deleteItem: async (collectionName, id) => {
+    delete ramCache[collectionName];
     if (isPg) {
       await pgInitPromise;
       const res = await pool.query("DELETE FROM collections WHERE name = $1 AND id = $2", [collectionName, id]);

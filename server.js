@@ -90,6 +90,37 @@ app.post('/api/auth/logout', (req, res) => {
   res.json({ success: true });
 });
 
+// --- UNIFIED FAST BOOTSTRAP INITIALIZER API (Single-Request Speed Engine) ---
+app.get('/api/bootstrap', async (req, res) => {
+  try {
+    const [settings, schedule, announcements, leaders, committee, resources, overview, gallery, event_days] = await Promise.all([
+      db.getSettings(),
+      db.getCollection('schedule'),
+      db.getCollection('announcements'),
+      db.getCollection('leaders'),
+      db.getCollection('committee'),
+      db.getCollection('resources'),
+      db.getCollection('overview'),
+      db.getCollection('gallery'),
+      db.getCollection('event_days')
+    ]);
+
+    res.json({
+      settings,
+      schedule: schedule.length > 0 ? schedule : undefined,
+      announcements,
+      leaders,
+      committee,
+      resources,
+      overview,
+      gallery,
+      event_days: event_days.length > 0 ? event_days : undefined
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // --- SETTINGS API ---
 app.get('/api/settings', async (req, res) => {
   res.json(await db.getSettings());

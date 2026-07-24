@@ -716,52 +716,74 @@ async function fetchSettings() {
 }
 
 async function refreshPublicData() {
-  const fetchAndSet = async (endpoint, stateKey) => {
-    try {
-      if (endpoint === 'gallery' && isGalleryLocalOnly()) {
-        throw new Error('Gallery local-only mode active');
+  let bootstrapSuccess = false;
+  try {
+    const res = await fetch(`${API_BASE}/bootstrap`);
+    if (res.ok) {
+      const text = await res.text();
+      if (!text.trim().startsWith('<!DOCTYPE') && !text.trim().startsWith('<html')) {
+        const data = JSON.parse(text);
+        if (data.settings) appState.settings = { ...appState.settings, ...data.settings };
+        if (data.schedule && data.schedule.length > 0) appState.schedule = data.schedule; else appState.schedule = SEED_SCHEDULE;
+        if (data.announcements) appState.announcements = data.announcements;
+        if (data.leaders) appState.leaders = data.leaders;
+        if (data.committee) appState.committee = data.committee;
+        if (data.resources) appState.resources = data.resources;
+        if (data.overview) appState.overview = data.overview;
+        if (data.gallery && !isGalleryLocalOnly()) appState.gallery = data.gallery; else if (isGalleryLocalOnly()) appState.gallery = getLocalGallery();
+        if (data.event_days && data.event_days.length > 0) appState.event_days = data.event_days; else appState.event_days = SEED_EVENT_DAYS;
+        bootstrapSuccess = true;
       }
-      const res = await fetch(`${API_BASE}/${endpoint}?_t=${Date.now()}`, { cache: 'no-store' });
-      if (res.ok) {
-        const text = await res.text();
-        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
-          throw new Error(`Endpoint /${endpoint} returned HTML document instead of JSON data`);
+    }
+  } catch (err) {
+    console.warn('Bootstrap fetch fallback active:', err.message);
+  }
+
+  if (!bootstrapSuccess) {
+    const fetchAndSet = async (endpoint, stateKey) => {
+      try {
+        if (endpoint === 'gallery' && isGalleryLocalOnly()) {
+          throw new Error('Gallery local-only mode active');
         }
-        const parsed = JSON.parse(text);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          appState[stateKey] = parsed;
+        const res = await fetch(`${API_BASE}/${endpoint}`);
+        if (res.ok) {
+          const text = await res.text();
+          if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+            throw new Error(`Endpoint /${endpoint} returned HTML document instead of JSON data`);
+          }
+          const parsed = JSON.parse(text);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            appState[stateKey] = parsed;
+          } else {
+            if (endpoint === 'schedule') appState.schedule = SEED_SCHEDULE;
+            else if (endpoint === 'event_days') appState.event_days = SEED_EVENT_DAYS;
+            else appState[stateKey] = parsed;
+          }
         } else {
-          // Fallback to embedded seed if empty
-          if (endpoint === 'schedule') appState.schedule = SEED_SCHEDULE;
+          if (endpoint === 'gallery') appState.gallery = getLocalGallery();
+          else if (endpoint === 'schedule') appState.schedule = SEED_SCHEDULE;
           else if (endpoint === 'event_days') appState.event_days = SEED_EVENT_DAYS;
-          else appState[stateKey] = parsed;
+          else appState[stateKey] = [];
         }
-      } else {
-        console.warn(`Failed to fetch /${endpoint}: Status ${res.status}`);
+      } catch (err) {
         if (endpoint === 'gallery') appState.gallery = getLocalGallery();
         else if (endpoint === 'schedule') appState.schedule = SEED_SCHEDULE;
         else if (endpoint === 'event_days') appState.event_days = SEED_EVENT_DAYS;
         else appState[stateKey] = [];
       }
-    } catch (err) {
-      console.warn(`Fallback active for /${endpoint}:`, err.message);
-      if (endpoint === 'gallery') appState.gallery = getLocalGallery();
-      else if (endpoint === 'schedule') appState.schedule = SEED_SCHEDULE;
-      else if (endpoint === 'event_days') appState.event_days = SEED_EVENT_DAYS;
-      else appState[stateKey] = [];
-    }
-  };
+    };
 
-  await Promise.all([
-    fetchAndSet('schedule', 'schedule'),
-    fetchAndSet('announcements', 'announcements'),
-    fetchAndSet('leaders', 'leaders'),
-    fetchAndSet('committee', 'committee'),
-    fetchAndSet('resources', 'resources'),
-    fetchAndSet('overview', 'overview'),
-    fetchAndSet('gallery', 'gallery'),
-    fetchAndSet('event_days', 'event_days')
-  ]);
+    await Promise.all([
+      fetchAndSet('schedule', 'schedule'),
+      fetchAndSet('announcements', 'announcements'),
+      fetchAndSet('leaders', 'leaders'),
+      fetchAndSet('committee', 'committee'),
+      fetchAndSet('resources', 'resources'),
+      fetchAndSet('overview', 'overview'),
+      fetchAndSet('gallery', 'gallery'),
+      fetchAndSet('event_days', 'event_days')
+    ]);
+  }
 
   const safeRender = (renderFn, name) => {
     try {
