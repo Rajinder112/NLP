@@ -10,6 +10,10 @@ let pool = null;
 let isPg = false;
 let pgInitPromise = null;
 
+// In-Memory RAM Cache Map for Ultra-Fast Instant Read Queries (<1ms)
+const ramCache = {};
+let ramSettingsCache = null;
+
 if (process.env.DATABASE_URL) {
   isPg = true;
   pool = new Pool({

@@ -9,6 +9,99 @@ const SEED_EVENT_DAYS = [
   { id: 'day_5', dayNumber: 5, date: '2026-07-26' }
 ];
 
+const SEED_LEADERS = [
+  {
+    id: 'lead_1',
+    category: 'Program Leadership',
+    fullName: 'Dr. Evelyn Carter',
+    designation: 'Chief Nursing Officer & Program Director',
+    organisation: 'National Healthcare Trust',
+    roleInEvent: 'Main Convener & Mentor',
+    sessionTitle: 'Opening Address & NLP Vision',
+    sessionDateTime: 'July 24, 2026 - 09:00 AM',
+    shortProfile: 'Dr. Evelyn Carter has over 25 years of experience in healthcare administration and nursing leadership. She has pioneered several national nurse-mentorship programs and holds a doctorate in Nursing Practice from Johns Hopkins University.',
+    contactDetails: 'e.carter@healthcaretrust.org (Public office: Room 302, Main Tower)',
+    photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400'
+  },
+  {
+    id: 'lead_2',
+    category: 'Faculty',
+    fullName: 'Prof. Marcus Vance',
+    designation: 'Professor of Health Systems Management',
+    organisation: 'Academy of Nursing Sciences',
+    roleInEvent: 'Lead Facilitator',
+    sessionTitle: 'Effective Communication in High-Stress Units',
+    sessionDateTime: 'July 24, 2026 - 10:00 AM',
+    shortProfile: 'Professor Vance specializes in healthcare team dynamics, organizational behavior, and crisis communication. He conducts leadership seminars globally for critical care networks.',
+    contactDetails: 'm.vance@academyofnursing.edu',
+    photo: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400'
+  },
+  {
+    id: 'lead_3',
+    category: 'Guest Speakers',
+    fullName: 'Sister Clara Thomas',
+    designation: 'Director of Clinical Excellence',
+    organisation: 'St. Jude Healthcare Alliance',
+    roleInEvent: 'Guest Speaker',
+    sessionTitle: 'Guest Session by Sister Clara Thomas',
+    topic: 'Evidence-Based Quality Indicators',
+    learningObjective: 'Understand how nursing leadership directly drives quality indicator improvements in multi-specialty wards.',
+    sessionDateTime: 'July 24, 2026 - 03:45 PM',
+    shortProfile: 'Sister Clara is a veteran nursing administrator recognized for her work in reducing hospital-acquired infection rates. She advises governmental boards on nursing policy.',
+    contactDetails: 'clara.thomas@stjudealliance.org',
+    photo: 'https://images.unsplash.com/photo-1594824813573-246434de83fb?auto=format&fit=crop&q=80&w=400'
+  },
+  {
+    id: 'lead_4',
+    category: 'Event Coordinators',
+    fullName: 'Robert Miller',
+    designation: 'Senior Nursing Administrator',
+    organisation: 'NLP Committee',
+    roleInEvent: 'Lead Coordinator',
+    sessionTitle: 'Registration & Logistics Coordination',
+    sessionDateTime: 'Ongoing',
+    shortProfile: 'Robert manages clinical logistics and coordinates the scheduling for all batches of the Nursing Leadership Program.',
+    contactDetails: 'r.miller@nlp-event.org',
+    photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400'
+  }
+];
+
+const SEED_COMMITTEE = [
+  {
+    id: 'com_1',
+    fullName: 'Margaret O\'Connor',
+    role: 'Organising Committee Chairperson',
+    designation: 'Director of Nursing Education',
+    department: 'Clinical Training Division',
+    phoneNumber: '+91 99999 88881',
+    email: 'm.oconnor@nlp-committee.org',
+    responsibility: 'Oversees overall planning, curricula design, and execution of the Nursing Leadership Program events across all batches.',
+    photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400'
+  },
+  {
+    id: 'com_2',
+    fullName: 'Jonathan Reed',
+    role: 'Logistics Coordinator',
+    designation: 'Head of Hospital Operations',
+    department: 'Hospital Administration',
+    phoneNumber: '+91 99999 88882',
+    email: 'j.reed@nlp-committee.org',
+    responsibility: 'Manages venue preparation, audio-visual technical setups, food and beverage coordination, and attendee flow.',
+    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400'
+  },
+  {
+    id: 'com_3',
+    fullName: 'Ananya Nair',
+    role: 'Participant Liaison',
+    designation: 'Senior Nurse Educator',
+    department: 'Staff Development',
+    phoneNumber: '+91 99999 88883',
+    email: 'ananya.n@nlp-committee.org',
+    responsibility: 'Coordinates with middle-level incharges across multiple centers, handles registration inquiries, and processes session attendance logs.',
+    photo: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&q=80&w=400'
+  }
+];
+
 const SEED_SCHEDULE = [
   // Day 1 (5 items)
   {
@@ -726,8 +819,8 @@ async function refreshPublicData() {
         if (data.settings) appState.settings = { ...appState.settings, ...data.settings };
         if (data.schedule && data.schedule.length > 0) appState.schedule = data.schedule; else appState.schedule = SEED_SCHEDULE;
         if (data.announcements) appState.announcements = data.announcements;
-        if (data.leaders) appState.leaders = data.leaders;
-        if (data.committee) appState.committee = data.committee;
+        if (data.leaders && Array.isArray(data.leaders) && data.leaders.length > 0) appState.leaders = data.leaders; else appState.leaders = SEED_LEADERS;
+        if (data.committee && Array.isArray(data.committee) && data.committee.length > 0) appState.committee = data.committee; else appState.committee = SEED_COMMITTEE;
         if (data.resources) appState.resources = data.resources;
         if (data.overview) appState.overview = data.overview;
         if (data.gallery && !isGalleryLocalOnly()) appState.gallery = data.gallery; else if (isGalleryLocalOnly()) appState.gallery = getLocalGallery();
@@ -757,18 +850,24 @@ async function refreshPublicData() {
           } else {
             if (endpoint === 'schedule') appState.schedule = SEED_SCHEDULE;
             else if (endpoint === 'event_days') appState.event_days = SEED_EVENT_DAYS;
+            else if (endpoint === 'leaders') appState.leaders = SEED_LEADERS;
+            else if (endpoint === 'committee') appState.committee = SEED_COMMITTEE;
             else appState[stateKey] = parsed;
           }
         } else {
           if (endpoint === 'gallery') appState.gallery = getLocalGallery();
           else if (endpoint === 'schedule') appState.schedule = SEED_SCHEDULE;
           else if (endpoint === 'event_days') appState.event_days = SEED_EVENT_DAYS;
+          else if (endpoint === 'leaders') appState.leaders = SEED_LEADERS;
+          else if (endpoint === 'committee') appState.committee = SEED_COMMITTEE;
           else appState[stateKey] = [];
         }
       } catch (err) {
         if (endpoint === 'gallery') appState.gallery = getLocalGallery();
         else if (endpoint === 'schedule') appState.schedule = SEED_SCHEDULE;
         else if (endpoint === 'event_days') appState.event_days = SEED_EVENT_DAYS;
+        else if (endpoint === 'leaders') appState.leaders = SEED_LEADERS;
+        else if (endpoint === 'committee') appState.committee = SEED_COMMITTEE;
         else appState[stateKey] = [];
       }
     };
