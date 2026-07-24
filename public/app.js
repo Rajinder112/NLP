@@ -1611,9 +1611,12 @@ function renderGalleryGrid() {
   
   if (appState.gallery.length === 0) {
     grid.innerHTML = '<p class="text-center" style="grid-column: 1/-1; padding: 40px; color: var(--text-muted);">No memories uploaded to the gallery yet.</p>';
+    renderGallerySlideshow();
     return;
   }
   
+  renderGallerySlideshow();
+
   grid.innerHTML = '';
   appState.gallery.forEach(item => {
     const card = document.createElement('div');
@@ -1636,6 +1639,120 @@ function renderGalleryGrid() {
     `;
     grid.appendChild(card);
   });
+}
+
+let gallerySlideshowTimer = null;
+let gallerySlideshowCurrentIdx = 0;
+
+function renderGallerySlideshow() {
+  const container = document.getElementById('gallery-slideshow-container');
+  if (!container) return;
+
+  if (!appState.gallery || appState.gallery.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  // Clear existing timer if any
+  if (gallerySlideshowTimer) {
+    clearInterval(gallerySlideshowTimer);
+    gallerySlideshowTimer = null;
+  }
+
+  const items = appState.gallery;
+  if (gallerySlideshowCurrentIdx >= items.length) {
+    gallerySlideshowCurrentIdx = 0;
+  }
+
+  const currentItem = items[gallerySlideshowCurrentIdx];
+
+  // Render Slideshow Banner HTML
+  let dotsHtml = items.map((item, idx) => 
+    `<span class="slideshow-indicator-dot ${idx === gallerySlideshowCurrentIdx ? 'active' : ''}"></span>`
+  ).join('');
+
+  const catText = (currentItem.category && currentItem.category !== 'Blank' && currentItem.category !== 'General' && currentItem.category !== 'None') 
+    ? `<span class="badge badge-gold" style="margin-bottom: 6px; display: inline-block;">${currentItem.category}</span>` 
+    : '';
+
+  container.innerHTML = `
+    <div class="featured-slideshow-card" onclick="openGalleryModal('${currentItem.id}')" title="Click to view full photo in Lightbox">
+      <img id="slideshow-active-img" class="featured-slideshow-img active" src="${getPhotoUrl(currentItem.url) || ''}" alt="${currentItem.title || 'Featured Memory'}">
+      <div class="featured-slideshow-overlay">
+        <div class="featured-slideshow-header">
+          <div class="featured-live-tag">
+            <span class="slideshow-pulse-dot"></span> FEATURED HIGHLIGHTS (AUTO PLAY 5s)
+          </div>
+          <span style="color: rgba(255,255,255,0.85); font-size: 0.85rem; font-weight: 500;">
+            ${gallerySlideshowCurrentIdx + 1} / ${items.length}
+          </span>
+        </div>
+        <div class="featured-slideshow-content">
+          ${catText}
+          <h3 class="featured-slideshow-title" id="slideshow-active-title">${currentItem.title || 'Untitled Memory'}</h3>
+          ${currentItem.description ? `<p class="featured-slideshow-desc" id="slideshow-active-desc">${currentItem.description}</p>` : ''}
+          <div class="slideshow-indicators-row">
+            ${dotsHtml}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Start 5-second auto transition
+  if (items.length > 1) {
+    gallerySlideshowTimer = setInterval(() => {
+      advanceGallerySlideshow();
+    }, 5000); // 5 seconds
+  }
+}
+
+function advanceGallerySlideshow() {
+  if (!appState.gallery || appState.gallery.length <= 1) return;
+  gallerySlideshowCurrentIdx = (gallerySlideshowCurrentIdx + 1) % appState.gallery.length;
+
+  const currentItem = appState.gallery[gallerySlideshowCurrentIdx];
+  const imgEl = document.getElementById('slideshow-active-img');
+  const titleEl = document.getElementById('slideshow-active-title');
+  const descEl = document.getElementById('slideshow-active-desc');
+  const cardEl = document.querySelector('.featured-slideshow-card');
+
+  if (cardEl) {
+    cardEl.onclick = () => openGalleryModal(currentItem.id);
+  }
+
+  if (imgEl) {
+    imgEl.classList.remove('active');
+    setTimeout(() => {
+      imgEl.src = getPhotoUrl(currentItem.url) || '';
+      imgEl.alt = currentItem.title || 'Featured Memory';
+      imgEl.classList.add('active');
+    }, 150);
+  }
+
+  if (titleEl) {
+    titleEl.textContent = currentItem.title || 'Untitled Memory';
+  }
+
+  if (descEl) {
+    descEl.textContent = currentItem.description || '';
+    descEl.style.display = currentItem.description ? 'block' : 'none';
+  }
+
+  // Update dots and index counter
+  const dots = document.querySelectorAll('.slideshow-indicator-dot');
+  dots.forEach((dot, idx) => {
+    if (idx === gallerySlideshowCurrentIdx) {
+      dot.classList.add('active');
+    } else {
+      dot.classList.remove('active');
+    }
+  });
+
+  const counterEl = document.querySelector('.featured-slideshow-header span');
+  if (counterEl) {
+    counterEl.textContent = `${gallerySlideshowCurrentIdx + 1} / ${appState.gallery.length}`;
+  }
 }
 
 function setupGalleryFilters() {
