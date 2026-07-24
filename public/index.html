@@ -15,7 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="styles.css?v=45">
+  <link rel="stylesheet" href="styles.css?v=46">
   
   <!-- SheetJS for client-side Excel exporting -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -25,11 +25,11 @@
 </head>
 <body>
 
-  <!-- Lightweight App Splash Screen (Pure HTML & Inline CSS) -->
+  <!-- Premium Medanta Loading Splash Screen (Pure HTML & Inline CSS) -->
   <div id="app-splash-screen" style="
     position: fixed;
     top: 0; left: 0; width: 100vw; height: 100vh;
-    background: #0f172a;
+    background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
     color: #ffffff;
     display: flex;
     flex-direction: column;
@@ -39,47 +39,86 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     transition: opacity 0.5s ease, visibility 0.5s ease;
   ">
-    <div style="text-align: center; padding: 20px; max-width: 320px;">
+    <div style="text-align: center; padding: 30px 20px; max-width: 360px; position: relative;">
+      
+      <!-- Glowing Animated Spinner & Medanta Logo Container -->
       <div style="
-        width: 72px; height: 72px;
-        margin: 0 auto 20px auto;
-        border-radius: 20px;
-        background: linear-gradient(135deg, #b91c1c 0%, #800020 100%);
+        position: relative;
+        width: 110px; height: 110px;
+        margin: 0 auto 24px auto;
         display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 10px 25px rgba(185, 28, 28, 0.4);
-        animation: splashPulse 1.8s infinite ease-in-out;
       ">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-        </svg>
+        <!-- Outer Rotating Metallic Ring -->
+        <div style="
+          position: absolute;
+          top: 0; left: 0; width: 100%; height: 100%;
+          border-radius: 50%;
+          border: 3px solid rgba(255, 255, 255, 0.08);
+          border-top-color: #e53e3e;
+          border-right-color: #ecc94b;
+          animation: medantaSpin 1.2s infinite linear;
+          box-shadow: 0 0 20px rgba(229, 62, 62, 0.25);
+        "></div>
+
+        <!-- Inner Logo Glow Box -->
+        <div style="
+          width: 90px; height: 90px;
+          border-radius: 50%;
+          background: #ffffff;
+          display: flex; align-items: center; justify-content: center;
+          padding: 12px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(229, 62, 62, 0.3);
+          animation: medantaPulse 2s infinite ease-in-out;
+        ">
+          <img src="/assets/logo.png" alt="Medanta Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+        </div>
       </div>
-      <h2 style="font-size: 1.35rem; font-weight: 700; letter-spacing: 0.5px; margin: 0 0 6px 0; color: #ffffff;">
-        MEDANTA NLP
+
+      <!-- App Title -->
+      <h2 style="
+        font-size: 1.4rem; font-weight: 800;
+        letter-spacing: 1px; margin: 0 0 6px 0;
+        color: #ffffff;
+        text-transform: uppercase;
+      ">
+        MEDANTA <span style="color: #ecc94b; font-weight: 600;">NLP</span>
       </h2>
-      <p style="font-size: 0.85rem; color: #94a3b8; margin: 0 0 24px 0; font-weight: 500;">
-        Nursing Leadership Program Portal
+      <p style="font-size: 0.85rem; color: #94a3b8; margin: 0 0 28px 0; font-weight: 500; letter-spacing: 0.3px;">
+        Nursing Leadership Program
       </p>
+
+      <!-- Progress Bar Track -->
       <div style="
-        width: 160px; height: 5px;
-        background: rgba(255,255,255,0.12);
-        border-radius: 4px; overflow: hidden;
+        width: 180px; height: 5px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 6px; overflow: hidden;
         margin: 0 auto;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
       ">
         <div id="splash-progress-bar" style="
-          width: 25%; height: 100%;
-          background: linear-gradient(90deg, #e53e3e, #ecc94b);
-          border-radius: 4px;
+          width: 30%; height: 100%;
+          background: linear-gradient(90deg, #b91c1c, #e53e3e, #ecc94b);
+          border-radius: 6px;
           transition: width 0.3s ease;
+          box-shadow: 0 0 10px rgba(229, 62, 62, 0.8);
         "></div>
       </div>
-      <p id="splash-status-text" style="font-size: 0.75rem; color: #64748b; margin: 12px 0 0 0; font-weight: 500;">
+
+      <!-- Status Text -->
+      <p id="splash-status-text" style="font-size: 0.78rem; color: #cbd5e1; margin: 14px 0 0 0; font-weight: 500; letter-spacing: 0.2px;">
         Initializing Portal...
       </p>
     </div>
+
+    <!-- Inline CSS Keyframe Animations -->
     <style>
-      @keyframes splashPulse {
-        0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.06); opacity: 0.88; }
+      @keyframes medantaSpin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      @keyframes medantaPulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 25px rgba(229, 62, 62, 0.3); }
+        50% { transform: scale(1.05); box-shadow: 0 12px 35px rgba(0,0,0,0.6), 0 0 35px rgba(236, 201, 75, 0.4); }
       }
     </style>
   </div>
@@ -1281,6 +1320,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Script Code Loader -->
-  <script src="app.js?v=61"></script>
+  <script src="app.js?v=62"></script>
 </body>
 </html>
