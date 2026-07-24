@@ -777,35 +777,52 @@ async function initApp() {
 // ==========================================================================
 // DATA FETCHING & SYNCHRONIZATION
 // ==========================================================================
+const DEFAULT_SETTINGS = {
+  eventState: 'Upcoming',
+  eventDate: '2026-07-26',
+  eventDateDisplay: '10-11 July & 26 July 2026',
+  eventVenue: '10th Floor ITC Department (In-House) & Outbound Facility',
+  lastUpdatedPdf: new Date().toISOString(),
+  pdfVersion: '1.0'
+};
+
 async function fetchSettings() {
   try {
-    const res = await fetch(`${API_BASE}/settings?_t=${Date.now()}`, { cache: 'no-store' });
-    appState.settings = await res.json();
-    
-    // Update Hero elements based on retrieved settings
-    const displayDate = appState.settings.eventDateDisplay || formatDateString(appState.settings.eventDate);
-    const heroDateEl = document.getElementById('hero-date-text');
-    if (heroDateEl) heroDateEl.textContent = displayDate;
-    const heroVenueEl = document.getElementById('hero-venue-text');
-    if (heroVenueEl) heroVenueEl.textContent = appState.settings.eventVenue;
-    
-    // Update Details section elements based on retrieved settings
-    const detailsDate = document.getElementById('details-date-text');
-    if (detailsDate) detailsDate.textContent = displayDate;
-    const detailsVenue = document.getElementById('details-venue-text');
-    if (detailsVenue) detailsVenue.textContent = appState.settings.eventVenue;
-    
-    // Update Hero Download PDF button href if uploaded
-    const heroPdfBtn = document.getElementById('hero-download-pdf-btn');
-    if (heroPdfBtn && appState.settings.pdfUrl) {
-      heroPdfBtn.setAttribute('href', appState.settings.pdfUrl);
+    const res = await fetch(`${API_BASE}/settings`);
+    if (res.ok) {
+      const text = await res.text();
+      if (!text.trim().startsWith('<!DOCTYPE') && !text.trim().startsWith('<html')) {
+        appState.settings = { ...DEFAULT_SETTINGS, ...JSON.parse(text) };
+      }
     }
-    
-    updateEventStateWidget();
   } catch (err) {
-    console.error('Error fetching settings:', err);
-    showToast('Failed to load event settings.', 'error');
+    console.warn('Using default settings fallback:', err.message);
   }
+  
+  if (!appState.settings || Object.keys(appState.settings).length === 0) {
+    appState.settings = { ...DEFAULT_SETTINGS };
+  }
+  
+  // Update Hero elements based on retrieved settings
+  const displayDate = appState.settings.eventDateDisplay || formatDateString(appState.settings.eventDate);
+  const heroDateEl = document.getElementById('hero-date-text');
+  if (heroDateEl) heroDateEl.textContent = displayDate;
+  const heroVenueEl = document.getElementById('hero-venue-text');
+  if (heroVenueEl) heroVenueEl.textContent = appState.settings.eventVenue || '10th Floor ITC Department (In-House) & Outbound Facility';
+  
+  // Update Details section elements based on retrieved settings
+  const detailsDate = document.getElementById('details-date-text');
+  if (detailsDate) detailsDate.textContent = displayDate;
+  const detailsVenue = document.getElementById('details-venue-text');
+  if (detailsVenue) detailsVenue.textContent = appState.settings.eventVenue || '10th Floor ITC Department (In-House) & Outbound Facility';
+  
+  // Update Hero Download PDF button href if uploaded
+  const heroPdfBtn = document.getElementById('hero-download-pdf-btn');
+  if (heroPdfBtn && appState.settings.pdfUrl) {
+    heroPdfBtn.setAttribute('href', appState.settings.pdfUrl);
+  }
+  
+  updateEventStateWidget();
 }
 
 async function refreshPublicData() {
