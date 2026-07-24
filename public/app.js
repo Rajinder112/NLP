@@ -302,10 +302,11 @@ async function fetchAdminGallery() {
   
   appState.gallery.forEach(item => {
     const row = document.createElement('tr');
+    const displayCat = (item.category && item.category !== 'Blank' && item.category !== 'None') ? item.category : 'General / Pre-Event';
     row.innerHTML = `
       <td style="width: 80px;"><img src="${getPhotoUrl(item.url) || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=80'}" style="width: 60px; height: 40px; object-fit: cover; border-radius: var(--radius-sm);"></td>
       <td style="font-weight: 600; color: var(--primary);">${item.title || 'Untitled Photograph'}</td>
-      <td><span class="badge badge-gold">${item.category || 'General'}</span></td>
+      <td><span class="badge badge-gold">${displayCat}</span></td>
       <td style="font-size: 0.85rem; color: var(--text-muted);">${item.description || '-'}</td>
       <td class="table-actions" style="text-align: right;">
         <button class="tbl-btn tbl-btn-edit" onclick="editGalleryItem('${item.id}')" title="Edit Item"><i data-lucide="edit"></i></button>
@@ -322,7 +323,7 @@ function adminAddGalleryItem() {
   document.getElementById('admin-gallery-form').reset();
   document.getElementById('gallery-item-id').value = '';
   document.getElementById('gallery-title').value = '';
-  document.getElementById('gallery-category').value = 'Day 1';
+  document.getElementById('gallery-category').value = 'General';
   document.getElementById('gallery-description').value = '';
   const fnEl = document.getElementById('gallery-file-name');
   if (fnEl) fnEl.textContent = 'Or enter a web URL below:';
@@ -352,7 +353,7 @@ async function editGalleryItem(id) {
   
   document.getElementById('gallery-item-id').value = item.id;
   document.getElementById('gallery-title').value = item.title || '';
-  document.getElementById('gallery-category').value = item.category || 'Day 1';
+  document.getElementById('gallery-category').value = item.category || 'General';
   document.getElementById('gallery-description').value = item.description || '';
   document.getElementById('gallery-url').value = item.url || '';
   const fnEl = document.getElementById('gallery-file-name');
@@ -1621,10 +1622,12 @@ function renderGalleryGrid() {
     card.setAttribute('data-category', catLower);
     card.onclick = () => openGalleryModal(item.id);
     
+    const showBadge = item.category && item.category !== 'Blank' && item.category !== 'General' && item.category !== 'None';
+
     card.innerHTML = `
       <div class="gallery-photo-wrapper" style="padding-bottom: 70%; border-radius: var(--radius-md); overflow: hidden; position: relative;">
         <img src="${getPhotoUrl(item.url) || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=400'}" alt="${item.title || 'Event Photograph'}" loading="lazy">
-        <span class="badge badge-gold" style="position: absolute; top: 12px; left: 12px; z-index: 10; font-size: 0.72rem; text-transform: uppercase;">${item.category || 'Day 1'}</span>
+        ${showBadge ? `<span class="badge badge-gold" style="position: absolute; top: 12px; left: 12px; z-index: 10; font-size: 0.72rem; text-transform: uppercase;">${item.category}</span>` : ''}
       </div>
       <div class="gallery-card-content" style="padding: 14px 16px;">
         <h4 class="gallery-card-title" style="margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 600; color: var(--text-dark);">${item.title || 'Untitled Memory'}</h4>
@@ -1684,7 +1687,12 @@ function updateLightboxImage() {
 
   const badgeEl = document.getElementById('gallery-modal-category-badge');
   if (badgeEl) {
-    badgeEl.textContent = item.category || 'Event Memory';
+    if (item.category && item.category !== 'Blank' && item.category !== 'General' && item.category !== 'None') {
+      badgeEl.textContent = item.category;
+      badgeEl.style.display = 'inline-block';
+    } else {
+      badgeEl.style.display = 'none';
+    }
   }
 
   const titleEl = document.getElementById('gallery-modal-title');
