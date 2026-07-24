@@ -712,7 +712,7 @@ async function seedPostgres() {
       { id: 'day_1', dayNumber: 1, date: '2026-07-10' },
       { id: 'day_2', dayNumber: 2, date: '2026-07-11' },
       { id: 'day_3', dayNumber: 3, date: '2026-07-17' },
-      { id: 'day_4', dayNumber: 4, date: '2026-07-26' },
+      { id: 'day_4', dayNumber: 4, date: '2026-07-24' },
       { id: 'day_5', dayNumber: 5, date: '2026-07-26' }
     ]
   };

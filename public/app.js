@@ -939,8 +939,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Initialize Application
 async function initApp() {
-  // Purge any stale local event_days cache on load
+  // Purge any stale local event_days and schedule cache on load
   localStorage.removeItem('nlp_local_event_days');
+  localStorage.removeItem('nlp_local_schedule');
 
   // Load configuration
   await initConfig();
@@ -1411,32 +1412,72 @@ function formatEventDateString(dateStr) {
   return dateStr;
 }
 
-// Live session calculator helper
-function calculateSessionLiveStatus(timeStr, nowObj) {
-  if (!timeStr) return 'Upcoming';
-  const parts = timeStr.split('-').map(s => s.trim());
-  if (parts.length < 2) return 'Upcoming';
+// Live session real-time status calculator helper based on exact timestamps
+function calculateSessionLiveStatus(item, dateStr, nowObj = new Date()) {
+  if (!item) return 'Upcoming';
   
-  const parseTime = (tStr) => {
-    const match = tStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  // Resolve item dateStr if missing
+  if (!dateStr && item.day) {
+    const dayNum = parseInt(item.day.replace(/[^0-9]/g, ''), 10);
+    const dayConfig = (appState.event_days || SEED_EVENT_DAYS).find(d => Number(d.dayNumber) === dayNum);
+    if (dayConfig && dayConfig.date) {
+      dateStr = dayConfig.date;
+    }
+  }
+  
+  const timeStr = item.time || '';
+  const parts = timeStr.split('-').map(s => s.trim());
+  
+  const parseDateTime = (tStr) => {
+    if (!tStr) return null;
+    const match = tStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
     if (!match) return null;
     let h = parseInt(match[1], 10);
     const m = parseInt(match[2], 10);
-    const ampm = match[3].toUpperCase();
+    const ampm = match[3] ? match[3].toUpperCase() : null;
     if (ampm === 'PM' && h < 12) h += 12;
     if (ampm === 'AM' && h === 12) h = 0;
-    return h * 60 + m;
+    
+    if (dateStr) {
+      const [yr, mo, dy] = dateStr.split('-').map(Number);
+      return new Date(yr, mo - 1, dy, h, m, 0, 0);
+    } else {
+      const d = new Date(nowObj);
+      d.setHours(h, m, 0, 0);
+      return d;
+    }
   };
   
-  const startMins = parseTime(parts[0]);
-  const endMins = parseTime(parts[1]);
-  if (startMins === null || endMins === null) return 'Upcoming';
+  let start = parseDateTime(parts[0]);
+  let end = parts.length > 1 ? parseDateTime(parts[1]) : null;
   
-  const nowMins = nowObj.getHours() * 60 + nowObj.getMinutes();
+  if (start && !end) {
+    end = new Date(start.getTime() + 30 * 60 * 1000); // 30 min session slot fallback
+  }
   
-  if (nowMins < startMins) return 'Upcoming';
-  if (nowMins >= startMins && nowMins <= endMins) return 'Live Now';
-  return 'Completed';
+  if (!start || !end) {
+    if (dateStr) {
+      const year = nowObj.getFullYear();
+      const month = String(nowObj.getMonth() + 1).padStart(2, '0');
+      const day = String(nowObj.getDate()).padStart(2, '0');
+      const todayStr = `${year}-${month}-${day}`;
+      if (dateStr < todayStr) return 'Completed';
+      if (dateStr > todayStr) return 'Upcoming';
+    }
+    return item.status || 'Upcoming';
+  }
+  
+  // Real-time timestamp comparison logic:
+  // Upcoming: currentTime < startTime
+  // Live: currentTime >= startTime && currentTime <= endTime
+  // Completed: currentTime > endTime
+  if (nowObj < start) {
+    return 'Upcoming';
+  } else if (nowObj >= start && nowObj <= end) {
+    return 'Live Now';
+  } else {
+    return 'Completed';
+  }
 }
 
 // Timeline schedule
@@ -1470,7 +1511,11 @@ function renderScheduleTimeline() {
     return;
   }
   
-  const todayStr = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const todayStr = `${year}-${month}-${day}`; // "YYYY-MM-DD" local date string
   const dayKeys = eventDaysList.map(d => `Day ${d.dayNumber}`);
   
   // Auto-selection of active day based on system date if not locked by manual user click
@@ -1541,27 +1586,17 @@ function renderScheduleTimeline() {
   // Find active day's date config
   const activeDayConfig = (appState.event_days || []).find(d => `Day ${d.dayNumber}` === appState.activeScheduleDay);
   const activeDayDate = activeDayConfig ? activeDayConfig.date : '';
-  const now = new Date();
   
   filteredSchedule.forEach(item => {
     const row = document.createElement('div');
     row.className = 'timeline-row';
     row.setAttribute('onclick', `openSessionDetail('${item.id}')`);
     
-    // Calculate status dynamically based on day date & current time
-    let statusText = item.status || 'Upcoming';
-    if (activeDayDate) {
-      if (activeDayDate < todayStr) {
-        statusText = 'Completed';
-      } else if (activeDayDate > todayStr) {
-        statusText = 'Upcoming';
-      } else if (activeDayDate === todayStr) {
-        statusText = calculateSessionLiveStatus(item.time, now);
-      }
-    }
+    // Calculate status dynamically based on real-time currentTime comparison against startTime and endTime
+    const statusText = calculateSessionLiveStatus(item, activeDayDate, now);
     
     let statusClass = 'status-upcoming';
-    if (statusText === 'Live Now') statusClass = 'status-live';
+    if (statusText === 'Live Now' || statusText === 'Live') statusClass = 'status-live';
     if (statusText === 'Completed' || statusText === 'Past') statusClass = 'status-completed';
     
     row.innerHTML = `
@@ -1584,6 +1619,14 @@ function renderScheduleTimeline() {
   
   lucide.createIcons();
 }
+
+// Scheduled background timer for real-time schedule status updates (every 10 seconds)
+setInterval(() => {
+  const container = document.getElementById('schedule-timeline');
+  if (container && container.children.length > 0) {
+    renderScheduleTimeline();
+  }
+}, 10000);
 
 function openSessionDetail(id) {
   const item = appState.schedule.find(s => s.id === id);
