@@ -65,24 +65,24 @@ const seedData = {
 
   // Seed Timeline schedule
   schedule: [
-    // Day 1 (5 items)
+    // ==================== DAY 1: 10 JULY 2026 (FRIDAY) ====================
     {
       id: 'sch_day1_1',
       day: 'Day 1',
       time: '03:00 PM - 03:10 PM',
       title: 'Activity',
-      speaker: 'Mr. Rohit Singh, Dr. Pallavi',
+      speaker: 'Mr. Rohit Singh, Dr. Pallavi Singh',
       type: 'Activity',
       venue: '10th Floor ITC Department',
       status: 'Completed',
-      details: 'Welcome and Warm up'
+      details: '• Welcome and Warm up'
     },
     {
       id: 'sch_day1_2',
       day: 'Day 1',
       time: '03:10 PM - 03:30 PM',
       title: 'Communication',
-      speaker: 'Mr. Rohit Singh & Dr. Pallavi',
+      speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh',
       type: 'Workshop',
       venue: '10th Floor ITC Department',
       status: 'Completed',
@@ -104,8 +104,8 @@ const seedData = {
       day: 'Day 1',
       time: '04:00 PM - 05:30 PM',
       title: 'Developing the Individuals',
-      speaker: 'Mr. Rohit Singh & Dr. Pallavi',
-      type: 'Lecture',
+      speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh',
+      type: 'Workshop',
       venue: '10th Floor ITC Department',
       status: 'Completed',
       details: '• How to groom a Nurse to the next level • What motivates individual members of the team • Coaching style based on needs of each individual • Performance feedback • Leverage strengths of individual team members • Back to basics (Customer Feedback Presentation) • Punctuality'
@@ -119,38 +119,38 @@ const seedData = {
       type: 'Activity',
       venue: '10th Floor ITC Department',
       status: 'Completed',
-      details: 'Wrap up'
+      details: '• Wrap up'
     },
 
-    // Day 2 (4 items)
+    // ==================== DAY 2: 11 JULY 2026 (SATURDAY) ====================
     {
       id: 'sch_day2_1',
       day: 'Day 2',
       time: '03:00 PM - 03:15 PM',
-      title: 'Recap of the Previous day',
+      title: 'Recap of the Previous Day',
       speaker: 'Team',
       type: 'Activity',
       venue: '10th Floor ITC Department',
       status: 'Completed',
-      details: 'Candidates'
+      details: '• Recap of key learnings and takeaways from Day 1'
     },
     {
       id: 'sch_day2_2',
       day: 'Day 2',
       time: '03:15 PM - 04:15 PM',
-      title: 'Managing Unit performance',
-      speaker: 'Mr. Rohit Singh & Dr. Pallavi',
-      type: 'Lecture',
+      title: 'Managing Unit Performance',
+      speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh',
+      type: 'Workshop',
       venue: '10th Floor ITC Department',
       status: 'Completed',
-      details: '• Time management • Take joint ownership & accountability • Develop and pursue goals that cross departmental lines daily, Monthly & Yearly basis • Grooming • Managing change in the organization • Service excellence and communication'
+      details: '• Time management • Take joint ownership & accountability • Develop and pursue goals that cross departmental lines daily, monthly & yearly basis • Grooming • Managing change in the organization • Service excellence and communication'
     },
     {
       id: 'sch_day2_3',
       day: 'Day 2',
       time: '04:15 PM - 05:15 PM',
       title: 'Foundational Leadership',
-      speaker: 'Mr. Rohit Singh & Dr. Pallavi',
+      speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh',
       type: 'Lecture',
       venue: '10th Floor ITC Department',
       status: 'Completed',
@@ -162,13 +162,13 @@ const seedData = {
       time: '05:15 PM - 06:00 PM',
       title: 'Discussion on Assignment',
       speaker: 'Team',
-      type: 'Activity',
+      type: 'Workshop',
       venue: '10th Floor ITC Department',
       status: 'Completed',
-      details: 'Group Making'
+      details: '• Group Making'
     },
 
-    // Day 3 (6 items)
+    // ==================== DAY 3: 17 JULY 2026 (FRIDAY) ====================
     {
       id: 'sch_day3_1',
       day: 'Day 3',
@@ -178,7 +178,7 @@ const seedData = {
       type: 'Activity',
       venue: '10th Floor ITC Department',
       status: 'Completed',
-      details: 'Candidates'
+      details: '• Candidates'
     },
     {
       id: 'sch_day3_2',
@@ -189,29 +189,29 @@ const seedData = {
       type: 'Workshop',
       venue: '10th Floor ITC Department',
       status: 'Completed',
-      details: 'Planning the Presentation • Designing Effective Slides • Using Visuals & Charts • Presentation Tips • Common Mistakes to Avoid • Conclusion'
+      details: '• Planning the Presentation • Designing Effective Slides • Using Visuals & Charts • Presentation Tips • Common Mistakes to Avoid • Conclusion'
     },
     {
       id: 'sch_day3_3',
       day: 'Day 3',
       time: '04:15 PM - 05:00 PM',
       title: 'RCA',
-      speaker: 'Mr. Rohit Singh, Dr. Pallavi',
+      speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh',
       type: 'Lecture',
       venue: '10th Floor ITC Department',
       status: 'Completed',
-      details: 'Fish bone analysis'
+      details: '• Fish bone analysis'
     },
     {
       id: 'sch_day3_4',
       day: 'Day 3',
       time: '05:00 PM - 06:00 PM',
       title: 'Coaching',
-      speaker: 'Mr. Rohit Singh, Dr. Pallavi',
+      speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh',
       type: 'Lecture',
       venue: '10th Floor ITC Department',
       status: 'Completed',
-      details: 'Coaching & Mentoring Principles'
+      details: '• Coaching'
     },
     {
       id: 'sch_day3_5',
@@ -222,7 +222,7 @@ const seedData = {
       type: 'Workshop',
       venue: '10th Floor ITC Department',
       status: 'Completed',
-      details: 'How to Make an Assignment: • Choose and understand the topic. • Collect information from reliable sources. • Organize the content with an introduction, main body, and conclusion. • Use clear language, proper formatting, and cite references if required.'
+      details: 'How to Make an Assignment: • Choose and understand the topic • Collect information from reliable sources • Organize the content with an introduction, main body, and conclusion • Use clear language, proper formatting, and cite references if required'
     },
     {
       id: 'sch_day3_6',
@@ -233,40 +233,276 @@ const seedData = {
       type: 'Activity',
       venue: '10th Floor ITC Department',
       status: 'Completed',
-      details: 'Wrap UP & Day 3 Conclusion'
+      details: '• Wrap UP'
     },
 
-    // Day 4 (14 items)
-    { id: 'sch_day4_1', day: 'Day 4', time: '08:30 AM - 09:00 AM', title: 'Registration', speaker: 'Organising Committee', type: 'Activity', venue: 'Main Auditorium / 10th Floor ITC', status: 'Upcoming', details: 'Participant Registration' },
-    { id: 'sch_day4_2', day: 'Day 4', time: '09:00 AM - 09:30 AM', title: 'Welcome Address & Lamp Lighting', speaker: 'Management', type: 'Keynote', venue: 'Main Auditorium', status: 'Upcoming', details: 'Medanta Leadership' },
-    { id: 'sch_day4_3', day: 'Day 4', time: '09:30 AM - 09:45 AM', title: 'Message to the Group & Clinical Governance', speaker: 'Vice President – Operations', type: 'Keynote', venue: 'Main Auditorium', status: 'Upcoming', details: '• Organization\'s Expectations' },
-    { id: 'sch_day4_4', day: 'Day 4', time: '09:45 AM - 10:00 AM', title: 'Programme Introduction', speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh', type: 'Workshop', venue: 'Main Auditorium', status: 'Upcoming', details: '• Programme Expectations • Curriculum Overview • Learning Objectives' },
-    { id: 'sch_day4_5', day: 'Day 4', time: '10:00 AM - 10:15 AM', title: 'Tea Break', speaker: 'Organising Committee', type: 'Break', venue: 'Dining Area', status: 'Upcoming', details: 'Morning Refreshment Break' },
-    { id: 'sch_day4_6', day: 'Day 4', time: '10:15 AM - 12:00 PM', title: 'The Role of Middle Management', speaker: 'External Speaker', type: 'Lecture', venue: 'Main Auditorium', status: 'Upcoming', details: '• Middle Management Skills • Managing Upward and Downward • Bridging Leadership and Teams • Effective Leadership for Middle Managers • Aligning Top Management Vision with Team Execution • Achieving Middle Management Excellence • Managing Leadership Expectations and Team Performance' },
-    { id: 'sch_day4_7', day: 'Day 4', time: '12:00 PM - 01:00 PM', title: 'Team Building Activity', speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh', type: 'Activity', venue: 'Main Auditorium / Activity Hall', status: 'Upcoming', details: '• Building an Effective Team • Role of the Nurse Manager • Staffing in Nursing Units • Managing Team Members\' Performance • Interviewing Skills' },
-    { id: 'sch_day4_8', day: 'Day 4', time: '01:00 PM - 02:00 PM', title: 'Lunch Break', speaker: 'Organising Committee', type: 'Break', venue: 'Dining Area', status: 'Upcoming', details: 'Networking Lunch' },
-    { id: 'sch_day4_9', day: 'Day 4', time: '02:00 PM - 02:30 PM', title: 'SWOT Analysis', speaker: 'Training Team', type: 'Workshop', venue: 'Main Auditorium', status: 'Upcoming', details: '• Interactive Warm-up Activity • Individual & Team SWOT Exercise' },
-    { id: 'sch_day4_10', day: 'Day 4', time: '02:30 PM - 03:30 PM', title: 'Nursing Leadership Skills', speaker: 'Ms. Precila Fernandes', type: 'Lecture', venue: 'Main Auditorium', status: 'Upcoming', details: '• Personal Branding for Nurse Leaders • Leadership Marketing & Professional Image • Quality Improvement & Performance Excellence • Practical Implementation of Leadership Skills' },
-    { id: 'sch_day4_11', day: 'Day 4', time: '03:30 PM - 04:00 PM', title: 'Team Building', speaker: 'Training Team', type: 'Activity', venue: 'Activity Hall', status: 'Upcoming', details: '• Interactive Team-Building Activity' },
-    { id: 'sch_day4_12', day: 'Day 4', time: '04:00 PM - 04:15 PM', title: 'Tea Break', speaker: 'Organising Committee', type: 'Break', venue: 'Dining Area', status: 'Upcoming', details: 'Afternoon Refreshment Break' },
-    { id: 'sch_day4_13', day: 'Day 4', time: '04:15 PM - 05:00 PM', title: 'Group Assignment Presentation', speaker: 'Training Team', type: 'Workshop', venue: 'Main Auditorium', status: 'Upcoming', details: '• Group Presentations • Peer Learning & Feedback' },
-    { id: 'sch_day4_14', day: 'Day 4', time: '05:00 PM - 06:00 PM', title: 'Discussion & Conclusion', speaker: 'Ms. Precila Fernandes', type: 'Keynote', venue: 'Main Auditorium', status: 'Upcoming', details: '• Open Discussion • Key Takeaways • Action Plan • Closing Remarks & Vote of Thanks' },
+    // ==================== DAY 4: 24 JULY 2026 (FRIDAY) ====================
+    {
+      id: 'sch_day4_1',
+      day: 'Day 4',
+      time: '03:00 PM - 03:15 PM',
+      title: 'Recap & Reflection',
+      speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh',
+      type: 'Activity',
+      venue: '10th Floor ITC Department',
+      status: 'Completed',
+      details: '• Recapping key learnings from Day 1 to Day 3'
+    },
+    {
+      id: 'sch_day4_2',
+      day: 'Day 4',
+      time: '03:15 PM - 03:30 PM',
+      title: 'Orientation for Group Presentations',
+      speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh',
+      type: 'Workshop',
+      venue: '10th Floor ITC Department',
+      status: 'Completed',
+      details: '• Overview of Day 4 activities • Presentation & evaluation process • Guidelines & criteria'
+    },
+    {
+      id: 'sch_day4_3',
+      day: 'Day 4',
+      time: '03:30 PM - 03:40 PM',
+      title: 'Group Presentation #1',
+      speaker: 'Evaluation by Mr. Rohit Singh & Dr. Pallavi Singh',
+      type: 'Keynote',
+      venue: '10th Floor ITC Department',
+      status: 'Completed',
+      details: '• Presentation by Group 1 • Followed by Q&A'
+    },
+    {
+      id: 'sch_day4_4',
+      day: 'Day 4',
+      time: '03:40 PM - 03:50 PM',
+      title: 'Group Presentation #2',
+      speaker: 'Evaluation by Mr. Rohit Singh & Dr. Pallavi Singh',
+      type: 'Keynote',
+      venue: '10th Floor ITC Department',
+      status: 'Completed',
+      details: '• Presentation by Group 2 • Followed by Q&A'
+    },
+    {
+      id: 'sch_day4_5',
+      day: 'Day 4',
+      time: '03:50 PM - 04:00 PM',
+      title: 'Group Presentation #3',
+      speaker: 'Evaluation by Mr. Rohit Singh & Dr. Pallavi Singh',
+      type: 'Keynote',
+      venue: '10th Floor ITC Department',
+      status: 'Completed',
+      details: '• Presentation by Group 3 • Followed by Q&A'
+    },
+    {
+      id: 'sch_day4_6',
+      day: 'Day 4',
+      time: '04:00 PM - 04:10 PM',
+      title: 'Group Presentation #4',
+      speaker: 'Evaluation by Mr. Rohit Singh & Dr. Pallavi Singh',
+      type: 'Keynote',
+      venue: '10th Floor ITC Department',
+      status: 'Completed',
+      details: '• Presentation by Group 4 • Followed by Q&A'
+    },
+    {
+      id: 'sch_day4_7',
+      day: 'Day 4',
+      time: '04:10 PM - 04:20 PM',
+      title: 'Group Presentation #5',
+      speaker: 'Evaluation by Mr. Rohit Singh & Dr. Pallavi Singh',
+      type: 'Keynote',
+      venue: '10th Floor ITC Department',
+      status: 'Completed',
+      details: '• Presentation by Group 5 • Followed by Q&A'
+    },
+    {
+      id: 'sch_day4_8',
+      day: 'Day 4',
+      time: '04:20 PM - 04:40 PM',
+      title: 'Feedback & Key Takeaways',
+      speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh',
+      type: 'Workshop',
+      venue: '10th Floor ITC Department',
+      status: 'Completed',
+      details: '• Constructive feedback to all groups • Key learning highlights • Strengths & improvement opportunities'
+    },
+    {
+      id: 'sch_day4_9',
+      day: 'Day 4',
+      time: '04:40 PM - 05:45 PM',
+      title: 'Open Discussion',
+      speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh',
+      type: 'Workshop',
+      venue: '10th Floor ITC Department',
+      status: 'Completed',
+      details: '• Reflections from participants • Sharing of learnings • Clarifications & insights'
+    },
+    {
+      id: 'sch_day4_10',
+      day: 'Day 4',
+      time: '05:45 PM - 06:00 PM',
+      title: 'Wrap Up & Closing',
+      speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh',
+      type: 'Activity',
+      venue: '10th Floor ITC Department',
+      status: 'Completed',
+      details: '• Key Takeaways • Action Points • Final Thoughts & Motivation • Vote of Thanks'
+    },
 
-    // Day 5 (14 items)
-    { id: 'sch_day5_1', day: 'Day 5', time: '08:30 AM - 09:00 AM', title: 'Registration', speaker: 'Organising Committee', type: 'Activity', venue: 'Main Auditorium / 10th Floor ITC', status: 'Upcoming', details: 'Participant Registration' },
-    { id: 'sch_day5_2', day: 'Day 5', time: '09:00 AM - 09:30 AM', title: 'Welcome Address & Lamp Lighting', speaker: 'Management', type: 'Keynote', venue: 'Main Auditorium', status: 'Upcoming', details: 'Medanta Leadership' },
-    { id: 'sch_day5_3', day: 'Day 5', time: '09:30 AM - 09:45 AM', title: 'Message to the Group & Clinical Governance', speaker: 'Vice President – Operations', type: 'Keynote', venue: 'Main Auditorium', status: 'Upcoming', details: '• Organization\'s Expectations' },
-    { id: 'sch_day5_4', day: 'Day 5', time: '09:45 AM - 10:00 AM', title: 'Programme Introduction', speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh', type: 'Workshop', venue: 'Main Auditorium', status: 'Upcoming', details: '• Programme Expectations • Curriculum Overview • Learning Objectives' },
-    { id: 'sch_day5_5', day: 'Day 5', time: '10:00 AM - 10:15 AM', title: 'Tea Break', speaker: 'Organising Committee', type: 'Break', venue: 'Dining Area', status: 'Upcoming', details: 'Morning Refreshment Break' },
-    { id: 'sch_day5_6', day: 'Day 5', time: '10:15 AM - 12:00 PM', title: 'The Role of Middle Management', speaker: 'External Speaker', type: 'Lecture', venue: 'Main Auditorium', status: 'Upcoming', details: '• Middle Management Skills • Managing Upward and Downward • Bridging Leadership and Teams • Effective Leadership for Middle Managers • Aligning Top Management Vision with Team Execution • Achieving Middle Management Excellence • Managing Leadership Expectations and Team Performance' },
-    { id: 'sch_day5_7', day: 'Day 5', time: '12:00 PM - 01:00 PM', title: 'Team Building Activity', speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh', type: 'Activity', venue: 'Main Auditorium / Activity Hall', status: 'Upcoming', details: '• Building an Effective Team • Role of the Nurse Manager • Staffing in Nursing Units • Managing Team Members\' Performance • Interviewing Skills' },
-    { id: 'sch_day5_8', day: 'Day 5', time: '01:00 PM - 02:00 PM', title: 'Lunch Break', speaker: 'Organising Committee', type: 'Break', venue: 'Dining Area', status: 'Upcoming', details: 'Networking Lunch' },
-    { id: 'sch_day5_9', day: 'Day 5', time: '02:00 PM - 02:30 PM', title: 'SWOT Analysis', speaker: 'Training Team', type: 'Workshop', venue: 'Main Auditorium', status: 'Upcoming', details: '• Interactive Warm-up Activity • Individual & Team SWOT Exercise' },
-    { id: 'sch_day5_10', day: 'Day 5', time: '02:30 PM - 03:30 PM', title: 'Nursing Leadership Skills', speaker: 'Ms. Precila Fernandes', type: 'Lecture', venue: 'Main Auditorium', status: 'Upcoming', details: '• Personal Branding for Nurse Leaders • Leadership Marketing & Professional Image • Quality Improvement & Performance Excellence • Practical Implementation of Leadership Skills' },
-    { id: 'sch_day5_11', day: 'Day 5', time: '03:30 PM - 04:00 PM', title: 'Team Building', speaker: 'Training Team', type: 'Activity', venue: 'Activity Hall', status: 'Upcoming', details: '• Interactive Team-Building Activity' },
-    { id: 'sch_day5_12', day: 'Day 5', time: '04:00 PM - 04:15 PM', title: 'Tea Break', speaker: 'Organising Committee', type: 'Break', venue: 'Dining Area', status: 'Upcoming', details: 'Afternoon Refreshment Break' },
-    { id: 'sch_day5_13', day: 'Day 5', time: '04:15 PM - 05:00 PM', title: 'Group Assignment Presentation', speaker: 'Training Team', type: 'Workshop', venue: 'Main Auditorium', status: 'Upcoming', details: '• Group Presentations • Peer Learning & Feedback' },
-    { id: 'sch_day5_14', day: 'Day 5', time: '05:00 PM - 06:00 PM', title: 'Discussion & Conclusion', speaker: 'Ms. Precila Fernandes', type: 'Keynote', venue: 'Main Auditorium', status: 'Upcoming', details: '• Open Discussion • Key Takeaways • Action Plan • Closing Remarks & Vote of Thanks' }
+    // ==================== DAY 5: 26 JULY 2026 (SUNDAY) ====================
+    {
+      id: 'sch_day5_1',
+      day: 'Day 5',
+      time: '08:30 AM - 09:00 AM',
+      title: 'Registration',
+      speaker: 'Organising Committee',
+      type: 'Activity',
+      venue: 'Savotel Hotel, Lucknow',
+      status: 'Upcoming',
+      details: '• Participant Registration'
+    },
+    {
+      id: 'sch_day5_2',
+      day: 'Day 5',
+      time: '09:00 AM - 09:15 AM',
+      title: 'Welcome Address & Lamp Lighting',
+      speaker: 'Ms. Precila Fernandes (Director Nursing)',
+      type: 'Keynote',
+      venue: 'Savotel Hotel, Lucknow',
+      status: 'Upcoming',
+      details: '• Welcome Address & Lamp Lighting'
+    },
+    {
+      id: 'sch_day5_3',
+      day: 'Day 5',
+      time: '09:15 AM - 09:30 AM',
+      title: 'Programme Overview & Workshop Recap',
+      speaker: 'Mr. Rohit Singh & Dr. Pallavi Singh',
+      type: 'Workshop',
+      venue: 'Savotel Hotel, Lucknow',
+      status: 'Upcoming',
+      details: '• Programme Overview & Workshop Recap'
+    },
+    {
+      id: 'sch_day5_4',
+      day: 'Day 5',
+      time: '09:30 AM - 10:00 AM',
+      title: 'Message to the Group & Clinical Governance',
+      speaker: 'Dr. Vikram Singh Chouhan (Vice President – Operations)',
+      type: 'Keynote',
+      venue: 'Savotel Hotel, Lucknow',
+      status: 'Upcoming',
+      details: '• Organization\'s Expectations'
+    },
+    {
+      id: 'sch_day5_5',
+      day: 'Day 5',
+      time: '10:00 AM - 10:15 AM',
+      title: 'Tea Break',
+      speaker: '—',
+      type: 'Break',
+      venue: 'Savotel Hotel, Lucknow',
+      status: 'Upcoming',
+      details: '• Tea Break'
+    },
+    {
+      id: 'sch_day5_6',
+      day: 'Day 5',
+      time: '10:15 AM - 12:00 PM',
+      title: 'The Role of Middle Management',
+      speaker: 'Dr. Vinita Yadav (AVP Corporate - L&D)',
+      type: 'Lecture',
+      venue: 'Savotel Hotel, Lucknow',
+      status: 'Upcoming',
+      details: '• Middle Management Skills • Managing Upward and Downward • Bridging Leadership and Teams • Effective Leadership for Middle Managers • Aligning Top Management Vision with Team Execution'
+    },
+    {
+      id: 'sch_day5_7',
+      day: 'Day 5',
+      time: '12:00 PM - 01:00 PM',
+      title: 'Nursing Leadership Skills',
+      speaker: 'Ms. Precila Fernandes (Director Nursing)',
+      type: 'Lecture',
+      venue: 'Savotel Hotel, Lucknow',
+      status: 'Upcoming',
+      details: '• Personal Branding for Nurse Leaders • Leadership Marketing & Professional Image • Practical Implementation of Leadership Skills'
+    },
+    {
+      id: 'sch_day5_8',
+      day: 'Day 5',
+      time: '01:00 PM - 02:00 PM',
+      title: 'Lunch Break',
+      speaker: '—',
+      type: 'Break',
+      venue: 'Savotel Hotel, Lucknow',
+      status: 'Upcoming',
+      details: '• Lunch Break'
+    },
+    {
+      id: 'sch_day5_9',
+      day: 'Day 5',
+      time: '02:00 PM - 02:30 PM',
+      title: 'Group Assignment Presentation',
+      speaker: 'Delegates',
+      type: 'Workshop',
+      venue: 'Savotel Hotel, Lucknow',
+      status: 'Upcoming',
+      details: '• Presentation by Three Groups'
+    },
+    {
+      id: 'sch_day5_10',
+      day: 'Day 5',
+      time: '02:30 PM - 03:30 PM',
+      title: 'SWOT Analysis',
+      speaker: 'Dr. Vinita Yadav (AVP Corporate - L&D)',
+      type: 'Workshop',
+      venue: 'Savotel Hotel, Lucknow',
+      status: 'Upcoming',
+      details: '• Interactive SWOT Analysis'
+    },
+    {
+      id: 'sch_day5_11',
+      day: 'Day 5',
+      time: '03:30 PM - 04:00 PM',
+      title: 'Team Building Activity',
+      speaker: 'Delegates',
+      type: 'Activity',
+      venue: 'Savotel Hotel, Lucknow',
+      status: 'Upcoming',
+      details: '• Interactive Team-Building Activity'
+    },
+    {
+      id: 'sch_day5_12',
+      day: 'Day 5',
+      time: '04:00 PM - 04:15 PM',
+      title: 'Tea Break',
+      speaker: '—',
+      type: 'Break',
+      venue: 'Savotel Hotel, Lucknow',
+      status: 'Upcoming',
+      details: '• Tea Break'
+    },
+    {
+      id: 'sch_day5_13',
+      day: 'Day 5',
+      time: '04:15 PM - 05:00 PM',
+      title: 'Group Assignment Presentation',
+      speaker: 'Delegates',
+      type: 'Workshop',
+      venue: 'Savotel Hotel, Lucknow',
+      status: 'Upcoming',
+      details: '• Presentation by Three Groups'
+    },
+    {
+      id: 'sch_day5_14',
+      day: 'Day 5',
+      time: '05:00 PM - 06:00 PM',
+      title: 'Discussion & Conclusion',
+      speaker: 'Ms. Precila Fernandes (Director Nursing)',
+      type: 'Keynote',
+      venue: 'Savotel Hotel, Lucknow',
+      status: 'Upcoming',
+      details: '• Key Takeaways • Action Plan • Closing Remarks & Vote of Thanks'
+    }
   ],
 
   // Seed Announcements
