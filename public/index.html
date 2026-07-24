@@ -15,7 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="styles.css?v=31">
+  <link rel="stylesheet" href="styles.css?v=32">
   
   <!-- SheetJS for client-side Excel exporting -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -976,7 +976,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <span class="modal-badge" id="session-modal-type">Lecture</span>
-        <button class="modal-close-btn" onclick="closeModal('session-modal')" ontouchend="closeModal('session-modal'); e.preventDefault();" aria-label="Close Modal">&times;</button>
+        <button class="modal-close-btn" onclick="closeModal('session-modal')" aria-label="Close Modal">&times;</button>
       </div>
       <div class="modal-body">
         <h2 class="modal-title" id="session-modal-title">Session Title</h2>
@@ -1000,7 +1000,7 @@
   <!-- 2. COMMITTEE DETAIL POPUP -->
   <div class="modal-overlay" id="committee-modal">
     <div class="modal-card profile-modal-card">
-      <button class="modal-close-btn profile-close" onclick="closeModal('committee-modal')" ontouchend="closeModal('committee-modal'); e.preventDefault();" aria-label="Close Profile">&times;</button>
+      <button class="modal-close-btn profile-close" onclick="closeModal('committee-modal')" aria-label="Close Profile">&times;</button>
       <div class="profile-popup-layout">
         <div class="profile-popup-photo">
           <img id="com-modal-photo" src="" alt="">
@@ -1021,7 +1021,7 @@
             <!-- Populated via script to only show button on mobile devices if phone approved -->
           </div>
           <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-light); text-align: center;">
-            <button type="button" class="btn btn-outline btn-block" onclick="closeModal('committee-modal')" ontouchend="closeModal('committee-modal'); e.preventDefault();">
+            <button type="button" class="btn btn-outline btn-block" onclick="closeModal('committee-modal')">
               Close Profile
             </button>
           </div>
@@ -1033,7 +1033,7 @@
   <!-- 3. SPEAKER / LEADER DETAIL POPUP -->
   <div class="modal-overlay" id="leader-modal">
     <div class="modal-card profile-modal-card">
-      <button class="modal-close-btn profile-close" onclick="closeModal('leader-modal')" ontouchend="closeModal('leader-modal'); e.preventDefault();" aria-label="Close Profile">&times;</button>
+      <button class="modal-close-btn profile-close" onclick="closeModal('leader-modal')" aria-label="Close Profile">&times;</button>
       <div class="profile-popup-layout">
         <div class="profile-popup-photo">
           <img id="lead-modal-photo" src="" alt="">
@@ -1068,7 +1068,7 @@
             <!-- Optional call button -->
           </div>
           <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-light); text-align: center;">
-            <button type="button" class="btn btn-outline btn-block" onclick="closeModal('leader-modal')" ontouchend="closeModal('leader-modal'); e.preventDefault();">
+            <button type="button" class="btn btn-outline btn-block" onclick="closeModal('leader-modal')">
               Close Profile
             </button>
           </div>
@@ -1215,6 +1215,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Script Code Loader -->
-  <script src="app.js?v=47"></script>
+  <script src="app.js?v=48"></script>
 </body>
 </html>

@@ -556,14 +556,24 @@ async function initApp() {
   // Setup Admin Listeners
   setupAdminListeners();
 
-  // Setup Global Modal Backdrop & Escape Key Listeners
-  const handleBackdropClose = (e) => {
+  // Setup Global Modal Backdrop, Close Buttons & Escape Key Listeners
+  const handleUniversalModalClose = (e) => {
+    // 1. If backdrop overlay clicked
     if (e.target && e.target.classList && e.target.classList.contains('modal-overlay')) {
       e.target.classList.remove('active');
     }
+    // 2. If any close button / X icon clicked across the web application
+    const closeBtn = e.target ? e.target.closest('.modal-close-btn, .close-btn, .modal-close, [data-dismiss="modal"]') : null;
+    if (closeBtn) {
+      const modal = closeBtn.closest('.modal-overlay');
+      if (modal) {
+        modal.classList.remove('active');
+      } else {
+        closeModal();
+      }
+    }
   };
-  document.addEventListener('click', handleBackdropClose);
-  document.addEventListener('touchend', handleBackdropClose);
+  document.addEventListener('click', handleUniversalModalClose);
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
