@@ -29,9 +29,14 @@ if (!fs.existsSync(UPLOADS_DIR)) {
 
 const crypto = require('crypto');
 
-// Simple Token-based Auth Mock
-const ADMIN_PASSWORD = '#@!Raji#@!1'; // Default Admin Password
-const JWT_SECRET = 'nlp_secret_key_12345'; // Simple static secret
+// Encrypted SHA-256 Passwords Hash Store
+// Hash 1: #@!Raji#@!1 -> 1ae3a8af3e92dcf702d9a2f379f211e5c398181a833bf9bcd08144354a620562
+// Hash 2: Rohit@1234  -> 00a041fcca586c4bc4f6fdeef85bc2b610f145b557d46956b24193557bae1369
+const ALLOWED_PASSWORD_HASHES = [
+  '1ae3a8af3e92dcf702d9a2f379f211e5c398181a833bf9bcd08144354a620562',
+  '00a041fcca586c4bc4f6fdeef85bc2b610f145b557d46956b24193557bae1369'
+];
+const JWT_SECRET = 'nlp_secret_key_12345'; // Static signing secret
 
 function generateToken() {
   const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
@@ -69,7 +74,12 @@ const authenticateAdmin = (req, res, next) => {
 // --- AUTH API ---
 app.post('/api/auth/login', (req, res) => {
   const { password } = req.body;
-  if (password === ADMIN_PASSWORD) {
+  if (!password) {
+    return res.status(400).json({ error: 'Password is required.' });
+  }
+
+  const inputHash = crypto.createHash('sha256').update(password.trim()).digest('hex');
+  if (ALLOWED_PASSWORD_HASHES.includes(inputHash)) {
     const token = generateToken();
     return res.json({ token });
   }
