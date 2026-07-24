@@ -105,31 +105,50 @@ app.post('/api/settings', authenticateAdmin, async (req, res) => {
 });
 
 // --- SYSTEM STORAGE SPACE API ---
-app.get('/api/system/space', (req, res) => {
+app.get('/api/system/space', async (req, res) => {
   const getDirSize = (dirPath) => {
     let size = 0;
     if (!fs.existsSync(dirPath)) return 0;
-    const files = fs.readdirSync(dirPath);
-    for (let i = 0; i < files.length; i++) {
-      const filePath = path.join(dirPath, files[i]);
-      const stat = fs.statSync(filePath);
-      if (stat.isFile()) {
-        size += stat.size;
-      } else if (stat.isDirectory()) {
-        size += getDirSize(filePath);
+    try {
+      const files = fs.readdirSync(dirPath);
+      for (let i = 0; i < files.length; i++) {
+        const filePath = path.join(dirPath, files[i]);
+        const stat = fs.statSync(filePath);
+        if (stat.isFile()) {
+          size += stat.size;
+        } else if (stat.isDirectory()) {
+          size += getDirSize(filePath);
+        }
       }
-    }
+    } catch (e) {}
     return size;
   };
 
   try {
     const uploadsSize = getDirSize(UPLOADS_DIR);
+    const assetsSize = getDirSize(path.join(__dirname, 'public', 'assets'));
+    const dataSize = getDirSize(path.join(__dirname, 'data'));
+
+    let dbBytes = 0;
+    try {
+      const collections = ['gallery', 'leaders', 'committee', 'resources', 'attendance', 'overview', 'announcements', 'event_days'];
+      for (const c of collections) {
+        const items = await db.getCollection(c);
+        dbBytes += Buffer.from(JSON.stringify(items)).length;
+      }
+      const settings = await db.getSettings();
+      dbBytes += Buffer.from(JSON.stringify(settings)).length;
+    } catch (e) {
+      console.warn('Error computing database items size:', e.message);
+    }
+
+    const totalUsedBytes = uploadsSize + assetsSize + dataSize + dbBytes;
     const limitBytes = 250 * 1024 * 1024; // 250 MB
     res.json({
-      usedBytes: uploadsSize,
-      usedMb: parseFloat((uploadsSize / (1024 * 1024)).toFixed(2)),
+      usedBytes: totalUsedBytes,
+      usedMb: parseFloat((totalUsedBytes / (1024 * 1024)).toFixed(2)),
       limitMb: 250,
-      percentage: parseFloat(((uploadsSize / limitBytes) * 100).toFixed(1))
+      percentage: parseFloat(((totalUsedBytes / limitBytes) * 100).toFixed(1))
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

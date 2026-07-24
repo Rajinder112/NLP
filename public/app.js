@@ -1956,9 +1956,19 @@ async function updateAdminSpaceIndicator() {
       throw new Error('Response error');
     }
   } catch (err) {
-    // Estimate from local gallery array length + baseline mock value (0.45MB)
-    const count = (appState.gallery || []).length;
-    const estimateMb = parseFloat((0.45 + (count * 0.12)).toFixed(2));
+    let appStateBytes = 0;
+    ['gallery', 'leaders', 'committee', 'resources', 'attendance', 'overview', 'announcements', 'event_days'].forEach(key => {
+      if (appState[key]) {
+        try {
+          appStateBytes += new Blob([JSON.stringify(appState[key])]).size;
+        } catch (e) {
+          appStateBytes += (JSON.stringify(appState[key]) || '').length * 2;
+        }
+      }
+    });
+    // Add assets directory baseline (3.15 MB)
+    const totalBytes = appStateBytes + (3.15 * 1024 * 1024);
+    const estimateMb = parseFloat((totalBytes / (1024 * 1024)).toFixed(2));
     const percentage = parseFloat(((estimateMb / 250) * 100).toFixed(1));
     textEl.textContent = `${estimateMb} MB / 250 MB`;
     barEl.style.width = `${percentage}%`;
