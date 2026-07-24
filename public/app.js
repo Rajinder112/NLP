@@ -1653,7 +1653,6 @@ function renderGallerySlideshow() {
     return;
   }
 
-  // Clear existing timer if any
   if (gallerySlideshowTimer) {
     clearInterval(gallerySlideshowTimer);
     gallerySlideshowTimer = null;
@@ -1666,9 +1665,8 @@ function renderGallerySlideshow() {
 
   const currentItem = items[gallerySlideshowCurrentIdx];
 
-  // Render Slideshow Banner HTML
   let dotsHtml = items.map((item, idx) => 
-    `<span class="slideshow-indicator-dot ${idx === gallerySlideshowCurrentIdx ? 'active' : ''}"></span>`
+    `<span class="slideshow-indicator-dot ${idx === gallerySlideshowCurrentIdx ? 'active' : ''}" onclick="event.stopPropagation(); jumpGallerySlideshow(${idx})" title="Jump to Photo ${idx + 1}"></span>`
   ).join('');
 
   const catText = (currentItem.category && currentItem.category !== 'Blank' && currentItem.category !== 'General' && currentItem.category !== 'None') 
@@ -1676,14 +1674,26 @@ function renderGallerySlideshow() {
     : '';
 
   container.innerHTML = `
-    <div class="featured-slideshow-card" onclick="openGalleryModal('${currentItem.id}')" title="Click to view full photo in Lightbox">
+    <div class="featured-slideshow-card" onclick="openGalleryModal('${currentItem.id}')" title="Click to open photo in Lightbox">
+      <!-- Ambient Blurred Background -->
+      <img id="slideshow-active-bg" class="featured-slideshow-bg" src="${getPhotoUrl(currentItem.url) || ''}" alt="">
+      
+      <!-- Crisp Contain Foreground Image (No Faces Clipped!) -->
       <img id="slideshow-active-img" class="featured-slideshow-img active" src="${getPhotoUrl(currentItem.url) || ''}" alt="${currentItem.title || 'Featured Memory'}">
+      
+      <!-- Navigation Arrows -->
+      ${items.length > 1 ? `
+        <button class="slideshow-nav-btn prev" onclick="event.stopPropagation(); manualGallerySlideshow(-1)" title="Previous Photo">&#8249;</button>
+        <button class="slideshow-nav-btn next" onclick="event.stopPropagation(); manualGallerySlideshow(1)" title="Next Photo">&#8250;</button>
+      ` : ''}
+
+      <!-- Glassmorphic Overlay -->
       <div class="featured-slideshow-overlay">
         <div class="featured-slideshow-header">
           <div class="featured-live-tag">
             <span class="slideshow-pulse-dot"></span> FEATURED HIGHLIGHTS (AUTO PLAY 5s)
           </div>
-          <span style="color: rgba(255,255,255,0.85); font-size: 0.85rem; font-weight: 500;">
+          <span style="color: rgba(255,255,255,0.9); font-size: 0.85rem; font-weight: 600;">
             ${gallerySlideshowCurrentIdx + 1} / ${items.length}
           </span>
         </div>
@@ -1699,19 +1709,52 @@ function renderGallerySlideshow() {
     </div>
   `;
 
-  // Start 5-second auto transition
   if (items.length > 1) {
     gallerySlideshowTimer = setInterval(() => {
-      advanceGallerySlideshow();
-    }, 5000); // 5 seconds
+      advanceGallerySlideshow(1);
+    }, 5000);
   }
 }
 
-function advanceGallerySlideshow() {
-  if (!appState.gallery || appState.gallery.length <= 1) return;
-  gallerySlideshowCurrentIdx = (gallerySlideshowCurrentIdx + 1) % appState.gallery.length;
+function manualGallerySlideshow(dir) {
+  if (gallerySlideshowTimer) {
+    clearInterval(gallerySlideshowTimer);
+    gallerySlideshowTimer = null;
+  }
+  advanceGallerySlideshow(dir);
+  if (appState.gallery && appState.gallery.length > 1) {
+    gallerySlideshowTimer = setInterval(() => {
+      advanceGallerySlideshow(1);
+    }, 5000);
+  }
+}
 
+function jumpGallerySlideshow(targetIdx) {
+  if (!appState.gallery || targetIdx < 0 || targetIdx >= appState.gallery.length) return;
+  if (gallerySlideshowTimer) {
+    clearInterval(gallerySlideshowTimer);
+    gallerySlideshowTimer = null;
+  }
+  gallerySlideshowCurrentIdx = targetIdx;
+  updateSlideshowDOM();
+  if (appState.gallery.length > 1) {
+    gallerySlideshowTimer = setInterval(() => {
+      advanceGallerySlideshow(1);
+    }, 5000);
+  }
+}
+
+function advanceGallerySlideshow(dir = 1) {
+  if (!appState.gallery || appState.gallery.length <= 1) return;
+  gallerySlideshowCurrentIdx = (gallerySlideshowCurrentIdx + dir + appState.gallery.length) % appState.gallery.length;
+  updateSlideshowDOM();
+}
+
+function updateSlideshowDOM() {
   const currentItem = appState.gallery[gallerySlideshowCurrentIdx];
+  if (!currentItem) return;
+
+  const bgEl = document.getElementById('slideshow-active-bg');
   const imgEl = document.getElementById('slideshow-active-img');
   const titleEl = document.getElementById('slideshow-active-title');
   const descEl = document.getElementById('slideshow-active-desc');
@@ -1719,6 +1762,10 @@ function advanceGallerySlideshow() {
 
   if (cardEl) {
     cardEl.onclick = () => openGalleryModal(currentItem.id);
+  }
+
+  if (bgEl) {
+    bgEl.src = getPhotoUrl(currentItem.url) || '';
   }
 
   if (imgEl) {
@@ -1739,7 +1786,6 @@ function advanceGallerySlideshow() {
     descEl.style.display = currentItem.description ? 'block' : 'none';
   }
 
-  // Update dots and index counter
   const dots = document.querySelectorAll('.slideshow-indicator-dot');
   dots.forEach((dot, idx) => {
     if (idx === gallerySlideshowCurrentIdx) {
