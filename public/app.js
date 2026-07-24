@@ -800,8 +800,10 @@ async function saveGalleryItem(e) {
   const description = document.getElementById('gallery-description').value.trim();
   const fileInput = document.getElementById('gallery-file');
   let url = document.getElementById('gallery-url').value;
+  let uploadedFileSize = 0;
   
   if (fileInput.files.length > 0) {
+    uploadedFileSize = fileInput.files[0].size;
     const uploadedUrl = await uploadFileToServer(fileInput.files[0]);
     if (uploadedUrl) url = uploadedUrl;
   }
@@ -814,6 +816,15 @@ async function saveGalleryItem(e) {
   const payload = { title, category, description, url };
   const isEdit = !!id;
   
+  if (!uploadedFileSize) {
+    uploadedFileSize = (new Blob([JSON.stringify(payload)]).size) + (url ? url.length : 0);
+  }
+
+  // Real-Time Storage Tracker optimistic update
+  if (!isEdit) {
+    updateStorageTracker(uploadedFileSize, 'ADD');
+  }
+
   // LocalStorage Dual-Write fallback
   let localList = getLocalGallery();
   if (isEdit) {
@@ -849,12 +860,21 @@ async function saveGalleryItem(e) {
   closeModal('admin-gallery-modal');
   await fetchAdminGallery();
   await refreshPublicData();
+  await updateAdminSpaceIndicator(); // Sync exact backend storage size
 }
 
 async function deleteGalleryItem(id) {
   const confirmDel = confirm('Are you sure you want to delete this event photograph?');
   if (!confirmDel) return;
+
+  // Find deleted item and perform Real-Time Storage Tracker optimistic subtraction
+  const targetItem = (appState.gallery || []).find(g => g.id === id);
+  const deletedBytes = targetItem 
+    ? (new Blob([JSON.stringify(targetItem)]).size + (targetItem.url ? targetItem.url.length : 0)) 
+    : (150 * 1024);
   
+  updateStorageTracker(deletedBytes, 'SUBTRACT');
+
   // LocalStorage Dual-Write fallback
   let localList = getLocalGallery();
   saveLocalGallery(localList.filter(g => g.id !== id));
@@ -875,6 +895,7 @@ async function deleteGalleryItem(id) {
   showToast('Gallery photograph deleted successfully.', 'success');
   await fetchAdminGallery();
   await refreshPublicData();
+  await updateAdminSpaceIndicator(); // Sync exact backend storage size
 }
 
 
@@ -2623,7 +2644,47 @@ function setupFilePreview(fileInputId, previewBoxId, hiddenInputId) {
   });
 }
 
-// Update storage space utilization indicator widget
+// Storage Tracker State & Real-time Update Handler
+let storageState = {
+  usedMB: 0,
+  maxMB: 250,
+  percentage: 0
+};
+
+/**
+ * Real-Time Storage Tracker Update Handler
+ * Recalculates and smooth-animates the sidebar storage indicator instantly
+ * on image uploads, additions, and deletions without requiring a manual page refresh.
+ * @param {number} fileSizeChangeInBytes - Byte size of uploaded or deleted file/item
+ * @param {string} operation - 'ADD' | 'SUBTRACT'
+ */
+function updateStorageTracker(fileSizeChangeInBytes, operation) {
+  const textEl = document.getElementById('admin-space-text');
+  const barEl = document.getElementById('admin-space-bar');
+  if (!textEl || !barEl) return;
+
+  const changeInMB = (fileSizeChangeInBytes || 0) / (1024 * 1024);
+  const updatedStorageMB = operation === 'ADD' 
+    ? storageState.usedMB + changeInMB 
+    : Math.max(0, storageState.usedMB - changeInMB);
+
+  storageState.usedMB = parseFloat(updatedStorageMB.toFixed(2));
+  storageState.percentage = parseFloat(Math.min(100, (storageState.usedMB / storageState.maxMB) * 100).toFixed(1));
+
+  // Instantly reflect in UI with smooth progress bar animation
+  textEl.textContent = `${storageState.usedMB.toFixed(2)} MB / ${storageState.maxMB} MB`;
+  barEl.style.width = `${storageState.percentage}%`;
+
+  if (storageState.percentage > 90) {
+    barEl.style.backgroundColor = '#e53e3e';
+  } else if (storageState.percentage > 70) {
+    barEl.style.backgroundColor = '#dd6b20';
+  } else {
+    barEl.style.backgroundColor = 'var(--accent)';
+  }
+}
+
+// Update storage space utilization indicator widget from server API
 async function updateAdminSpaceIndicator() {
   const textEl = document.getElementById('admin-space-text');
   const barEl = document.getElementById('admin-space-bar');
@@ -2633,16 +2694,21 @@ async function updateAdminSpaceIndicator() {
     const res = await fetch(`${API_BASE}/system/space`);
     if (res.ok) {
       const data = await res.json();
-      textEl.textContent = `${data.usedMb} MB / ${data.limitMb} MB`;
-      barEl.style.width = `${data.percentage}%`;
+      storageState.usedMB = parseFloat(data.usedMb) || 0;
+      storageState.maxMB = parseFloat(data.limitMb) || 250;
+      storageState.percentage = parseFloat(data.percentage) || 0;
+
+      textEl.textContent = `${storageState.usedMB.toFixed(2)} MB / ${storageState.maxMB} MB`;
+      barEl.style.width = `${storageState.percentage}%`;
       
-      if (data.percentage > 90) {
+      if (storageState.percentage > 90) {
         barEl.style.backgroundColor = '#e53e3e';
-      } else if (data.percentage > 70) {
+      } else if (storageState.percentage > 70) {
         barEl.style.backgroundColor = '#dd6b20';
       } else {
         barEl.style.backgroundColor = 'var(--accent)';
       }
+      return;
     } else {
       throw new Error('Response error');
     }
@@ -2661,7 +2727,12 @@ async function updateAdminSpaceIndicator() {
     const totalBytes = appStateBytes + (3.15 * 1024 * 1024);
     const estimateMb = parseFloat((totalBytes / (1024 * 1024)).toFixed(2));
     const percentage = parseFloat(((estimateMb / 250) * 100).toFixed(1));
-    textEl.textContent = `${estimateMb} MB / 250 MB`;
+    
+    storageState.usedMB = estimateMb;
+    storageState.maxMB = 250;
+    storageState.percentage = percentage;
+
+    textEl.textContent = `${estimateMb.toFixed(2)} MB / 250 MB`;
     barEl.style.width = `${percentage}%`;
     barEl.style.backgroundColor = 'var(--accent)';
   }
@@ -3736,6 +3807,9 @@ async function uploadFileToServer(file) {
         
         const data = await res.json();
         if (res.ok) {
+          if (file && file.size) {
+            updateStorageTracker(file.size, 'ADD');
+          }
           resolve(data.url);
         } else {
           showToast(data.error || 'Upload failed.', 'error');
