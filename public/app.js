@@ -990,6 +990,64 @@ function dismissSplashScreen() {
   }, 250);
 }
 
+// Real-Time Cross-Device Auto-Sync Engine (5-second polling across Render SQL DB, Vercel & client sessions)
+let lastDataHash = '';
+
+function calculateAppStateHash(data) {
+  try {
+    return JSON.stringify({
+      sch: (data.schedule || []).length,
+      gal: (data.gallery || []).length,
+      lead: (data.leaders || []).length,
+      comm: (data.committee || []).length,
+      ann: (data.announcements || []).length,
+      res: (data.resources || []).length,
+      ev: (data.event_days || []).length,
+      sett: data.settings ? (data.settings.eventState + (data.settings.eventDate || '')) : ''
+    });
+  } catch (e) {
+    return '';
+  }
+}
+
+function startRealtimeAutoSync() {
+  setInterval(async () => {
+    try {
+      // Pause background sync if any admin modal or input form is currently active to prevent typing interruption
+      const isModalOpen = document.querySelector('.modal-overlay.active');
+      if (isModalOpen) return;
+
+      const res = await fetch(`${API_BASE}/bootstrap`);
+      if (!res.ok) return;
+      
+      const text = await res.text();
+      if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) return;
+
+      const data = JSON.parse(text);
+      const currentHash = calculateAppStateHash(data);
+
+      if (lastDataHash && currentHash !== lastDataHash) {
+        console.log('[RealtimeSync] Database change detected! Syncing frontend view...');
+        lastDataHash = currentHash;
+        await refreshPublicData();
+        
+        // Re-render active admin tables if logged into Admin Dashboard
+        if (appState.isLoggedIn) {
+          if (appState.currentAdminTab === 'db-gallery') fetchAdminGallery();
+          if (appState.currentAdminTab === 'db-profiles') fetchAdminProfilesList();
+          if (appState.currentAdminTab === 'db-schedule') fetchAdminScheduleList();
+          if (appState.currentAdminTab === 'db-announcements') fetchAdminAnnouncementsList();
+          if (appState.currentAdminTab === 'db-overview') fetchAdminOverviewList();
+        }
+      } else if (!lastDataHash) {
+        lastDataHash = currentHash;
+      }
+    } catch (err) {
+      // Graceful offline fallback
+    }
+  }, 5000);
+}
+
 // Initialize Application
 async function initApp() {
   setSplashProgress(25, 'Preloading Configuration...');
@@ -1038,6 +1096,9 @@ async function initApp() {
 
   // Setup Admin Listeners
   setupAdminListeners();
+
+  // Start Real-Time Background Cross-Device Auto-Sync Engine
+  startRealtimeAutoSync();
 
   // Setup Global Modal Backdrop, Close Buttons & Escape Key Listeners
   const handleUniversalModalClose = (e) => {
