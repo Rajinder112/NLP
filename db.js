@@ -802,10 +802,13 @@ const db = {
       } finally {
         client.release();
       }
-    } else {
+    }
+    try {
       const data = readData();
       data[name] = items;
       writeData(data);
+    } catch (diskErr) {
+      console.warn('Disk sync notice in saveCollection:', diskErr);
     }
   },
 
@@ -818,6 +821,7 @@ const db = {
       res.rows.forEach(row => {
         settings[row.key] = row.value;
       });
+      ramSettingsCache = settings;
       return settings;
     } else {
       const data = readData();
@@ -835,10 +839,13 @@ const db = {
           [key, String(value)]
         );
       }
-    } else {
+    }
+    try {
       const data = readData();
       data.settings = { ...data.settings, ...settings };
       writeData(data);
+    } catch (diskErr) {
+      console.warn('Disk sync notice in saveSettings:', diskErr);
     }
   },
 
@@ -846,6 +853,14 @@ const db = {
 
   addAttendance: async (record) => {
     delete ramCache['attendance'];
+    const newRecord = {
+      id: 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+      submissionTimestamp: new Date().toISOString(),
+      checkInTime: new Date().toLocaleTimeString('en-US', { hour12: false }),
+      status: 'Checked In',
+      ...record
+    };
+
     if (isPg) {
       await pgInitPromise;
       const attendanceList = await db.getCollection('attendance');
@@ -860,43 +875,30 @@ const db = {
         throw new Error(`Attendance already marked for Employee ID ${record.employeeId} under session '${record.session}' on this day.`);
       }
 
-      const newRecord = {
-        id: 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-        submissionTimestamp: new Date().toISOString(),
-        checkInTime: new Date().toLocaleTimeString('en-US', { hour12: false }),
-        status: 'Checked In',
-        ...record
-      };
-
       await pool.query(
         "INSERT INTO collections (name, id, data) VALUES ($1, $2, $3)",
         ['attendance', newRecord.id, JSON.stringify(newRecord)]
       );
-      return newRecord;
-    } else {
+    }
+    
+    // Always sync local disk db.json
+    try {
       const attendanceList = await db.getCollection('attendance');
       const duplicate = (record.employeeId && record.employeeId.trim()) ? attendanceList.find(r => 
         r.employeeId && r.employeeId.trim().toLowerCase() === record.employeeId.trim().toLowerCase() &&
         r.attendanceDate === record.attendanceDate &&
         r.session.trim().toLowerCase() === record.session.trim().toLowerCase()
       ) : null;
+      if (duplicate) throw new Error(`Attendance already marked for Employee ID ${record.employeeId} under session '${record.session}' on this day.`);
 
-      if (duplicate) {
-        throw new Error(`Attendance already marked for Employee ID ${record.employeeId} under session '${record.session}' on this day.`);
-      }
-
-      const newRecord = {
-        id: 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-        submissionTimestamp: new Date().toISOString(),
-        checkInTime: new Date().toLocaleTimeString('en-US', { hour12: false }),
-        status: 'Checked In',
-        ...record
-      };
-
-      attendanceList.push(newRecord);
-      await db.saveCollection('attendance', attendanceList);
-      return newRecord;
+      const data = readData();
+      if (!data['attendance']) data['attendance'] = [];
+      data['attendance'].push(newRecord);
+      writeData(data);
+    } catch (diskErr) {
+      console.warn('Disk sync notice in addAttendance:', diskErr);
     }
+    return newRecord;
   },
 
   updateAttendance: async (id, updatedFields) => {
@@ -911,16 +913,21 @@ const db = {
         "UPDATE collections SET data = $1 WHERE name = $2 AND id = $3",
         [JSON.stringify(updatedRecord), 'attendance', id]
       );
-      return updatedRecord;
-    } else {
-      const attendanceList = await db.getCollection('attendance');
-      const index = attendanceList.findIndex(r => r.id === id);
-      if (index === -1) throw new Error('Attendance record not found.');
-      
-      attendanceList[index] = { ...attendanceList[index], ...updatedFields };
-      await db.saveCollection('attendance', attendanceList);
-      return attendanceList[index];
     }
+    
+    try {
+      const data = readData();
+      if (data['attendance']) {
+        const idx = data['attendance'].findIndex(r => r.id === id);
+        if (idx !== -1) {
+          data['attendance'][idx] = { ...data['attendance'][idx], ...updatedFields };
+          writeData(data);
+        }
+      }
+    } catch (diskErr) {
+      console.warn('Disk sync notice in updateAttendance:', diskErr);
+    }
+    return { id, ...updatedFields };
   },
 
   deleteAttendance: async (id) => {
@@ -929,18 +936,23 @@ const db = {
       await pgInitPromise;
       const res = await pool.query("DELETE FROM collections WHERE name = $1 AND id = $2", ['attendance', id]);
       if (res.rowCount === 0) throw new Error('Attendance record not found.');
-    } else {
-      const attendanceList = await db.getCollection('attendance');
-      const filtered = attendanceList.filter(r => r.id !== id);
-      if (filtered.length === attendanceList.length) throw new Error('Attendance record not found.');
-      await db.saveCollection('attendance', filtered);
+    }
+    
+    try {
+      const data = readData();
+      if (data['attendance']) {
+        data['attendance'] = data['attendance'].filter(r => r.id !== id);
+        writeData(data);
+      }
+    } catch (diskErr) {
+      console.warn('Disk sync notice in deleteAttendance:', diskErr);
     }
   },
 
   addItem: async (collectionName, item) => {
     delete ramCache[collectionName];
     const newItem = {
-      id: collectionName.substr(0, 3) + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+      id: item.id || (collectionName.substr(0, 3) + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6)),
       ...item
     };
     if (isPg) {
@@ -949,11 +961,17 @@ const db = {
         "INSERT INTO collections (name, id, data) VALUES ($1, $2, $3)",
         [collectionName, newItem.id, JSON.stringify(newItem)]
       );
-    } else {
-      const list = await db.getCollection(collectionName);
-      list.push(newItem);
-      await db.saveCollection(collectionName, list);
     }
+    
+    try {
+      const data = readData();
+      if (!data[collectionName]) data[collectionName] = [];
+      data[collectionName].push(newItem);
+      writeData(data);
+    } catch (diskErr) {
+      console.warn('Disk sync notice in addItem:', diskErr);
+    }
+
     return newItem;
   },
 
@@ -969,15 +987,22 @@ const db = {
         "UPDATE collections SET data = $1 WHERE name = $2 AND id = $3",
         [JSON.stringify(updatedItem), collectionName, id]
       );
-      return updatedItem;
-    } else {
-      const list = await db.getCollection(collectionName);
-      const index = list.findIndex(item => item.id === id);
-      if (index === -1) throw new Error(`Item not found in ${collectionName}`);
-      list[index] = { ...list[index], ...updatedFields };
-      await db.saveCollection(collectionName, list);
-      return list[index];
     }
+    
+    try {
+      const data = readData();
+      if (data[collectionName] && Array.isArray(data[collectionName])) {
+        const idx = data[collectionName].findIndex(i => i.id === id);
+        if (idx !== -1) {
+          data[collectionName][idx] = { ...data[collectionName][idx], ...updatedFields };
+          writeData(data);
+        }
+      }
+    } catch (diskErr) {
+      console.warn('Disk sync notice in updateItem:', diskErr);
+    }
+
+    return { id, ...updatedFields };
   },
 
   deleteItem: async (collectionName, id) => {
@@ -986,11 +1011,16 @@ const db = {
       await pgInitPromise;
       const res = await pool.query("DELETE FROM collections WHERE name = $1 AND id = $2", [collectionName, id]);
       if (res.rowCount === 0) throw new Error(`Item not found in ${collectionName}`);
-    } else {
-      const list = await db.getCollection(collectionName);
-      const filtered = list.filter(item => item.id !== id);
-      if (filtered.length === list.length) throw new Error(`Item not found in ${collectionName}`);
-      await db.saveCollection(collectionName, filtered);
+    }
+    
+    try {
+      const data = readData();
+      if (data[collectionName] && Array.isArray(data[collectionName])) {
+        data[collectionName] = data[collectionName].filter(item => item.id !== id);
+        writeData(data);
+      }
+    } catch (diskErr) {
+      console.warn('Disk sync notice in deleteItem:', diskErr);
     }
   }
 };

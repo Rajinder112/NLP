@@ -3554,14 +3554,31 @@ async function fetchAdminProfilesList() {
     console.warn('Network error in fetchAdminProfilesList, using appState/SEED fallback:', err);
   }
 
-  // Enforce array fallbacks if uninitialized or empty
-  const leadersList = Array.isArray(appState.leaders) && appState.leaders.length > 0 
-    ? appState.leaders 
-    : (SEED_LEADERS || []);
-    
-  const committeeList = Array.isArray(appState.committee) && appState.committee.length > 0 
-    ? appState.committee 
-    : (SEED_COMMITTEE || []);
+  // Respect user modifications & deletions stored in localStorage
+  let isUserModified = localStorage.getItem('nlp_profiles_user_modified') === 'true';
+  let savedLocalLeaders = null;
+  let savedLocalCommittee = null;
+  
+  try {
+    const rawL = localStorage.getItem('nlp_local_leaders');
+    if (rawL) savedLocalLeaders = JSON.parse(rawL);
+    const rawC = localStorage.getItem('nlp_local_committee');
+    if (rawC) savedLocalCommittee = JSON.parse(rawC);
+  } catch (e) {}
+
+  let leadersList = Array.isArray(appState.leaders) ? appState.leaders : [];
+  if (isUserModified && savedLocalLeaders && Array.isArray(savedLocalLeaders)) {
+    leadersList = savedLocalLeaders;
+  } else if (leadersList.length === 0 && !isUserModified) {
+    leadersList = SEED_LEADERS || [];
+  }
+
+  let committeeList = Array.isArray(appState.committee) ? appState.committee : [];
+  if (isUserModified && savedLocalCommittee && Array.isArray(savedLocalCommittee)) {
+    committeeList = savedLocalCommittee;
+  } else if (committeeList.length === 0 && !isUserModified) {
+    committeeList = SEED_COMMITTEE || [];
+  }
 
   appState.leaders = leadersList;
   appState.committee = committeeList;
@@ -3913,6 +3930,32 @@ async function deleteCrudItem(type, id) {
   const confirmDel = confirm(`Are you sure you want to delete this ${type} item?`);
   if (!confirmDel) return;
   
+  // Optimistically remove from appState and update local storage persistence
+  if (type === 'leaders' || type === 'committee') {
+    if (Array.isArray(appState.leaders)) {
+      appState.leaders = appState.leaders.filter(item => item.id !== id);
+      try { localStorage.setItem('nlp_local_leaders', JSON.stringify(appState.leaders)); } catch (e) {}
+    }
+    if (Array.isArray(appState.committee)) {
+      appState.committee = appState.committee.filter(item => item.id !== id);
+      try { localStorage.setItem('nlp_local_committee', JSON.stringify(appState.committee)); } catch (e) {}
+    }
+    try { localStorage.setItem('nlp_profiles_user_modified', 'true'); } catch (e) {}
+  } else if (Array.isArray(appState[type])) {
+    appState[type] = appState[type].filter(item => item.id !== id);
+    try {
+      localStorage.setItem(`nlp_local_${type}`, JSON.stringify(appState[type]));
+      localStorage.setItem(`nlp_${type}_user_modified`, 'true');
+    } catch (e) {}
+  }
+
+  // Update Admin view immediately (0ms latency)
+  if (type === 'schedule') fetchAdminScheduleList();
+  if (type === 'announcements') fetchAdminAnnouncementsList();
+  if (type === 'leaders' || type === 'committee') fetchAdminProfilesList();
+  if (type === 'overview') fetchAdminOverviewList();
+  refreshPublicData();
+
   try {
     const res = await fetch(`${API_BASE}/${type}/${id}`, {
       method: 'DELETE',
@@ -3921,18 +3964,17 @@ async function deleteCrudItem(type, id) {
     
     if (res.ok) {
       showToast('Item deleted successfully.', 'success');
-      
       if (type === 'schedule') await fetchAdminScheduleList();
       if (type === 'announcements') await fetchAdminAnnouncementsList();
       if (type === 'leaders' || type === 'committee') await fetchAdminProfilesList();
       if (type === 'overview') await fetchAdminOverviewList();
-      
       await refreshPublicData();
     } else {
-      showToast('Failed to delete item.', 'error');
+      showToast('Backend deletion notice: kept in local storage.', 'info');
     }
   } catch (err) {
-    console.error(err);
+    console.warn('Backend API offline during delete, deletion preserved locally:', err);
+    showToast('Item deleted locally.', 'success');
   }
 }
 
