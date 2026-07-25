@@ -3187,7 +3187,7 @@ img {
   height: 100vh;
   background-color: rgba(11, 28, 60, 0.7);
   backdrop-filter: blur(8px);
-  z-index: 2000;
+  z-index: 100000 !important;
   display: flex;
   align-items: center;
   justify-content: center;

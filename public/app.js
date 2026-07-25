@@ -1918,12 +1918,12 @@ function renderLeadersAndCommittee() {
       // Setup click events on filters
       const filterBtns = document.querySelectorAll('#view-leadership .category-filters .filter-btn');
       filterBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.onclick = (e) => {
           filterBtns.forEach(b => b.classList.remove('active'));
           e.target.classList.add('active');
           const filter = e.target.getAttribute('data-filter');
           renderProfileCardsFiltered(filter);
-        });
+        };
       });
     }
   }
@@ -1995,6 +1995,7 @@ function openModal(modalId) {
   const target = document.getElementById(modalId);
   if (target) {
     target.classList.add('active');
+    document.body.classList.add('modal-open');
   }
 }
 
