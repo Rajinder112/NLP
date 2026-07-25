@@ -3327,7 +3327,9 @@ img {
 .profile-modal-card {
   max-width: 800px;
   position: relative;
-  overflow: visible;
+  overflow-y: auto;
+  max-height: calc(100vh - 48px);
+  border-radius: var(--radius-lg);
 }
 
 .profile-popup-layout {
@@ -3762,12 +3764,6 @@ img {
   
   .profile-popup-content {
     padding: 24px;
-  }
-
-  .profile-close {
-    top: 12px !important;
-    right: 12px !important;
-    z-index: 100050 !important;
   }
 
   .profile-popup-content h2 {
