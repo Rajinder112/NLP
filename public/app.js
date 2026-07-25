@@ -2506,6 +2506,227 @@ function updateSlideshowDOM() {
   });
 }
 
+// ==========================================================================
+// FEATURED HIGHLIGHT FULLSCREEN AUTOPLAY SLIDESHOW
+// ==========================================================================
+let isHeroFullscreenAutoplayPaused = false;
+let heroFullscreenTimer = null;
+let heroFullscreenZoomScale = 1;
+let heroFullscreenPanX = 0;
+let heroFullscreenPanY = 0;
+let isDraggingHeroFullscreen = false;
+let heroStartDragX = 0;
+let heroStartDragY = 0;
+let heroPinchDistStart = 0;
+let heroFsTouchStartX = 0;
+let heroFsTouchEndX = 0;
+
+function openHeroFullscreen() {
+  if (!appState.gallery || appState.gallery.length === 0) return;
+  
+  // Pause normal hero carousel timer while in fullscreen
+  pauseGallerySlideshow();
+  
+  isHeroFullscreenAutoplayPaused = false;
+  resetHeroFullscreenZoom();
+  updateHeroFullscreenDOM();
+  openModal('hero-fullscreen-modal');
+  startHeroFullscreenTimer();
+  setupHeroFullscreenZoomHandlers();
+}
+
+function resetHeroFullscreenZoom() {
+  heroFullscreenZoomScale = 1;
+  heroFullscreenPanX = 0;
+  heroFullscreenPanY = 0;
+  applyHeroFullscreenTransform();
+}
+
+function applyHeroFullscreenTransform() {
+  const imgEl = document.getElementById('hero-fullscreen-img');
+  if (imgEl) {
+    imgEl.style.transform = `translate(${heroFullscreenPanX}px, ${heroFullscreenPanY}px) scale(${heroFullscreenZoomScale})`;
+  }
+}
+
+function updateHeroFullscreenDOM() {
+  const currentItem = appState.gallery[gallerySlideshowCurrentIdx];
+  if (!currentItem) return;
+
+  const imgEl = document.getElementById('hero-fullscreen-img');
+  const titleEl = document.getElementById('hero-fullscreen-title');
+  const descEl = document.getElementById('hero-fullscreen-desc');
+  const badgeEl = document.getElementById('hero-fullscreen-badge');
+  const playPauseBtnIcon = document.getElementById('hero-fullscreen-playpause-icon');
+
+  if (imgEl) {
+    imgEl.style.opacity = '0';
+    setTimeout(() => {
+      imgEl.src = getPhotoUrl(currentItem.url) || '';
+      imgEl.alt = currentItem.title || 'Featured Photograph';
+      imgEl.style.opacity = '1';
+    }, 120);
+  }
+
+  if (titleEl) titleEl.textContent = currentItem.title || 'Untitled Memory';
+  if (descEl) {
+    descEl.textContent = currentItem.description || '';
+    descEl.style.display = currentItem.description ? 'block' : 'none';
+  }
+  if (badgeEl) {
+    if (currentItem.category && currentItem.category !== 'Blank' && currentItem.category !== 'General' && currentItem.category !== 'None') {
+      badgeEl.textContent = currentItem.category;
+      badgeEl.style.display = 'inline-block';
+    } else {
+      badgeEl.style.display = 'none';
+    }
+  }
+
+  if (playPauseBtnIcon) {
+    playPauseBtnIcon.setAttribute('data-lucide', isHeroFullscreenAutoplayPaused ? 'play' : 'pause');
+    lucide.createIcons();
+  }
+
+  // Also sync normal hero carousel DOM so when user exits, position is identical
+  updateSlideshowDOM();
+}
+
+function startHeroFullscreenTimer() {
+  stopHeroFullscreenTimer();
+  if (isHeroFullscreenAutoplayPaused || (appState.gallery && appState.gallery.length <= 1)) return;
+  heroFullscreenTimer = setInterval(() => {
+    if (heroFullscreenZoomScale > 1.0) return; // Pause while zoomed in
+    advanceGallerySlideshow(1);
+    updateHeroFullscreenDOM();
+  }, 5000);
+}
+
+function stopHeroFullscreenTimer() {
+  if (heroFullscreenTimer) {
+    clearInterval(heroFullscreenTimer);
+    heroFullscreenTimer = null;
+  }
+}
+
+function toggleHeroFullscreenPlayPause() {
+  isHeroFullscreenAutoplayPaused = !isHeroFullscreenAutoplayPaused;
+  if (isHeroFullscreenAutoplayPaused) {
+    stopHeroFullscreenTimer();
+  } else {
+    startHeroFullscreenTimer();
+  }
+  const btnIcon = document.getElementById('hero-fullscreen-playpause-icon');
+  if (btnIcon) {
+    btnIcon.setAttribute('data-lucide', isHeroFullscreenAutoplayPaused ? 'play' : 'pause');
+    lucide.createIcons();
+  }
+}
+
+function navigateHeroFullscreen(direction) {
+  if (!appState.gallery || appState.gallery.length === 0) return;
+  resetHeroFullscreenZoom();
+  advanceGallerySlideshow(direction);
+  updateHeroFullscreenDOM();
+  // Reset 5-second timer on manual navigation
+  startHeroFullscreenTimer();
+}
+
+function closeHeroFullscreen() {
+  stopHeroFullscreenTimer();
+  closeModal('hero-fullscreen-modal');
+  // Sync back to normal hero slider seamlessly
+  updateSlideshowDOM();
+  startGallerySlideshowAutoPlay();
+}
+
+function setupHeroFullscreenZoomHandlers() {
+  const viewport = document.getElementById('hero-fullscreen-viewport');
+  if (!viewport) return;
+
+  viewport.onmouseenter = () => stopHeroFullscreenTimer();
+  viewport.onmouseleave = () => { if (!isHeroFullscreenAutoplayPaused) startHeroFullscreenTimer(); };
+
+  viewport.onwheel = (e) => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
+    heroFullscreenZoomScale = Math.min(Math.max(1.0, heroFullscreenZoomScale * zoomFactor), 3.5);
+    if (heroFullscreenZoomScale === 1.0) {
+      heroFullscreenPanX = 0;
+      heroFullscreenPanY = 0;
+      if (!isHeroFullscreenAutoplayPaused) startHeroFullscreenTimer();
+    } else {
+      stopHeroFullscreenTimer();
+    }
+    applyHeroFullscreenTransform();
+  };
+
+  viewport.ondblclick = (e) => {
+    e.preventDefault();
+    if (heroFullscreenZoomScale > 1.0) {
+      resetHeroFullscreenZoom();
+      if (!isHeroFullscreenAutoplayPaused) startHeroFullscreenTimer();
+    } else {
+      heroFullscreenZoomScale = 2.0;
+      stopHeroFullscreenTimer();
+      applyHeroFullscreenTransform();
+    }
+  };
+
+  viewport.ontouchstart = (e) => {
+    stopHeroFullscreenTimer();
+    if (e.touches.length === 2) {
+      heroPinchDistStart = Math.hypot(
+        e.touches[0].pageX - e.touches[1].pageX,
+        e.touches[0].pageY - e.touches[1].pageY
+      );
+    } else if (e.touches.length === 1) {
+      heroFsTouchStartX = e.touches[0].screenX;
+      if (heroFullscreenZoomScale > 1.0) {
+        isDraggingHeroFullscreen = true;
+        heroStartDragX = e.touches[0].pageX - heroFullscreenPanX;
+        heroStartDragY = e.touches[0].pageY - heroFullscreenPanY;
+      }
+    }
+  };
+
+  viewport.ontouchmove = (e) => {
+    if (e.touches.length === 2 && heroPinchDistStart > 0) {
+      const dist = Math.hypot(
+        e.touches[0].pageX - e.touches[1].pageX,
+        e.touches[0].pageY - e.touches[1].pageY
+      );
+      const factor = dist / heroPinchDistStart;
+      heroFullscreenZoomScale = Math.min(Math.max(1.0, heroFullscreenZoomScale * factor), 3.5);
+      heroPinchDistStart = dist;
+      applyHeroFullscreenTransform();
+    } else if (e.touches.length === 1 && isDraggingHeroFullscreen) {
+      heroFullscreenPanX = e.touches[0].pageX - heroStartDragX;
+      heroFullscreenPanY = e.touches[0].pageY - heroStartDragY;
+      applyHeroFullscreenTransform();
+    }
+  };
+
+  viewport.ontouchend = (e) => {
+    isDraggingHeroFullscreen = false;
+    heroPinchDistStart = 0;
+    if (e.changedTouches && e.changedTouches[0] && heroFullscreenZoomScale === 1.0) {
+      heroFsTouchEndX = e.changedTouches[0].screenX;
+      const swipeDiff = heroFsTouchEndX - heroFsTouchStartX;
+      if (Math.abs(swipeDiff) > 40) {
+        if (swipeDiff < 0) {
+          navigateHeroFullscreen(1);
+        } else {
+          navigateHeroFullscreen(-1);
+        }
+      }
+    }
+    if (!isHeroFullscreenAutoplayPaused) startHeroFullscreenTimer();
+  };
+}
+
+// ==========================================================================
+// STATIC PHOTOS GRID MANUAL LIGHTBOX (NO AUTOPLAY)
+// ==========================================================================
 function setupGalleryFilters() {
   const tabsContainer = document.getElementById('gallery-filter-tabs');
   if (!tabsContainer) return;
@@ -2545,7 +2766,6 @@ function openGalleryModal(id) {
   const index = appState.gallery.findIndex(g => g.id === id);
   if (index === -1) return;
   
-  pauseGallerySlideshow();
   currentGalleryIndex = index;
   resetLightboxZoom();
   updateLightboxImage();
@@ -2703,8 +2923,21 @@ function navigateGallery(direction) {
 
 // Lightbox keyboard navigation
 document.addEventListener('keydown', (e) => {
-  const modal = document.getElementById('gallery-modal');
-  if (modal && modal.classList.contains('active')) {
+  const heroModal = document.getElementById('hero-fullscreen-modal');
+  const galleryModal = document.getElementById('gallery-modal');
+  
+  if (heroModal && heroModal.classList.contains('active')) {
+    if (e.key === 'ArrowLeft') {
+      navigateHeroFullscreen(-1);
+    } else if (e.key === 'ArrowRight') {
+      navigateHeroFullscreen(1);
+    } else if (e.key === ' ' || e.code === 'Space') {
+      e.preventDefault();
+      toggleHeroFullscreenPlayPause();
+    } else if (e.key === 'Escape') {
+      closeHeroFullscreen();
+    }
+  } else if (galleryModal && galleryModal.classList.contains('active')) {
     if (e.key === 'ArrowLeft') {
       navigateGallery(-1);
     } else if (e.key === 'ArrowRight') {
