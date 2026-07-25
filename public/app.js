@@ -2500,11 +2500,17 @@ function updateSlideshowDOM() {
   });
 }
 
+// Helper to detect mobile environment
+function isMobileDevice() {
+  return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
 // ==========================================================================
-// FEATURED HIGHLIGHT FULLSCREEN AUTOPLAY SLIDESHOW (INFINITE LOOP)
+// FEATURED HIGHLIGHT FULLSCREEN SLIDESHOW (Google / Apple Photos Style)
 // ==========================================================================
 let isHeroFullscreenAutoplayPaused = false;
 let heroFullscreenTimer = null;
+let heroControlsHideTimer = null;
 let heroFullscreenZoomScale = 1;
 let heroFullscreenPanX = 0;
 let heroFullscreenPanY = 0;
@@ -2518,14 +2524,40 @@ let heroFsTouchEndX = 0;
 function openHeroFullscreen() {
   if (!appState.gallery || appState.gallery.length === 0) return;
   
-  // Pause normal hero carousel timer while in fullscreen
-  pauseGallerySlideshow();
-  
-  isHeroFullscreenAutoplayPaused = false;
+  const isMobile = isMobileDevice();
+
+  // Push history state so Mobile/Browser Back Button closes modal instead of navigating away
+  try {
+    if (!window.history.state || window.history.state.modal !== 'hero-fullscreen-modal') {
+      window.history.pushState({ modal: 'hero-fullscreen-modal' }, '');
+    }
+  } catch (e) {}
+
   resetHeroFullscreenZoom();
   updateHeroFullscreenDOM();
   openModal('hero-fullscreen-modal');
-  startHeroFullscreenTimer();
+
+  const modalEl = document.getElementById('hero-fullscreen-modal');
+
+  if (isMobile) {
+    // Mobile: Request browser fullscreen & landscape orientation lock (where supported)
+    if (modalEl && modalEl.requestFullscreen) {
+      modalEl.requestFullscreen().catch(() => {});
+    }
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('landscape').catch(() => {});
+    }
+    // DISABLE autoplay on Mobile Fullscreen completely (manual swipe/zoom only)
+    stopHeroFullscreenTimer();
+    pauseGallerySlideshow();
+  } else {
+    // Desktop: Keep 5-second autoplay timer running continuously
+    pauseGallerySlideshow();
+    isHeroFullscreenAutoplayPaused = false;
+    startHeroFullscreenTimer();
+    setupHeroControlsAutoContainer();
+  }
+
   setupHeroFullscreenZoomHandlers();
 }
 
@@ -2547,11 +2579,13 @@ function updateHeroFullscreenDOM() {
   const currentItem = appState.gallery[gallerySlideshowCurrentIdx];
   if (!currentItem) return;
 
+  const bgEl = document.getElementById('hero-fullscreen-bg');
   const imgEl = document.getElementById('hero-fullscreen-img');
-  const titleEl = document.getElementById('hero-fullscreen-title');
-  const descEl = document.getElementById('hero-fullscreen-desc');
-  const badgeEl = document.getElementById('hero-fullscreen-badge');
   const playPauseBtnIcon = document.getElementById('hero-fullscreen-playpause-icon');
+
+  if (bgEl) {
+    bgEl.src = getPhotoUrl(currentItem.url) || '';
+  }
 
   if (imgEl) {
     imgEl.style.opacity = '0';
@@ -2560,20 +2594,6 @@ function updateHeroFullscreenDOM() {
       imgEl.alt = currentItem.title || 'Featured Photograph';
       imgEl.style.opacity = '1';
     }, 120);
-  }
-
-  if (titleEl) titleEl.textContent = currentItem.title || 'Untitled Memory';
-  if (descEl) {
-    descEl.textContent = currentItem.description || '';
-    descEl.style.display = currentItem.description ? 'block' : 'none';
-  }
-  if (badgeEl) {
-    if (currentItem.category && currentItem.category !== 'Blank' && currentItem.category !== 'General' && currentItem.category !== 'None') {
-      badgeEl.textContent = currentItem.category;
-      badgeEl.style.display = 'inline-block';
-    } else {
-      badgeEl.style.display = 'none';
-    }
   }
 
   if (playPauseBtnIcon) {
@@ -2587,7 +2607,7 @@ function updateHeroFullscreenDOM() {
 
 function startHeroFullscreenTimer() {
   stopHeroFullscreenTimer();
-  if (isHeroFullscreenAutoplayPaused || (appState.gallery && appState.gallery.length <= 1)) return;
+  if (isMobileDevice() || isHeroFullscreenAutoplayPaused || !appState.gallery || appState.gallery.length <= 1) return;
   heroFullscreenTimer = setInterval(() => {
     if (heroFullscreenZoomScale > 1.0) return; // Pause while zoomed in
     advanceGallerySlideshow(1);
@@ -2603,6 +2623,7 @@ function stopHeroFullscreenTimer() {
 }
 
 function toggleHeroFullscreenPlayPause() {
+  if (isMobileDevice()) return; // No autoplay on mobile
   isHeroFullscreenAutoplayPaused = !isHeroFullscreenAutoplayPaused;
   if (isHeroFullscreenAutoplayPaused) {
     stopHeroFullscreenTimer();
@@ -2621,24 +2642,64 @@ function navigateHeroFullscreen(direction) {
   resetHeroFullscreenZoom();
   advanceGallerySlideshow(direction);
   updateHeroFullscreenDOM();
-  // Reset 5-second timer on manual navigation
-  startHeroFullscreenTimer();
+  
+  if (!isMobileDevice() && !isHeroFullscreenAutoplayPaused) {
+    // Reset 5-second timer on manual navigation
+    startHeroFullscreenTimer();
+  }
 }
 
 function closeHeroFullscreen() {
   stopHeroFullscreenTimer();
   closeModal('hero-fullscreen-modal');
+
+  // Exit browser fullscreen if active
+  if (document.exitFullscreen && document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {});
+  }
+  if (screen.orientation && screen.orientation.unlock) {
+    try { screen.orientation.unlock(); } catch (e) {}
+  }
+
   // Sync back to normal hero slider seamlessly
   updateSlideshowDOM();
-  startGallerySlideshowAutoPlay();
+  if (!isMobileDevice()) {
+    startGallerySlideshowAutoPlay();
+  }
+}
+
+function setupHeroControlsAutoContainer() {
+  const container = document.getElementById('hero-fullscreen-modal');
+  const controls = document.getElementById('hero-fullscreen-controls');
+  if (!container || !controls) return;
+
+  const resetHideTimer = () => {
+    controls.classList.remove('auto-hidden');
+    if (heroControlsHideTimer) clearTimeout(heroControlsHideTimer);
+    if (!isMobileDevice()) {
+      heroControlsHideTimer = setTimeout(() => {
+        if (!isHeroFullscreenAutoplayPaused && heroFullscreenZoomScale === 1.0) {
+          controls.classList.add('auto-hidden');
+        }
+      }, 3000);
+    }
+  };
+
+  container.onmousemove = resetHideTimer;
+  container.onclick = resetHideTimer;
+  resetHideTimer();
 }
 
 function setupHeroFullscreenZoomHandlers() {
   const viewport = document.getElementById('hero-fullscreen-viewport');
   if (!viewport) return;
 
-  viewport.onmouseenter = () => stopHeroFullscreenTimer();
-  viewport.onmouseleave = () => { if (!isHeroFullscreenAutoplayPaused) startHeroFullscreenTimer(); };
+  viewport.onmouseenter = () => {
+    if (!isMobileDevice()) stopHeroFullscreenTimer();
+  };
+  viewport.onmouseleave = () => {
+    if (!isMobileDevice() && !isHeroFullscreenAutoplayPaused) startHeroFullscreenTimer();
+  };
 
   viewport.onwheel = (e) => {
     e.preventDefault();
@@ -2647,7 +2708,7 @@ function setupHeroFullscreenZoomHandlers() {
     if (heroFullscreenZoomScale === 1.0) {
       heroFullscreenPanX = 0;
       heroFullscreenPanY = 0;
-      if (!isHeroFullscreenAutoplayPaused) startHeroFullscreenTimer();
+      if (!isMobileDevice() && !isHeroFullscreenAutoplayPaused) startHeroFullscreenTimer();
     } else {
       stopHeroFullscreenTimer();
     }
@@ -2658,7 +2719,7 @@ function setupHeroFullscreenZoomHandlers() {
     e.preventDefault();
     if (heroFullscreenZoomScale > 1.0) {
       resetHeroFullscreenZoom();
-      if (!isHeroFullscreenAutoplayPaused) startHeroFullscreenTimer();
+      if (!isMobileDevice() && !isHeroFullscreenAutoplayPaused) startHeroFullscreenTimer();
     } else {
       heroFullscreenZoomScale = 2.0;
       stopHeroFullscreenTimer();
@@ -2714,7 +2775,7 @@ function setupHeroFullscreenZoomHandlers() {
         }
       }
     }
-    if (!isHeroFullscreenAutoplayPaused) startHeroFullscreenTimer();
+    if (!isMobileDevice() && !isHeroFullscreenAutoplayPaused) startHeroFullscreenTimer();
   };
 }
 
@@ -2928,6 +2989,9 @@ document.addEventListener('keydown', (e) => {
     } else if (e.key === ' ' || e.code === 'Space') {
       e.preventDefault();
       toggleHeroFullscreenPlayPause();
+    } else if (e.key === 'f' || e.key === 'F') {
+      e.preventDefault();
+      closeHeroFullscreen();
     } else if (e.key === 'Escape') {
       closeHeroFullscreen();
     }
@@ -2939,6 +3003,24 @@ document.addEventListener('keydown', (e) => {
     } else if (e.key === 'Escape') {
       closeModal('gallery-modal');
     }
+  } else if (e.key === 'f' || e.key === 'F') {
+    // If on gallery section and not in modal, toggle Hero Fullscreen
+    const currentHash = window.location.hash || '#home';
+    if (currentHash === '#gallery' && appState.gallery && appState.gallery.length > 0) {
+      openHeroFullscreen();
+    }
+  }
+});
+
+// Mobile / Browser Back Button Listener
+window.addEventListener('popstate', () => {
+  const heroModal = document.getElementById('hero-fullscreen-modal');
+  const galleryModal = document.getElementById('gallery-modal');
+
+  if (heroModal && heroModal.classList.contains('active')) {
+    closeHeroFullscreen();
+  } else if (galleryModal && galleryModal.classList.contains('active')) {
+    closeModal('gallery-modal');
   }
 });
 

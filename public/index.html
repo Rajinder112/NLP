@@ -15,7 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="styles.css?v=57">
+  <link rel="stylesheet" href="styles.css?v=58">
   
   <!-- SheetJS for client-side Excel exporting -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -1193,41 +1193,40 @@
 
 
 
-  <!-- 4A. FEATURED HIGHLIGHT FULLSCREEN AUTOPLAY SLIDESHOW MODAL -->
+  <!-- 4A. FEATURED HIGHLIGHT FULLSCREEN SLIDESHOW MODAL (Google / Apple Photos Style) -->
   <div class="modal-overlay" id="hero-fullscreen-modal">
     <div class="modal-card gallery-modal-card">
       
-      <!-- Top-Right Floating Close Button (✕) -->
-      <button class="lightbox-close-btn" onclick="closeHeroFullscreen()" title="Exit Fullscreen (Esc)">
-        <i data-lucide="x"></i>
-      </button>
+      <!-- Fullscreen Ambient Blurred Background -->
+      <img id="hero-fullscreen-bg" class="hero-fullscreen-ambient-bg" src="" alt="Ambient Backdrop">
 
-      <!-- Previous Glass Button -->
-      <button class="lightbox-nav-btn prev-btn" onclick="navigateHeroFullscreen(-1)" title="Previous Photo (←)">
-        <i data-lucide="chevron-left"></i>
-      </button>
-
-      <!-- Main Fullscreen Image Viewport with Zoom & Touch Pan -->
+      <!-- Main Fullscreen Viewport -->
       <div class="lightbox-img-viewport" id="hero-fullscreen-viewport">
         <img id="hero-fullscreen-img" class="lightbox-img-main" src="" alt="Featured Highlight Photograph">
       </div>
 
-      <!-- Next Glass Button -->
-      <button class="lightbox-nav-btn next-btn" onclick="navigateHeroFullscreen(1)" title="Next Photo (→)">
-        <i data-lucide="chevron-right"></i>
-      </button>
+      <!-- Auto-Hiding Controls Overlay -->
+      <div class="hero-controls-overlay" id="hero-fullscreen-controls">
+        <!-- Top-Right Floating Close Button (✕) -->
+        <button class="lightbox-close-btn" onclick="closeHeroFullscreen()" title="Exit Fullscreen (Esc)">
+          <i data-lucide="x"></i>
+        </button>
 
-      <!-- Bottom Glass Floating Caption Pill -->
-      <div class="lightbox-glass-caption" id="hero-fullscreen-caption">
-        <span id="hero-fullscreen-badge" class="badge badge-gold" style="display: none;">Day 1</span>
-        <h3 id="hero-fullscreen-title" style="margin: 0; font-size: 1.05rem; font-weight: 600; color: #ffffff;">Photo Highlight</h3>
-        <p id="hero-fullscreen-desc" style="margin: 4px 0 0 0; font-size: 0.85rem; color: rgba(226, 232, 240, 0.8); display: none;"></p>
+        <!-- Previous Glass Button -->
+        <button class="lightbox-nav-btn prev-btn" onclick="navigateHeroFullscreen(-1)" title="Previous Photo (←)">
+          <i data-lucide="chevron-left"></i>
+        </button>
+
+        <!-- Next Glass Button -->
+        <button class="lightbox-nav-btn next-btn" onclick="navigateHeroFullscreen(1)" title="Next Photo (→)">
+          <i data-lucide="chevron-right"></i>
+        </button>
+
+        <!-- Bottom-Right Floating Play/Pause Toggle Button -->
+        <button class="hero-playpause-btn" id="hero-playpause-btn" onclick="toggleHeroFullscreenPlayPause()" title="Play / Pause Slideshow (Space)">
+          <i data-lucide="pause" id="hero-fullscreen-playpause-icon"></i>
+        </button>
       </div>
-
-      <!-- Bottom-Right Floating Play/Pause Toggle Button (▶ / ❚❚) -->
-      <button class="hero-playpause-btn" onclick="toggleHeroFullscreenPlayPause()" title="Play / Pause Slideshow">
-        <i data-lucide="pause" id="hero-fullscreen-playpause-icon"></i>
-      </button>
 
     </div>
   </div>
@@ -1366,6 +1365,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Script Code Loader -->
-  <script src="app.js?v=73"></script>
+  <script src="app.js?v=74"></script>
 </body>
 </html>

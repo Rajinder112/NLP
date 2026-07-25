@@ -2889,6 +2889,50 @@ img {
   transform: scale(1.1);
 }
 
+/* Fullscreen Ambient Blurred Backdrop */
+.hero-fullscreen-ambient-bg {
+  position: absolute;
+  inset: -40px;
+  width: calc(100% + 80px);
+  height: calc(100% + 80px);
+  object-fit: cover;
+  filter: blur(35px) brightness(0.55);
+  transform: scale(1.1);
+  transition: opacity 0.5s ease-in-out;
+  opacity: 0.8;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Auto-Hiding Controls Overlay */
+.hero-controls-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100000;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
+}
+
+.hero-controls-overlay > button {
+  pointer-events: auto;
+}
+
+.hero-controls-overlay.auto-hidden {
+  opacity: 0;
+  pointer-events: none !important;
+}
+
+.hero-controls-overlay.auto-hidden > button {
+  pointer-events: none !important;
+}
+
+@media (max-width: 768px) {
+  .hero-playpause-btn {
+    display: none !important;
+  }
+}
+
 /* Drag and Drop Reordering Styles in Admin Tables */
 .admin-drag-row {
   transition: background-color 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
