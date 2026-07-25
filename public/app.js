@@ -11,94 +11,92 @@ const SEED_EVENT_DAYS = [
 
 const SEED_LEADERS = [
   {
-    id: 'lead_1',
-    category: 'Program Leadership',
-    fullName: 'Dr. Evelyn Carter',
-    designation: 'Chief Nursing Officer & Program Director',
-    organisation: 'National Healthcare Trust',
-    roleInEvent: 'Main Convener & Mentor',
-    sessionTitle: 'Opening Address & NLP Vision',
-    sessionDateTime: 'July 24, 2026 - 09:00 AM',
-    shortProfile: 'Dr. Evelyn Carter has over 25 years of experience in healthcare administration and nursing leadership. She has pioneered several national nurse-mentorship programs and holds a doctorate in Nursing Practice from Johns Hopkins University.',
-    contactDetails: 'e.carter@healthcaretrust.org (Public office: Room 302, Main Tower)',
+    id: 'lead_vinita_yadav',
+    category: 'Guest Speakers',
+    fullName: 'Dr. Vinita Yadav',
+    designation: 'AVP Corporate - L&D',
+    organisation: 'Medanta Group',
+    roleInEvent: 'Guest Speaker & Facilitator',
+    topic: 'Middle Management Skills & SWOT Analysis',
+    learningObjective: 'Middle Management Skills, Managing Upward and Downward, Bridging Leadership and Teams.',
+    sessionTitle: 'The Role of Middle Management & SWOT Analysis',
+    sessionDateTime: 'July 26, 2026 - 10:15 AM & 02:30 PM',
+    shortProfile: 'Dr. Vinita Yadav leads Corporate Learning & Development at Medanta, specializing in executive leadership, organizational development, and middle-management capabilities.',
+    contactDetails: 'vinita.yadav@medanta.org',
     photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400'
   },
   {
-    id: 'lead_2',
-    category: 'Faculty',
-    fullName: 'Prof. Marcus Vance',
-    designation: 'Professor of Health Systems Management',
-    organisation: 'Academy of Nursing Sciences',
-    roleInEvent: 'Lead Facilitator',
-    sessionTitle: 'Effective Communication in High-Stress Units',
-    sessionDateTime: 'July 24, 2026 - 10:00 AM',
-    shortProfile: 'Professor Vance specializes in healthcare team dynamics, organizational behavior, and crisis communication. He conducts leadership seminars globally for critical care networks.',
-    contactDetails: 'm.vance@academyofnursing.edu',
-    photo: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400'
-  },
-  {
-    id: 'lead_3',
-    category: 'Guest Speakers',
-    fullName: 'Sister Clara Thomas',
-    designation: 'Director of Clinical Excellence',
-    organisation: 'St. Jude Healthcare Alliance',
-    roleInEvent: 'Guest Speaker',
-    sessionTitle: 'Guest Session by Sister Clara Thomas',
-    topic: 'Evidence-Based Quality Indicators',
-    learningObjective: 'Understand how nursing leadership directly drives quality indicator improvements in multi-specialty wards.',
-    sessionDateTime: 'July 24, 2026 - 03:45 PM',
-    shortProfile: 'Sister Clara is a veteran nursing administrator recognized for her work in reducing hospital-acquired infection rates. She advises governmental boards on nursing policy.',
-    contactDetails: 'clara.thomas@stjudealliance.org',
+    id: 'lead_precila_fernandes',
+    category: 'Program Leadership',
+    fullName: 'Ms Precila Fernandes',
+    designation: 'Director Nursing',
+    organisation: 'Medanta Lucknow',
+    roleInEvent: 'Program Director & Speaker',
+    sessionTitle: 'Presentation Skills & Nursing Leadership Skills',
+    sessionDateTime: 'July 10, 2026 & July 26, 2026',
+    shortProfile: 'Ms Precila Fernandes is the Director of Nursing at Medanta Lucknow, guiding clinical excellence, personal branding for nurse leaders, and nursing administration.',
+    contactDetails: 'precila.fernandes@medanta.org',
     photo: 'https://images.unsplash.com/photo-1594824813573-246434de83fb?auto=format&fit=crop&q=80&w=400'
   },
   {
-    id: 'lead_4',
-    category: 'Event Coordinators',
-    fullName: 'Robert Miller',
-    designation: 'Senior Nursing Administrator',
-    organisation: 'NLP Committee',
-    roleInEvent: 'Lead Coordinator',
-    sessionTitle: 'Registration & Logistics Coordination',
-    sessionDateTime: 'Ongoing',
-    shortProfile: 'Robert manages clinical logistics and coordinates the scheduling for all batches of the Nursing Leadership Program.',
-    contactDetails: 'r.miller@nlp-event.org',
-    photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400'
+    id: 'lead_vikram_singh_chouhan',
+    category: 'Program Leadership',
+    fullName: 'Dr Vikram Singh Chouhan',
+    designation: 'Vice President',
+    organisation: 'Medanta Lucknow',
+    roleInEvent: 'Keynote Speaker & Executive Patron',
+    sessionTitle: 'Message to the Group & Clinical Governance',
+    sessionDateTime: 'July 26, 2026 - 09:30 AM',
+    shortProfile: 'Dr Vikram Singh Chouhan is the Vice President of Operations at Medanta Lucknow, overseeing strategic healthcare initiatives and clinical governance.',
+    contactDetails: 'vikram.chouhan@medanta.org',
+    photo: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400'
   }
 ];
 
 const SEED_COMMITTEE = [
   {
-    id: 'com_1',
-    fullName: 'Margaret O\'Connor',
-    role: 'Organising Committee Chairperson',
-    designation: 'Director of Nursing Education',
-    department: 'Clinical Training Division',
-    phoneNumber: '+91 99999 88881',
-    email: 'm.oconnor@nlp-committee.org',
-    responsibility: 'Oversees overall planning, curricula design, and execution of the Nursing Leadership Program events across all batches.',
-    photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400'
-  },
-  {
-    id: 'com_2',
-    fullName: 'Jonathan Reed',
-    role: 'Logistics Coordinator',
-    designation: 'Head of Hospital Operations',
-    department: 'Hospital Administration',
-    phoneNumber: '+91 99999 88882',
-    email: 'j.reed@nlp-committee.org',
-    responsibility: 'Manages venue preparation, audio-visual technical setups, food and beverage coordination, and attendee flow.',
+    id: 'comm_rohit_singh',
+    fullName: 'Mr Rohit Singh',
+    role: 'Assistant General Manager',
+    designation: 'Assistant General Manager - HR / L&D',
+    department: 'Human Resources & L&D',
+    phoneNumber: '+91 99999 00001',
+    email: 'rohit.singh@medanta.org',
+    responsibility: 'Lead Organizing Convener overseeing event logistics, communication workshops, and session scheduling across all days.',
     photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400'
   },
   {
-    id: 'com_3',
-    fullName: 'Ananya Nair',
-    role: 'Participant Liaison',
-    designation: 'Senior Nurse Educator',
-    department: 'Staff Development',
-    phoneNumber: '+91 99999 88883',
-    email: 'ananya.n@nlp-committee.org',
-    responsibility: 'Coordinates with middle-level incharges across multiple centers, handles registration inquiries, and processes session attendance logs.',
+    id: 'comm_pallavi_singh',
+    fullName: 'Dr. Pallavi Singh',
+    role: 'Senior Executive',
+    designation: 'Senior Executive - L&D',
+    department: 'Learning & Development',
+    phoneNumber: '+91 99999 00002',
+    email: 'pallavi.singh@medanta.org',
+    responsibility: 'Organizing Convener managing workshop activities, group presentation evaluations, and participant coordination.',
+    photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400'
+  },
+  {
+    id: 'comm_jaiprabha_agarwal',
+    fullName: 'Ms Jaiprabha Agarwal',
+    role: 'Deputy Nursing Superintendent',
+    designation: 'Deputy Nursing Superintendent',
+    department: 'Nursing Administration',
+    phoneNumber: '+91 99999 00003',
+    email: 'jaiprabha.a@medanta.org',
+    responsibility: 'Organizing Committee Liaison facilitating ward incharge participation, clinical workflows, and attendance operations.',
     photo: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&q=80&w=400'
+  },
+  {
+    id: 'comm_priyanka_tripathi',
+    fullName: 'Priyanka Tripathi',
+    role: 'Organising Committee Member',
+    designation: 'Nursing Administrator',
+    department: 'Nursing Administration',
+    phoneNumber: '+91 99999 00004',
+    email: 'priyanka.t@medanta.org',
+    responsibility: 'Organizing Committee Member supporting event registration, delegate liaison, and program feedback.',
+    photo: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80&w=400'
   }
 ];
 
@@ -1831,14 +1829,57 @@ function renderAnnouncements() {
   }
 }
 
+// Strict Whitelist Filter for Official Medanta Profiles & Admin Dynamic Additions
+const ALLOWED_PROFILE_NAMES = [
+  'dr. vinita yadav',
+  'vinita yadav',
+  'ms precila fernandes',
+  'precila fernandes',
+  'dr vikram singh chouhan',
+  'vikram singh chouhan',
+  'mr rohit singh',
+  'rohit singh',
+  'dr. pallavi singh',
+  'pallavi singh',
+  'ms jaiprabha agarwal',
+  'jaiprabha agarwal',
+  'priyanka tripathi'
+];
+
+function isProfileAllowed(item) {
+  if (!item) return false;
+  
+  // Rule 1: Always allow any new profile added dynamically via the Admin Panel (user-created IDs)
+  if (item.id && (item.id.startsWith('prof_') || item.id.startsWith('custom_') || item.id.startsWith('user_'))) {
+    return true;
+  }
+  
+  // Rule 2: For initial seed items or items fetched from disk/API, check whitelist
+  const nameLower = (item.fullName || '').trim().toLowerCase();
+  const isWhitelisted = ALLOWED_PROFILE_NAMES.some(allowed => nameLower.includes(allowed));
+  if (isWhitelisted) return true;
+
+  // Allow dynamically created items with timestamp IDs (e.g. lead_178491238, com_178491238, comm_178491238)
+  if (item.id && /^(lead_|com_|comm_)[0-9]{6,}$/.test(item.id)) {
+    return true;
+  }
+
+  // Filter out any unapproved/deleted sample data
+  return false;
+}
+
 // Populate Leaders, Speakers, Committee Cards
 function renderLeadersAndCommittee() {
   const leadersGrid = document.getElementById('leaders-cards-container');
   const committeeGrid = document.getElementById('committee-cards-container');
   
+  // Filter appState to only allowed whitelisted + dynamic admin profiles
+  const allowedLeaders = (appState.leaders || []).filter(isProfileAllowed);
+  const allowedCommittee = (appState.committee || []).filter(isProfileAllowed);
+
   // 1. Render Leaders & Speakers
   if (leadersGrid) {
-    if (appState.leaders.length === 0) {
+    if (allowedLeaders.length === 0) {
       leadersGrid.innerHTML = '<p class="text-center">No leadership profiles populated.</p>';
     } else {
       renderProfileCardsFiltered('all');
@@ -1858,11 +1899,11 @@ function renderLeadersAndCommittee() {
 
   // 2. Render Organizing Committee
   if (committeeGrid) {
-    if (appState.committee.length === 0) {
+    if (allowedCommittee.length === 0) {
       committeeGrid.innerHTML = '<p class="text-center">No committee profiles populated.</p>';
     } else {
       committeeGrid.innerHTML = '';
-      appState.committee.forEach(com => {
+      allowedCommittee.forEach(com => {
         const card = document.createElement('div');
         card.className = 'profile-card';
         card.setAttribute('onclick', `openCommitteeModal('${com.id}')`);
@@ -1885,9 +1926,10 @@ function renderProfileCardsFiltered(category) {
   const leadersGrid = document.getElementById('leaders-cards-container');
   if (!leadersGrid) return;
   
+  const allowedLeaders = (appState.leaders || []).filter(isProfileAllowed);
   const filtered = category === 'all' 
-    ? appState.leaders 
-    : appState.leaders.filter(l => l.category === category);
+    ? allowedLeaders 
+    : allowedLeaders.filter(l => l.category === category);
     
   if (filtered.length === 0) {
     leadersGrid.innerHTML = '<p class="text-center">No profiles found for this category.</p>';
