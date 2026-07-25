@@ -2440,12 +2440,6 @@ function handleHeroSwipe() {
   }
 }
 
-function openHeroFullscreen() {
-  if (!appState.gallery || appState.gallery.length === 0) return;
-  const item = appState.gallery[gallerySlideshowCurrentIdx];
-  if (item) openGalleryModal(item.id);
-}
-
 function manualGallerySlideshow(dir) {
   pauseGallerySlideshow();
   advanceGallerySlideshow(dir);
@@ -2476,7 +2470,7 @@ function updateSlideshowDOM() {
   const wrapperEl = document.getElementById('hero-gallery-wrapper');
 
   if (wrapperEl) {
-    wrapperEl.onclick = () => openGalleryModal(currentItem.id);
+    wrapperEl.onclick = () => openHeroFullscreen();
   }
 
   if (bgEl) {
@@ -2507,7 +2501,7 @@ function updateSlideshowDOM() {
 }
 
 // ==========================================================================
-// FEATURED HIGHLIGHT FULLSCREEN AUTOPLAY SLIDESHOW
+// FEATURED HIGHLIGHT FULLSCREEN AUTOPLAY SLIDESHOW (INFINITE LOOP)
 // ==========================================================================
 let isHeroFullscreenAutoplayPaused = false;
 let heroFullscreenTimer = null;
