@@ -3616,18 +3616,29 @@ function populateAttendanceTable(records) {
 
 // Client filter action
 function filterAttendanceTable() {
-  const query = document.getElementById('admin-search-attendance').value.toLowerCase();
-  const dept = document.getElementById('admin-filter-dept').value;
-  const desig = document.getElementById('admin-filter-desig').value;
-  const session = document.getElementById('admin-filter-session').value;
-  const date = document.getElementById('admin-filter-date').value;
+  const queryInput = document.getElementById('admin-search-attendance');
+  const deptInput = document.getElementById('admin-filter-dept');
+  const desigInput = document.getElementById('admin-filter-desig');
+  const sessionInput = document.getElementById('admin-filter-session');
+  const dateInput = document.getElementById('admin-filter-date');
+
+  const query = queryInput ? queryInput.value.trim().toLowerCase() : '';
+  const dept = deptInput ? deptInput.value : 'all';
+  const desig = desigInput ? desigInput.value : 'all';
+  const session = sessionInput ? sessionInput.value : 'all';
+  const date = dateInput ? dateInput.value : 'all';
   
-  const filtered = appState.attendance.filter(r => {
-    const matchQuery = (r.fullName || '').toLowerCase().includes(query) || (r.employeeId || '').toLowerCase().includes(query);
-    const matchDept = dept === 'all' || r.department === dept;
-    const matchDesig = desig === 'all' || r.designation === desig;
-    const matchSession = session === 'all' || r.session === session;
-    const matchDate = date === 'all' || r.attendanceDate === date;
+  const filtered = (appState.attendance || []).filter(r => {
+    const matchQuery = !query || 
+      (r.fullName || '').toLowerCase().includes(query) || 
+      (r.employeeId || '').toLowerCase().includes(query) ||
+      (r.organization || '').toLowerCase().includes(query) ||
+      (r.department || '').toLowerCase().includes(query);
+
+    const matchDept = dept === 'all' || (r.department || '').trim() === dept.trim();
+    const matchDesig = desig === 'all' || (r.designation || '').trim() === desig.trim();
+    const matchSession = session === 'all' || (r.session || '').trim() === session.trim();
+    const matchDate = date === 'all' || (r.attendanceDate || '').trim() === date.trim();
     
     return matchQuery && matchDept && matchDesig && matchSession && matchDate;
   });

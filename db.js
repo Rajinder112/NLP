@@ -820,6 +820,27 @@ const db = {
 
   addAttendance: async (record) => {
     delete ramCache['attendance'];
+    
+    // Fetch existing records to check duplicate before inserting
+    const attendanceList = await db.getCollection('attendance');
+    
+    const empId = (record.employeeId || '').trim().toLowerCase();
+    const date = (record.attendanceDate || '').trim();
+    const sessionStr = (record.session || '').trim().toLowerCase();
+
+    if (empId && date && sessionStr) {
+      const duplicate = attendanceList.find(r => {
+        const rEmpId = (r.employeeId || '').trim().toLowerCase();
+        const rDate = (r.attendanceDate || '').trim();
+        const rSession = (r.session || '').trim().toLowerCase();
+        return rEmpId === empId && rDate === date && rSession === sessionStr;
+      });
+
+      if (duplicate) {
+        throw new Error(`Attendance already marked for Employee ID '${record.employeeId}' under session '${record.session}' on this date.`);
+      }
+    }
+
     const newRecord = {
       id: 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
       submissionTimestamp: new Date().toISOString(),
@@ -830,18 +851,6 @@ const db = {
 
     if (isPg) {
       await pgInitPromise;
-      const attendanceList = await db.getCollection('attendance');
-      
-      const duplicate = (record.employeeId && record.employeeId.trim()) ? attendanceList.find(r => 
-        r.employeeId && r.employeeId.trim().toLowerCase() === record.employeeId.trim().toLowerCase() &&
-        r.attendanceDate === record.attendanceDate &&
-        r.session.trim().toLowerCase() === record.session.trim().toLowerCase()
-      ) : null;
-
-      if (duplicate) {
-        throw new Error(`Attendance already marked for Employee ID ${record.employeeId} under session '${record.session}' on this day.`);
-      }
-
       await pool.query(
         "INSERT INTO collections (name, id, data) VALUES ($1, $2, $3)",
         ['attendance', newRecord.id, JSON.stringify(newRecord)]
@@ -850,14 +859,6 @@ const db = {
     
     // Always sync local disk db.json
     try {
-      const attendanceList = await db.getCollection('attendance');
-      const duplicate = (record.employeeId && record.employeeId.trim()) ? attendanceList.find(r => 
-        r.employeeId && r.employeeId.trim().toLowerCase() === record.employeeId.trim().toLowerCase() &&
-        r.attendanceDate === record.attendanceDate &&
-        r.session.trim().toLowerCase() === record.session.trim().toLowerCase()
-      ) : null;
-      if (duplicate) throw new Error(`Attendance already marked for Employee ID ${record.employeeId} under session '${record.session}' on this day.`);
-
       const data = readData();
       if (!data['attendance']) data['attendance'] = [];
       data['attendance'].push(newRecord);
@@ -865,6 +866,11 @@ const db = {
     } catch (diskErr) {
       console.warn('Disk sync notice in addAttendance:', diskErr);
     }
+
+    // Update RAM cache
+    if (!ramCache['attendance']) ramCache['attendance'] = [...attendanceList];
+    ramCache['attendance'].push(newRecord);
+
     return newRecord;
   },
 
