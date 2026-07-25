@@ -279,6 +279,12 @@ img {
   transform: translateY(-2px);
 }
 
+/* Body Scroll Lock for Mobile Navigation Drawer */
+body.nav-drawer-open {
+  overflow: hidden !important;
+  touch-action: none;
+}
+
 .mobile-menu-btn {
   display: none;
   background: none;
@@ -286,6 +292,16 @@ img {
   color: var(--primary);
   font-size: 1.5rem;
   cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-menu-btn:hover,
+.mobile-menu-btn:active {
+  background-color: rgba(11, 28, 60, 0.08);
 }
 
 /* ==========================================================================
@@ -297,12 +313,12 @@ img {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(11, 28, 60, 0.5);
-  backdrop-filter: blur(4px);
-  z-index: 1050;
+  background-color: rgba(11, 28, 60, 0.55);
+  backdrop-filter: blur(5px);
+  z-index: 10050;
   opacity: 0;
   pointer-events: none;
-  transition: var(--transition);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .mobile-nav-overlay.active {
@@ -313,16 +329,17 @@ img {
 .mobile-nav-drawer {
   position: fixed;
   top: 0;
-  right: -320px;
+  right: -340px;
   width: 300px;
+  max-width: 85vw;
   height: 100vh;
   background-color: var(--bg-pure);
-  z-index: 1100;
-  box-shadow: var(--shadow-lg);
+  z-index: 10100;
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.25);
   padding: 24px;
   display: flex;
   flex-direction: column;
-  transition: var(--transition);
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -342,8 +359,25 @@ img {
   background: none;
   border: none;
   font-size: 2.2rem;
+  line-height: 1;
   color: var(--text-muted);
   cursor: pointer;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.drawer-close-btn:hover,
+.drawer-close-btn:active {
+  color: #E31E24;
+  background-color: rgba(227, 30, 36, 0.1);
+  transform: scale(1.05);
 }
 
 .mobile-nav-links li {

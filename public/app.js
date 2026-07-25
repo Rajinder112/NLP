@@ -1334,30 +1334,109 @@ function setupRouter() {
   handleRouteChange(); // Trigger once on load
 }
 
-// Navigation event links
-function setupNavigation() {
-  const drawer = document.getElementById('mobile-drawer');
-  const overlay = document.getElementById('mobile-overlay');
-  const trigger = document.getElementById('mobile-menu-trigger');
-  const close = document.getElementById('mobile-menu-close');
-  
-  const toggleDrawer = () => {
-    drawer.classList.toggle('active');
-    overlay.classList.toggle('active');
-  };
-  
-  if (trigger) trigger.addEventListener('click', toggleDrawer);
-  if (close) close.addEventListener('click', toggleDrawer);
-  if (overlay) overlay.addEventListener('click', toggleDrawer);
-  
-  // Close drawer on link selection
-  const mobileLinks = document.querySelectorAll('.mobile-link');
-  mobileLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      drawer.classList.remove('active');
-      overlay.classList.remove('active');
+// ==========================================================================
+// MASTER NAVIGATION CONTROLLER
+// Handles Mobile Drawer, Body Lock, Outside Clicks, ESC key, Resize, Orientation
+// ==========================================================================
+const NavigationController = {
+  isOpen: false,
+  drawer: null,
+  overlay: null,
+  trigger: null,
+  closeBtn: null,
+
+  init() {
+    this.drawer = document.getElementById('mobile-drawer');
+    this.overlay = document.getElementById('mobile-overlay');
+    this.trigger = document.getElementById('mobile-menu-trigger');
+    this.closeBtn = document.getElementById('mobile-menu-close');
+
+    if (!this.drawer || !this.overlay) return;
+
+    if (this.trigger) {
+      this.trigger.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggle();
+      };
+    }
+
+    if (this.closeBtn) {
+      this.closeBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.close();
+      };
+    }
+
+    if (this.overlay) {
+      this.overlay.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.close();
+      };
+    }
+
+    // Close drawer when clicking mobile nav links
+    const mobileLinks = document.querySelectorAll('.mobile-link');
+    mobileLinks.forEach(link => {
+      link.onclick = () => {
+        this.close();
+      };
     });
-  });
+
+    // Close drawer on ESC key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this.isOpen) {
+        this.close();
+      }
+    });
+
+    // Auto-close on screen resize (> 768px) or orientation change
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768 && this.isOpen) {
+        this.close();
+      }
+    });
+
+    window.addEventListener('orientationchange', () => {
+      if (this.isOpen) {
+        this.close();
+      }
+    });
+  },
+
+  open() {
+    this.isOpen = true;
+    if (this.drawer) this.drawer.classList.add('active');
+    if (this.overlay) this.overlay.classList.add('active');
+    document.body.classList.add('nav-drawer-open');
+
+    if (this.trigger) this.trigger.setAttribute('aria-expanded', 'true');
+    if (this.drawer) this.drawer.setAttribute('aria-hidden', 'false');
+  },
+
+  close() {
+    this.isOpen = false;
+    if (this.drawer) this.drawer.classList.remove('active');
+    if (this.overlay) this.overlay.classList.remove('active');
+    document.body.classList.remove('nav-drawer-open');
+
+    if (this.trigger) this.trigger.setAttribute('aria-expanded', 'false');
+    if (this.drawer) this.drawer.setAttribute('aria-hidden', 'true');
+  },
+
+  toggle() {
+    if (this.isOpen) {
+      this.close();
+    } else {
+      this.open();
+    }
+  }
+};
+
+function setupNavigation() {
+  NavigationController.init();
 }
 
 // ==========================================================================
