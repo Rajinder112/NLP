@@ -2067,8 +2067,8 @@ function openLeaderModal(id) {
   const guestBox = document.getElementById('lead-modal-guest-section');
   if (lead.category === 'Guest Speakers') {
     guestBox.classList.remove('hidden');
-    document.getElementById('lead-modal-topic').textContent = lead.topic || 'N/A';
-    document.getElementById('lead-modal-objective').textContent = lead.learningObjective || 'N/A';
+    document.getElementById('lead-modal-topic').textContent = (lead.topic && lead.topic !== 'N/A') ? lead.topic : (lead.id === 'lead_vinita_yadav' ? 'Middle Management Skills & SWOT Analysis' : 'N/A');
+    document.getElementById('lead-modal-objective').textContent = (lead.learningObjective && lead.learningObjective !== 'N/A') ? lead.learningObjective : (lead.id === 'lead_vinita_yadav' ? 'Middle Management Skills, Managing Upward and Downward, Bridging Leadership and Teams.' : 'N/A');
   } else {
     guestBox.classList.add('hidden');
   }
@@ -4230,9 +4230,10 @@ async function loadItemForEdit(type, id) {
       document.getElementById('prof-session-title').value = item.sessionTitle || '';
       document.getElementById('prof-session-datetime').value = item.sessionDateTime || '';
       
+      toggleGuestSpeakerFields(item.category);
       if (item.category === 'Guest Speakers') {
-        document.getElementById('prof-topic').value = item.topic || '';
-        document.getElementById('prof-objective').value = item.learningObjective || '';
+        document.getElementById('prof-topic').value = item.topic || (item.id === 'lead_vinita_yadav' ? 'Middle Management Skills & SWOT Analysis' : '');
+        document.getElementById('prof-objective').value = item.learningObjective || (item.id === 'lead_vinita_yadav' ? 'Middle Management Skills, Managing Upward and Downward, Bridging Leadership and Teams.' : '');
       }
     } else {
       radios[1].checked = true;
