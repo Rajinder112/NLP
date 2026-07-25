@@ -629,37 +629,8 @@ const seedData = {
     }
   ],
 
-  // Seed Gallery
-  gallery: [
-    {
-      id: 'gal_1',
-      category: 'Opening Ceremony',
-      title: 'Lighting of the Lamp',
-      description: 'The traditional inauguration of Batch 1 of the Nursing Leadership Program.',
-      url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=600'
-    },
-    {
-      id: 'gal_2',
-      category: 'Leadership Sessions',
-      title: 'Dr. Evelyn Carter Keynote',
-      description: 'Opening address detailing the executive mindset required in healthcare management.',
-      url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&q=80&w=600'
-    },
-    {
-      id: 'gal_3',
-      category: 'Group Activities',
-      title: 'Synergistic Unit Exercise',
-      description: 'Participants collaborating on clinical resource management simulations.',
-      url: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=600'
-    },
-    {
-      id: 'gal_4',
-      category: 'Team Exercises',
-      title: 'Problem-Solving Workshops',
-      description: 'Interactive problem-solving session focusing on ward scheduling optimization.',
-      url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=600'
-    }
-  ],
+  // Seed Gallery (Empty initially - photos added dynamically via Admin Panel)
+  gallery: [],
 
   // Seed Resources
   resources: [

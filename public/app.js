@@ -541,47 +541,20 @@ const SEED_SCHEDULE = [
   }
 ];
 
-const GALLERY_SEED_DATA = [
-  {
-    id: 'gal_1',
-    category: 'Opening Ceremony',
-    title: 'Lighting of the Lamp',
-    description: 'The traditional inauguration of Batch 1 of the Nursing Leadership Program.',
-    url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=600'
-  },
-  {
-    id: 'gal_2',
-    category: 'Leadership Sessions',
-    title: 'Dr. Evelyn Carter Keynote',
-    description: 'Opening address detailing the executive mindset required in healthcare management.',
-    url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&q=80&w=600'
-  },
-  {
-    id: 'gal_3',
-    category: 'Group Activities',
-    title: 'Synergistic Unit Exercise',
-    description: 'Participants collaborating on clinical resource management simulations.',
-    url: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=600'
-  },
-  {
-    id: 'gal_4',
-    category: 'Group Activities',
-    title: 'Problem-Solving Workshops',
-    description: 'Interactive problem-solving session focusing on ward scheduling optimization.',
-    url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=600'
-  }
-];
+const GALLERY_SEED_DATA = [];
 
 function getLocalGallery() {
   const local = localStorage.getItem(LOCAL_GALLERY_KEY);
-  if (!local) {
-    localStorage.setItem(LOCAL_GALLERY_KEY, JSON.stringify(GALLERY_SEED_DATA));
-    return GALLERY_SEED_DATA;
-  }
+  if (!local) return [];
   try {
-    return JSON.parse(local);
+    const parsed = JSON.parse(local);
+    if (Array.isArray(parsed)) {
+      // Filter out any legacy sample seed IDs (e.g. gal_1, gal_2, gal_3, gal_4)
+      return parsed.filter(item => item && item.id && !['gal_1', 'gal_2', 'gal_3', 'gal_4'].includes(item.id));
+    }
+    return [];
   } catch (e) {
-    return GALLERY_SEED_DATA;
+    return [];
   }
 }
 
@@ -1058,9 +1031,10 @@ function startRealtimeAutoSync() {
 async function initApp() {
   setSplashProgress(25, 'Preloading Configuration...');
   
-  // Purge any stale local event_days and schedule cache on load
+  // Purge any stale local event_days, schedule, and old sample gallery cache on load
   localStorage.removeItem('nlp_local_event_days');
   localStorage.removeItem('nlp_local_schedule');
+  localStorage.removeItem(LOCAL_GALLERY_KEY);
 
   // Load configuration
   await initConfig();
@@ -2294,9 +2268,16 @@ function renderGalleryGrid() {
   const grid = document.getElementById('gallery-grid');
   if (!grid) return;
   
-  if (appState.gallery.length === 0) {
-    grid.innerHTML = '<p class="text-center" style="grid-column: 1/-1; padding: 40px; color: var(--text-muted);">No memories uploaded to the gallery yet.</p>';
+  if (!appState.gallery || appState.gallery.length === 0) {
+    grid.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; background: rgba(255,255,255,0.6); border-radius: var(--radius-lg); border: 1px dashed rgba(0,0,0,0.12);">
+        <i data-lucide="image-off" style="width: 48px; height: 48px; margin-bottom: 14px; color: var(--accent); opacity: 0.8;"></i>
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin: 0 0 6px 0;">No Event Photographs Uploaded Yet</h3>
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; max-width: 440px; margin: 0 auto; line-height: 1.5;">Event photographs will appear here in real time as they are registered via the Admin Gallery Manager.</p>
+      </div>
+    `;
     renderGallerySlideshow();
+    lucide.createIcons();
     return;
   }
   
