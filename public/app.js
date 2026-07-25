@@ -2309,6 +2309,8 @@ function renderGalleryGrid() {
 
 let gallerySlideshowTimer = null;
 let gallerySlideshowCurrentIdx = 0;
+let heroTouchStartX = 0;
+let heroTouchEndX = 0;
 
 function renderGallerySlideshow() {
   const container = document.getElementById('gallery-slideshow-container');
@@ -2332,62 +2334,75 @@ function renderGallerySlideshow() {
   const currentItem = items[gallerySlideshowCurrentIdx];
 
   let dotsHtml = items.map((item, idx) => 
-    `<span class="slideshow-indicator-dot ${idx === gallerySlideshowCurrentIdx ? 'active' : ''}" onclick="event.stopPropagation(); jumpGallerySlideshow(${idx})" title="Jump to Photo ${idx + 1}"></span>`
+    `<span class="hero-indicator-dot ${idx === gallerySlideshowCurrentIdx ? 'active' : ''}" onclick="event.stopPropagation(); jumpGallerySlideshow(${idx})" title="Photo ${idx + 1}"></span>`
   ).join('');
 
-  const catText = (currentItem.category && currentItem.category !== 'Blank' && currentItem.category !== 'General' && currentItem.category !== 'None') 
-    ? `<span class="badge badge-gold" style="margin-bottom: 6px; display: inline-block;">${currentItem.category}</span>` 
-    : '';
-
   container.innerHTML = `
-    <div class="featured-slideshow-card" onclick="openGalleryModal('${currentItem.id}')" title="Click to open photo in Lightbox">
-      <!-- Ambient Blurred Background -->
-      <img id="slideshow-active-bg" class="featured-slideshow-bg" src="${getPhotoUrl(currentItem.url) || ''}" alt="">
+    <div class="hero-gallery-wrapper" id="hero-gallery-wrapper" onclick="openGalleryModal('${currentItem.id}')" title="Click to view full photo">
+      <!-- 1. Ambient Blurred Background -->
+      <img id="slideshow-active-bg" class="hero-gallery-bg" src="${getPhotoUrl(currentItem.url) || ''}" alt="">
+      <div class="hero-gallery-ambient-overlay"></div>
       
-      <!-- Crisp Contain Foreground Image (No Faces Clipped!) -->
-      <img id="slideshow-active-img" class="featured-slideshow-img active" src="${getPhotoUrl(currentItem.url) || ''}" alt="${currentItem.title || 'Featured Memory'}">
+      <!-- 2. Crisp Hero Contain Image -->
+      <div class="hero-gallery-img-container">
+        <img id="slideshow-active-img" class="hero-gallery-img active" src="${getPhotoUrl(currentItem.url) || ''}" alt="${currentItem.title || 'Event Photograph'}">
+      </div>
       
-      <!-- Navigation Arrows -->
+      <!-- 3. Floating Top-Right Fullscreen Button (⛶) -->
+      <button class="hero-fullscreen-btn" onclick="event.stopPropagation(); openHeroFullscreen()" title="Open Fullscreen (⛶)">
+        <i data-lucide="maximize-2"></i>
+      </button>
+
+      <!-- 4. Floating Navigation Arrows -->
       ${items.length > 1 ? `
-        <button class="slideshow-nav-btn prev" onclick="event.stopPropagation(); manualGallerySlideshow(-1)" title="Previous Photo">&#8249;</button>
-        <button class="slideshow-nav-btn next" onclick="event.stopPropagation(); manualGallerySlideshow(1)" title="Next Photo">&#8250;</button>
+        <button class="hero-nav-btn prev" onclick="event.stopPropagation(); manualGallerySlideshow(-1)" title="Previous Photo">
+          <i data-lucide="chevron-left"></i>
+        </button>
+        <button class="hero-nav-btn next" onclick="event.stopPropagation(); manualGallerySlideshow(1)" title="Next Photo">
+          <i data-lucide="chevron-right"></i>
+        </button>
       ` : ''}
 
-      <!-- Glassmorphic Overlay -->
-      <div class="featured-slideshow-overlay">
-        <div class="featured-slideshow-header">
-          <div class="featured-live-tag">
-            <span class="slideshow-pulse-dot"></span> FEATURED HIGHLIGHTS (AUTO PLAY 5s)
-          </div>
-          <span style="color: rgba(255,255,255,0.9); font-size: 0.85rem; font-weight: 600;">
-            ${gallerySlideshowCurrentIdx + 1} / ${items.length}
-          </span>
-        </div>
-        <div class="featured-slideshow-content">
-          ${catText}
-          <h3 class="featured-slideshow-title" id="slideshow-active-title">${currentItem.title || 'Untitled Memory'}</h3>
-          ${currentItem.description ? `<p class="featured-slideshow-desc" id="slideshow-active-desc">${currentItem.description}</p>` : ''}
-          <div class="slideshow-indicators-row">
-            ${dotsHtml}
-          </div>
-        </div>
+      <!-- 5. Floating Glass Caption Pill (Bottom-Left) -->
+      <div class="hero-glass-caption" id="hero-glass-caption">
+        <span class="hero-caption-icon">📷</span>
+        <span id="slideshow-active-title" class="hero-caption-title">${currentItem.title || 'Untitled Memory'}</span>
       </div>
+
+      <!-- 6. Bottom-Center Indicator Dots -->
+      ${items.length > 1 ? `
+        <div class="hero-indicators-bar">
+          ${dotsHtml}
+        </div>
+      ` : ''}
     </div>
   `;
 
-  if (items.length > 1) {
-    gallerySlideshowTimer = setInterval(() => {
-      advanceGallerySlideshow(1);
-    }, 5000);
+  lucide.createIcons();
+
+  // Setup Mobile Swipe & Hover Autoplay Pause
+  const heroWrapper = document.getElementById('hero-gallery-wrapper');
+  if (heroWrapper) {
+    heroWrapper.addEventListener('touchstart', (e) => {
+      heroTouchStartX = e.changedTouches[0].screenX;
+      pauseGallerySlideshow();
+    }, { passive: true });
+
+    heroWrapper.addEventListener('touchend', (e) => {
+      heroTouchEndX = e.changedTouches[0].screenX;
+      handleHeroSwipe();
+      resumeGallerySlideshow();
+    }, { passive: true });
+
+    heroWrapper.addEventListener('mouseenter', () => pauseGallerySlideshow());
+    heroWrapper.addEventListener('mouseleave', () => resumeGallerySlideshow());
   }
+
+  startGallerySlideshowAutoPlay();
 }
 
-function manualGallerySlideshow(dir) {
-  if (gallerySlideshowTimer) {
-    clearInterval(gallerySlideshowTimer);
-    gallerySlideshowTimer = null;
-  }
-  advanceGallerySlideshow(dir);
+function startGallerySlideshowAutoPlay() {
+  if (gallerySlideshowTimer) clearInterval(gallerySlideshowTimer);
   if (appState.gallery && appState.gallery.length > 1) {
     gallerySlideshowTimer = setInterval(() => {
       advanceGallerySlideshow(1);
@@ -2395,19 +2410,48 @@ function manualGallerySlideshow(dir) {
   }
 }
 
-function jumpGallerySlideshow(targetIdx) {
-  if (!appState.gallery || targetIdx < 0 || targetIdx >= appState.gallery.length) return;
+function pauseGallerySlideshow() {
   if (gallerySlideshowTimer) {
     clearInterval(gallerySlideshowTimer);
     gallerySlideshowTimer = null;
   }
+}
+
+function resumeGallerySlideshow() {
+  const modal = document.getElementById('gallery-modal');
+  if (modal && modal.classList.contains('active')) return; // Do not auto-play while fullscreen is active
+  startGallerySlideshowAutoPlay();
+}
+
+function handleHeroSwipe() {
+  const swipeDiff = heroTouchEndX - heroTouchStartX;
+  if (Math.abs(swipeDiff) > 40) {
+    if (swipeDiff < 0) {
+      manualGallerySlideshow(1); // Swipe left -> next
+    } else {
+      manualGallerySlideshow(-1); // Swipe right -> prev
+    }
+  }
+}
+
+function openHeroFullscreen() {
+  if (!appState.gallery || appState.gallery.length === 0) return;
+  const item = appState.gallery[gallerySlideshowCurrentIdx];
+  if (item) openGalleryModal(item.id);
+}
+
+function manualGallerySlideshow(dir) {
+  pauseGallerySlideshow();
+  advanceGallerySlideshow(dir);
+  startGallerySlideshowAutoPlay();
+}
+
+function jumpGallerySlideshow(targetIdx) {
+  if (!appState.gallery || targetIdx < 0 || targetIdx >= appState.gallery.length) return;
+  pauseGallerySlideshow();
   gallerySlideshowCurrentIdx = targetIdx;
   updateSlideshowDOM();
-  if (appState.gallery.length > 1) {
-    gallerySlideshowTimer = setInterval(() => {
-      advanceGallerySlideshow(1);
-    }, 5000);
-  }
+  startGallerySlideshowAutoPlay();
 }
 
 function advanceGallerySlideshow(dir = 1) {
@@ -2423,11 +2467,10 @@ function updateSlideshowDOM() {
   const bgEl = document.getElementById('slideshow-active-bg');
   const imgEl = document.getElementById('slideshow-active-img');
   const titleEl = document.getElementById('slideshow-active-title');
-  const descEl = document.getElementById('slideshow-active-desc');
-  const cardEl = document.querySelector('.featured-slideshow-card');
+  const wrapperEl = document.getElementById('hero-gallery-wrapper');
 
-  if (cardEl) {
-    cardEl.onclick = () => openGalleryModal(currentItem.id);
+  if (wrapperEl) {
+    wrapperEl.onclick = () => openGalleryModal(currentItem.id);
   }
 
   if (bgEl) {
@@ -2438,21 +2481,16 @@ function updateSlideshowDOM() {
     imgEl.classList.remove('active');
     setTimeout(() => {
       imgEl.src = getPhotoUrl(currentItem.url) || '';
-      imgEl.alt = currentItem.title || 'Featured Memory';
+      imgEl.alt = currentItem.title || 'Event Photograph';
       imgEl.classList.add('active');
-    }, 150);
+    }, 120);
   }
 
   if (titleEl) {
     titleEl.textContent = currentItem.title || 'Untitled Memory';
   }
 
-  if (descEl) {
-    descEl.textContent = currentItem.description || '';
-    descEl.style.display = currentItem.description ? 'block' : 'none';
-  }
-
-  const dots = document.querySelectorAll('.slideshow-indicator-dot');
+  const dots = document.querySelectorAll('.hero-indicator-dot');
   dots.forEach((dot, idx) => {
     if (idx === gallerySlideshowCurrentIdx) {
       dot.classList.add('active');
@@ -2460,11 +2498,6 @@ function updateSlideshowDOM() {
       dot.classList.remove('active');
     }
   });
-
-  const counterEl = document.querySelector('.featured-slideshow-header span');
-  if (counterEl) {
-    counterEl.textContent = `${gallerySlideshowCurrentIdx + 1} / ${appState.gallery.length}`;
-  }
 }
 
 function setupGalleryFilters() {
@@ -2494,17 +2527,128 @@ function filterGallery(category) {
 }
 
 let currentGalleryIndex = 0;
+let lightboxZoomScale = 1;
+let lightboxPanX = 0;
+let lightboxPanY = 0;
+let isDraggingLightbox = false;
+let startDragX = 0;
+let startDragY = 0;
+let touchPinchDistStart = 0;
 
 function openGalleryModal(id) {
   const index = appState.gallery.findIndex(g => g.id === id);
   if (index === -1) return;
   
+  pauseGallerySlideshow();
   currentGalleryIndex = index;
+  resetLightboxZoom();
   updateLightboxImage();
   openModal('gallery-modal');
+  setupLightboxZoomHandlers();
+}
+
+function resetLightboxZoom() {
+  lightboxZoomScale = 1;
+  lightboxPanX = 0;
+  lightboxPanY = 0;
+  applyLightboxTransform();
+}
+
+function applyLightboxTransform() {
+  const imgEl = document.getElementById('gallery-modal-img');
+  if (imgEl) {
+    imgEl.style.transform = `translate(${lightboxPanX}px, ${lightboxPanY}px) scale(${lightboxZoomScale})`;
+  }
+}
+
+function setupLightboxZoomHandlers() {
+  const imgEl = document.getElementById('gallery-modal-img');
+  const container = document.getElementById('gallery-modal-img-container');
+  if (!imgEl || !container) return;
+
+  // 1. Mouse Wheel Zoom
+  container.onwheel = (e) => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
+    lightboxZoomScale = Math.min(Math.max(1.0, lightboxZoomScale * zoomFactor), 3.5);
+    if (lightboxZoomScale === 1.0) {
+      lightboxPanX = 0;
+      lightboxPanY = 0;
+    }
+    applyLightboxTransform();
+  };
+
+  // 2. Double Click Zoom Toggle
+  container.ondblclick = (e) => {
+    e.preventDefault();
+    if (lightboxZoomScale > 1.0) {
+      resetLightboxZoom();
+    } else {
+      lightboxZoomScale = 2.0;
+      applyLightboxTransform();
+    }
+  };
+
+  // 3. Mouse Drag / Pan when Zoomed
+  container.onmousedown = (e) => {
+    if (lightboxZoomScale > 1.0) {
+      isDraggingLightbox = true;
+      startDragX = e.clientX - lightboxPanX;
+      startDragY = e.clientY - lightboxPanY;
+    }
+  };
+
+  window.onmousemove = (e) => {
+    if (isDraggingLightbox) {
+      lightboxPanX = e.clientX - startDragX;
+      lightboxPanY = e.clientY - startDragY;
+      applyLightboxTransform();
+    }
+  };
+
+  window.onmouseup = () => {
+    isDraggingLightbox = false;
+  };
+
+  // 4. Pinch-to-Zoom & Touch Drag for Mobile
+  container.ontouchstart = (e) => {
+    if (e.touches.length === 2) {
+      touchPinchDistStart = Math.hypot(
+        e.touches[0].pageX - e.touches[1].pageX,
+        e.touches[0].pageY - e.touches[1].pageY
+      );
+    } else if (e.touches.length === 1 && lightboxZoomScale > 1.0) {
+      isDraggingLightbox = true;
+      startDragX = e.touches[0].pageX - lightboxPanX;
+      startDragY = e.touches[0].pageY - lightboxPanY;
+    }
+  };
+
+  container.ontouchmove = (e) => {
+    if (e.touches.length === 2 && touchPinchDistStart > 0) {
+      const dist = Math.hypot(
+        e.touches[0].pageX - e.touches[1].pageX,
+        e.touches[0].pageY - e.touches[1].pageY
+      );
+      const factor = dist / touchPinchDistStart;
+      lightboxZoomScale = Math.min(Math.max(1.0, lightboxZoomScale * factor), 3.5);
+      touchPinchDistStart = dist;
+      applyLightboxTransform();
+    } else if (e.touches.length === 1 && isDraggingLightbox) {
+      lightboxPanX = e.touches[0].pageX - startDragX;
+      lightboxPanY = e.touches[0].pageY - startDragY;
+      applyLightboxTransform();
+    }
+  };
+
+  container.ontouchend = () => {
+    isDraggingLightbox = false;
+    touchPinchDistStart = 0;
+  };
 }
 
 function updateLightboxImage() {
+  resetLightboxZoom();
   const item = appState.gallery[currentGalleryIndex];
   if (!item) return;
   
