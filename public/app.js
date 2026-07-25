@@ -980,7 +980,14 @@ function setSplashProgress(percentage, statusText) {
 function dismissSplashScreen() {
   const splash = document.getElementById('app-splash-screen');
   if (!splash) return;
-  setSplashProgress(100, 'Syncing application state...');
+  
+  setSplashProgress(100, '✓ Complete & Ready');
+  const doneBadge = document.getElementById('splash-done-badge');
+  if (doneBadge) {
+    doneBadge.style.display = 'flex';
+  }
+
+  // Smooth Done checkmark animation display before playing web app
   setTimeout(() => {
     splash.style.opacity = '0';
     splash.style.transform = 'scale(0.98)';
@@ -988,7 +995,7 @@ function dismissSplashScreen() {
     setTimeout(() => {
       if (splash.parentNode) splash.parentNode.removeChild(splash);
     }, 500);
-  }, 250);
+  }, 450);
 }
 
 // Real-Time Cross-Device Auto-Sync Engine (5-second polling across Render SQL DB, Vercel & client sessions)
