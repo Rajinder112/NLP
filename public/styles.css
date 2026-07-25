@@ -281,11 +281,36 @@ img {
 
 .mobile-menu-btn {
   display: none;
-  background: none;
+  background: transparent;
   border: none;
   color: var(--primary);
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   cursor: pointer;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0;
+  margin: -6px -6px -6px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 1005;
+}
+
+.mobile-menu-btn svg,
+.mobile-menu-btn i {
+  pointer-events: none;
+}
+
+.mobile-menu-btn:hover,
+.mobile-menu-btn:active {
+  background-color: rgba(11, 28, 60, 0.08);
 }
 
 /* ==========================================================================
@@ -344,6 +369,22 @@ img {
   font-size: 2.2rem;
   color: var(--text-muted);
   cursor: pointer;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.drawer-close-btn:hover,
+.drawer-close-btn:active {
+  color: #E31E24;
+  background-color: rgba(227, 30, 36, 0.1);
 }
 
 .mobile-nav-links li {
@@ -370,6 +411,45 @@ img {
 .mobile-link svg {
   width: 20px;
   height: 20px;
+}
+
+.modal-close-btn,
+.profile-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  color: #0b1c3c !important;
+  border: 2px solid rgba(11, 28, 60, 0.25) !important;
+  font-size: 1.8rem !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  z-index: 100005 !important;
+  pointer-events: auto !important;
+  user-select: none !important;
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: transparent !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3) !important;
+  transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease !important;
+}
+
+.modal-close-btn:hover,
+.modal-close-btn:active,
+.profile-close:hover,
+.profile-close:active {
+  background: #E31E24 !important;
+  color: #ffffff !important;
+  border-color: #E31E24 !important;
+  transform: scale(1.1) !important;
 }
 
 /* ==========================================================================
@@ -3619,7 +3699,7 @@ img {
   }
   
   .mobile-menu-btn {
-    display: block;
+    display: flex !important;
   }
   
   .hidden-mobile-nav {

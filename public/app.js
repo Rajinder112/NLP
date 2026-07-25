@@ -1090,16 +1090,27 @@ async function initApp() {
   const handleUniversalModalClose = (e) => {
     // 1. If backdrop overlay clicked
     if (e.target && e.target.classList && e.target.classList.contains('modal-overlay')) {
+      e.preventDefault();
+      e.stopPropagation();
       e.target.classList.remove('active');
+      if (!document.querySelector('.modal-overlay.active')) {
+        document.body.classList.remove('nav-drawer-open', 'modal-open');
+      }
+      return;
     }
     // 2. If any close button / X icon clicked across the web application
-    const closeBtn = e.target ? e.target.closest('.modal-close-btn, .close-btn, .modal-close, [data-dismiss="modal"]') : null;
+    const closeBtn = e.target ? e.target.closest('.modal-close-btn, .close-btn, .modal-close, .profile-close, [data-dismiss="modal"]') : null;
     if (closeBtn) {
+      e.preventDefault();
+      e.stopPropagation();
       const modal = closeBtn.closest('.modal-overlay');
       if (modal) {
         modal.classList.remove('active');
       } else {
         closeModal();
+      }
+      if (!document.querySelector('.modal-overlay.active')) {
+        document.body.classList.remove('nav-drawer-open', 'modal-open');
       }
     }
   };
@@ -1341,22 +1352,62 @@ function setupNavigation() {
   const trigger = document.getElementById('mobile-menu-trigger');
   const close = document.getElementById('mobile-menu-close');
   
-  const toggleDrawer = () => {
-    drawer.classList.toggle('active');
-    overlay.classList.toggle('active');
+  if (!drawer || !overlay) return;
+
+  const openDrawer = () => {
+    drawer.classList.add('active');
+    overlay.classList.add('active');
+    document.body.classList.add('nav-drawer-open');
+    if (trigger) trigger.setAttribute('aria-expanded', 'true');
+    drawer.setAttribute('aria-hidden', 'false');
   };
-  
-  if (trigger) trigger.addEventListener('click', toggleDrawer);
-  if (close) close.addEventListener('click', toggleDrawer);
-  if (overlay) overlay.addEventListener('click', toggleDrawer);
-  
-  // Close drawer on link selection
+
+  const closeDrawer = () => {
+    drawer.classList.remove('active');
+    overlay.classList.remove('active');
+    document.body.classList.remove('nav-drawer-open');
+    if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    drawer.setAttribute('aria-hidden', 'true');
+  };
+
+  const toggleDrawer = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (drawer.classList.contains('active')) {
+      closeDrawer();
+    } else {
+      openDrawer();
+    }
+  };
+
+  if (trigger) {
+    trigger.onclick = toggleDrawer;
+  }
+
+  if (close) {
+    close.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeDrawer();
+    };
+  }
+
+  if (overlay) {
+    overlay.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeDrawer();
+    };
+  }
+
+  // Close drawer on mobile link selection
   const mobileLinks = document.querySelectorAll('.mobile-link');
   mobileLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      drawer.classList.remove('active');
-      overlay.classList.remove('active');
-    });
+    link.onclick = () => {
+      closeDrawer();
+    };
   });
 }
 
@@ -1949,16 +2000,18 @@ function openModal(modalId) {
 
 function closeModal(modalId) {
   if (!modalId) {
-    const overlays = document.querySelectorAll('.modal-overlay');
-    overlays.forEach(o => o.classList.remove('active'));
+    document.querySelectorAll('.modal-overlay').forEach(o => o.classList.remove('active'));
+    document.body.classList.remove('nav-drawer-open', 'modal-open');
     return;
   }
   const el = typeof modalId === 'string' ? document.getElementById(modalId) : modalId;
   if (el) {
     el.classList.remove('active');
   } else {
-    const overlays = document.querySelectorAll('.modal-overlay');
-    overlays.forEach(o => o.classList.remove('active'));
+    document.querySelectorAll('.modal-overlay').forEach(o => o.classList.remove('active'));
+  }
+  if (!document.querySelector('.modal-overlay.active')) {
+    document.body.classList.remove('nav-drawer-open', 'modal-open');
   }
 }
 
