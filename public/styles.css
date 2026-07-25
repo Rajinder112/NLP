@@ -3330,10 +3330,14 @@ img {
 }
 
 .profile-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 100005 !important;
+  position: sticky !important;
+  top: 14px !important;
+  right: 14px !important;
+  float: right !important;
+  margin-top: 14px !important;
+  margin-right: 14px !important;
+  margin-bottom: -58px !important;
+  z-index: 100010 !important;
   pointer-events: auto !important;
 }
 
@@ -3364,6 +3368,7 @@ img {
   font-family: 'Playfair Display', serif;
   font-size: 2.2rem;
   margin-bottom: 4px;
+  padding-right: 48px;
 }
 
 .profile-popup-tagline {
@@ -3772,19 +3777,31 @@ img {
   }
 
   .profile-close {
+    position: sticky !important;
     top: 12px !important;
     right: 12px !important;
-    width: 48px !important;
-    height: 48px !important;
+    float: right !important;
+    margin-top: 12px !important;
+    margin-right: 12px !important;
+    margin-bottom: -56px !important;
+    width: 44px !important;
+    height: 44px !important;
     background: #ffffff !important;
     color: #0b1c3c !important;
     border: 2px solid rgba(11, 28, 60, 0.25) !important;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
-    z-index: 100005 !important;
+    z-index: 100010 !important;
     pointer-events: auto !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+
+  .profile-popup-content h2 {
+    font-size: 1.8rem;
+    padding-right: 44px;
   }
   
   .cta-banner {
