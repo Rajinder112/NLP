@@ -3486,8 +3486,22 @@ async function fetchAdminAnnouncementsList() {
   if (!listEl) return;
   
   listEl.innerHTML = '';
-  const res = await fetch(`${API_BASE}/announcements?_t=${Date.now()}`, { cache: 'no-store' });
-  appState.announcements = await res.json();
+  try {
+    const res = await fetch(`${API_BASE}/announcements?_t=${Date.now()}`, { cache: 'no-store' });
+    if (res.ok) {
+      const text = await res.text();
+      if (!text.trim().startsWith('<!')) {
+        const parsed = JSON.parse(text);
+        if (Array.isArray(parsed)) appState.announcements = parsed;
+      }
+    }
+  } catch (err) {
+    console.warn('Network error in fetchAdminAnnouncementsList, using appState/SEED fallback:', err);
+  }
+
+  if (!Array.isArray(appState.announcements) || appState.announcements.length === 0) {
+    appState.announcements = SEED_ANNOUNCEMENTS || [];
+  }
   
   appState.announcements.forEach(item => {
     const row = document.createElement('div');
@@ -3499,8 +3513,8 @@ async function fetchAdminAnnouncementsList() {
         <p>${item.date} ${item.time} | Category: ${item.category} | Priority: ${item.priority}</p>
       </div>
       <div class="table-action-btns">
-        <button class="tbl-btn tbl-btn-edit" onclick="loadItemForEdit('announcements', '${item.id}')"><i data-lucide="edit"></i></button>
-        <button class="tbl-btn tbl-btn-delete" onclick="deleteCrudItem('announcements', '${item.id}')"><i data-lucide="trash-2"></i></button>
+        <button class="tbl-btn tbl-btn-edit" title="Edit Announcement" onclick="loadItemForEdit('announcements', '${item.id}')"><i data-lucide="edit"></i></button>
+        <button class="tbl-btn tbl-btn-delete" title="Delete Announcement" onclick="deleteCrudItem('announcements', '${item.id}')"><i data-lucide="trash-2"></i></button>
       </div>
     `;
     listEl.appendChild(row);
@@ -3515,50 +3529,83 @@ async function fetchAdminProfilesList() {
   
   listEl.innerHTML = '';
   
-  const [resL, resC] = await Promise.all([
-    fetch(`${API_BASE}/leaders?_t=${Date.now()}`, { cache: 'no-store' }),
-    fetch(`${API_BASE}/committee?_t=${Date.now()}`, { cache: 'no-store' })
-  ]);
-  
-  appState.leaders = await resL.json();
-  appState.committee = await resC.json();
-  
+  try {
+    const [resL, resC] = await Promise.all([
+      fetch(`${API_BASE}/leaders?_t=${Date.now()}`, { cache: 'no-store' }),
+      fetch(`${API_BASE}/committee?_t=${Date.now()}`, { cache: 'no-store' })
+    ]);
+    
+    if (resL.ok) {
+      const textL = await resL.text();
+      if (!textL.trim().startsWith('<!')) {
+        const parsedL = JSON.parse(textL);
+        if (Array.isArray(parsedL)) appState.leaders = parsedL;
+      }
+    }
+    
+    if (resC.ok) {
+      const textC = await resC.text();
+      if (!textC.trim().startsWith('<!')) {
+        const parsedC = JSON.parse(textC);
+        if (Array.isArray(parsedC)) appState.committee = parsedC;
+      }
+    }
+  } catch (err) {
+    console.warn('Network error in fetchAdminProfilesList, using appState/SEED fallback:', err);
+  }
+
+  // Enforce array fallbacks if uninitialized or empty
+  const leadersList = Array.isArray(appState.leaders) && appState.leaders.length > 0 
+    ? appState.leaders 
+    : (SEED_LEADERS || []);
+    
+  const committeeList = Array.isArray(appState.committee) && appState.committee.length > 0 
+    ? appState.committee 
+    : (SEED_COMMITTEE || []);
+
+  appState.leaders = leadersList;
+  appState.committee = committeeList;
+
   // Render Leaders list
-  appState.leaders.forEach(item => {
+  leadersList.forEach(item => {
     const row = document.createElement('div');
     row.className = 'admin-item-row';
     
     row.innerHTML = `
       <div class="admin-item-info">
-        <h4>${item.fullName} <span style="font-size:0.7rem; color:var(--accent); font-weight:700;">[LEADER - ${item.category}]</span></h4>
-        <p>${item.designation} | ${item.organisation}</p>
+        <h4>${item.fullName || 'Unnamed'} <span style="font-size:0.7rem; color:var(--accent); font-weight:700;">[LEADER - ${item.category || 'General'}]</span></h4>
+        <p>${item.designation || ''} | ${item.organisation || ''}</p>
       </div>
       <div class="table-action-btns">
-        <button class="tbl-btn tbl-btn-edit" onclick="loadItemForEdit('leaders', '${item.id}')"><i data-lucide="edit"></i></button>
-        <button class="tbl-btn tbl-btn-delete" onclick="deleteCrudItem('leaders', '${item.id}')"><i data-lucide="trash-2"></i></button>
+        <button class="tbl-btn tbl-btn-edit" title="Edit Profile" onclick="loadItemForEdit('leaders', '${item.id}')"><i data-lucide="edit"></i></button>
+        <button class="tbl-btn tbl-btn-delete" title="Delete Profile" onclick="deleteCrudItem('leaders', '${item.id}')"><i data-lucide="trash-2"></i></button>
       </div>
     `;
     listEl.appendChild(row);
   });
 
   // Render Committee list
-  appState.committee.forEach(item => {
+  committeeList.forEach(item => {
     const row = document.createElement('div');
     row.className = 'admin-item-row';
     
     row.innerHTML = `
       <div class="admin-item-info">
-        <h4>${item.fullName} <span style="font-size:0.7rem; color:var(--success); font-weight:700;">[COMMITTEE]</span></h4>
-        <p>${item.role} | ${item.department}</p>
+        <h4>${item.fullName || 'Unnamed'} <span style="font-size:0.7rem; color:var(--success); font-weight:700;">[COMMITTEE]</span></h4>
+        <p>${item.role || ''} | ${item.department || ''}</p>
       </div>
       <div class="table-action-btns">
-        <button class="tbl-btn tbl-btn-edit" onclick="loadItemForEdit('committee', '${item.id}')"><i data-lucide="edit"></i></button>
-        <button class="tbl-btn tbl-btn-delete" onclick="deleteCrudItem('committee', '${item.id}')"><i data-lucide="trash-2"></i></button>
+        <button class="tbl-btn tbl-btn-edit" title="Edit Profile" onclick="loadItemForEdit('committee', '${item.id}')"><i data-lucide="edit"></i></button>
+        <button class="tbl-btn tbl-btn-delete" title="Delete Profile" onclick="deleteCrudItem('committee', '${item.id}')"><i data-lucide="trash-2"></i></button>
       </div>
     `;
     listEl.appendChild(row);
   });
   
+  if (listEl.children.length === 0) {
+    listEl.innerHTML = '<p class="text-muted" style="padding:20px; text-align:center;">No profiles registered yet.</p>';
+  }
+
   lucide.createIcons();
 }
 
