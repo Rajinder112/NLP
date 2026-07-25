@@ -3333,7 +3333,7 @@ img {
   position: absolute;
   top: 14px;
   right: 14px;
-  z-index: 10000 !important;
+  z-index: 100005 !important;
   pointer-events: auto !important;
 }
 
@@ -3774,13 +3774,17 @@ img {
   .profile-close {
     top: 12px !important;
     right: 12px !important;
-    width: 44px !important;
-    height: 44px !important;
+    width: 48px !important;
+    height: 48px !important;
     background: #ffffff !important;
-    color: #3b0b11 !important;
-    border: 2px solid #3b0b11 !important;
+    color: #0b1c3c !important;
+    border: 2px solid rgba(11, 28, 60, 0.25) !important;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
-    z-index: 10000 !important;
+    z-index: 100005 !important;
+    pointer-events: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
   
   .cta-banner {
