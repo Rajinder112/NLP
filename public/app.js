@@ -2694,13 +2694,6 @@ function setupHeroFullscreenZoomHandlers() {
   const viewport = document.getElementById('hero-fullscreen-viewport');
   if (!viewport) return;
 
-  viewport.onmouseenter = () => {
-    if (!isMobileDevice()) stopHeroFullscreenTimer();
-  };
-  viewport.onmouseleave = () => {
-    if (!isMobileDevice() && !isHeroFullscreenAutoplayPaused) startHeroFullscreenTimer();
-  };
-
   viewport.onwheel = (e) => {
     e.preventDefault();
     const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
