@@ -574,12 +574,6 @@ let galleryDraggedRowIndex = null;
 
 // SUB-TAB: Event Gallery Manager CRUD
 async function fetchAdminGallery() {
-  const tableBody = document.querySelector('#admin-gallery-table tbody');
-  const noDataEl = document.getElementById('gallery-table-no-data');
-  if (!tableBody) return;
-  
-  tableBody.innerHTML = '';
-  
   try {
     if (isGalleryLocalOnly()) {
       throw new Error('Gallery local-only mode active');
@@ -595,12 +589,22 @@ async function fetchAdminGallery() {
     appState.gallery = getLocalGallery();
   }
 
-  if (appState.gallery.length === 0) {
-    noDataEl.classList.remove('hidden');
+  renderAdminGalleryTable();
+}
+
+function renderAdminGalleryTable() {
+  const tableBody = document.querySelector('#admin-gallery-table tbody');
+  const noDataEl = document.getElementById('gallery-table-no-data');
+  if (!tableBody) return;
+  
+  tableBody.innerHTML = '';
+
+  if (!appState.gallery || appState.gallery.length === 0) {
+    if (noDataEl) noDataEl.classList.remove('hidden');
     return;
   }
   
-  noDataEl.classList.add('hidden');
+  if (noDataEl) noDataEl.classList.add('hidden');
   
   appState.gallery.forEach((item, index) => {
     const row = document.createElement('tr');
@@ -671,7 +675,7 @@ async function fetchAdminGallery() {
 }
 
 async function moveGalleryItemUp(index) {
-  if (index <= 0 || !appState.gallery[index]) return;
+  if (index <= 0 || !appState.gallery || !appState.gallery[index]) return;
   const temp = appState.gallery[index];
   appState.gallery[index] = appState.gallery[index - 1];
   appState.gallery[index - 1] = temp;
@@ -679,7 +683,7 @@ async function moveGalleryItemUp(index) {
 }
 
 async function moveGalleryItemDown(index) {
-  if (index >= appState.gallery.length - 1 || !appState.gallery[index]) return;
+  if (!appState.gallery || index >= appState.gallery.length - 1 || !appState.gallery[index]) return;
   const temp = appState.gallery[index];
   appState.gallery[index] = appState.gallery[index + 1];
   appState.gallery[index + 1] = temp;
@@ -689,24 +693,26 @@ async function moveGalleryItemDown(index) {
 async function saveGalleryOrder() {
   saveLocalGallery(appState.gallery);
   renderGalleryGrid();
+  renderAdminGalleryTable();
   
-  if (appState.isLoggedIn) {
-    try {
-      const token = sessionStorage.getItem('adminToken');
-      await fetch(`${API_BASE}/gallery/reorder`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ items: appState.gallery })
-      });
+  try {
+    const res = await fetch(`${API_BASE}/gallery/reorder`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify({ items: appState.gallery })
+    });
+
+    if (res.ok) {
       showToast('Gallery image display order updated successfully!');
-    } catch (err) {
-      console.warn('Reorder API sync warning:', err.message);
+    } else {
+      console.warn('Reorder response status:', res.status);
     }
+  } catch (err) {
+    console.warn('Reorder API sync warning:', err.message);
   }
-  fetchAdminGallery();
   updateAdminSpaceIndicator();
 }
 
