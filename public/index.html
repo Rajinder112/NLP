@@ -15,7 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="styles.css?v=71">
+  <link rel="stylesheet" href="styles.css?v=72">
   
   <!-- SheetJS for client-side Excel exporting -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -152,6 +152,7 @@
           <li><a href="#attendance" class="nav-link" data-view="attendance" id="nav-link-attendance">Attendance</a></li>
           <li><a href="#leadership" class="nav-link" data-view="leadership" id="nav-link-leadership">Leadership</a></li>
           <li><a href="#updates" class="nav-link" data-view="updates" id="nav-link-updates">Updates</a></li>
+          <li><a href="#digital-tools" class="nav-link" data-view="digital-tools" id="nav-link-digital-tools">Digital Tools</a></li>
           <li><a href="#gallery" class="nav-link" data-view="gallery" id="nav-link-gallery">Gallery</a></li>
         </ul>
       </nav>
@@ -182,6 +183,7 @@
         <li><a href="#attendance" class="mobile-link" data-view="attendance" id="m-nav-link-attendance"><i data-lucide="user-check"></i> Attendance</a></li>
         <li><a href="#leadership" class="mobile-link" data-view="leadership" id="m-nav-link-leadership"><i data-lucide="users"></i> Leadership</a></li>
         <li><a href="#updates" class="mobile-link" data-view="updates" id="m-nav-link-updates"><i data-lucide="bell"></i> Updates</a></li>
+        <li><a href="#digital-tools" class="mobile-link" data-view="digital-tools" id="m-nav-link-digital-tools"><i data-lucide="wrench"></i> Digital Tools</a></li>
         <li><a href="#gallery" class="mobile-link" data-view="gallery" id="m-nav-link-gallery"><i data-lucide="image"></i> Gallery</a></li>
       </ul>
     </nav>
@@ -467,6 +469,236 @@
 
 
 
+
+    <!-- 10. DIGITAL TOOLS (MEDANTA SAFETRACK) VIEW -->
+    <section class="view-section" id="view-digital-tools">
+      <div class="safetrack-app-wrapper">
+        <input type="radio" name="steptab" id="tab-0" class="step-radio" checked>
+        <input type="radio" name="steptab" id="tab-1" class="step-radio">
+        <input type="radio" name="steptab" id="tab-2" class="step-radio">
+        <input type="radio" name="steptab" id="tab-3" class="step-radio">
+        <input type="radio" name="steptab" id="tab-4" class="step-radio">
+
+        <div class="safetrack-app">
+          <aside class="safetrack-sidebar">
+            <div class="brand">
+              <div class="brand-mark"><img src="/assets/logo.png" alt="Medanta Logo"></div>
+              <div class="brand-word">
+                <div class="name">SafeTrack</div>
+                <div class="sub">Lucknow · Patient Safety</div>
+              </div>
+            </div>
+
+            <nav class="steps">
+              <div class="steps-label">Workflow</div>
+              <label class="step-link active" for="tab-0" data-step="0">
+                <span class="ic"><i data-lucide="eye"></i></span>
+                <span class="label">Observation</span>
+                <span class="badge"></span>
+              </label>
+              <label class="step-link" for="tab-1" data-step="1">
+                <span class="ic"><i data-lucide="search"></i></span>
+                <span class="label">Root cause</span>
+                <span class="badge"></span>
+              </label>
+              <label class="step-link" for="tab-2" data-step="2">
+                <span class="ic"><i data-lucide="file-text"></i></span>
+                <span class="label">RCS</span>
+                <span class="badge"></span>
+              </label>
+              <label class="step-link" for="tab-3" data-step="3">
+                <span class="ic"><i data-lucide="check-square"></i></span>
+                <span class="label">Action plan</span>
+                <span class="badge"></span>
+              </label>
+              <label class="step-link" for="tab-4" data-step="4">
+                <span class="ic"><i data-lucide="clipboard-check"></i></span>
+                <span class="label">Report</span>
+                <span class="badge"></span>
+              </label>
+            </nav>
+
+            <div class="sidebar-foot">
+              <b>Draft only</b> — nothing here is saved or transmitted. Use your unit's formal IRS/quality-cell process for official submission.
+            </div>
+          </aside>
+
+          <div class="safetrack-main">
+            <header class="safetrack-topbar">
+              <p class="eyebrow">Patient Safety · Nursing Excellence · Quality</p>
+              <h1>Patient Safety Observation Tool</h1>
+              <p class="tagline">Log a safety observation, work through the root cause, and leave the shift with a written Root Cause Statement and action plan.</p>
+              <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:10%"></div></div>
+              <div class="privacy-note"><b>Note —</b> avoid entering patient names; use MRN/bed number per your unit's identification policy.</div>
+            </header>
+
+            <div class="safetrack-content">
+              <!-- STEP 0: OBSERVATION -->
+              <div class="safetrack-panel active" data-panel="0">
+                <div class="safetrack-card">
+                  <div class="card-head">
+                    <h2>What did you observe?</h2>
+                    <p>Stick to facts you saw or measured — vitals, timing, what was/wasn't done. Save interpretation for the next step.</p>
+                  </div>
+
+                  <div class="row3">
+                    <div>
+                      <label>Date</label>
+                      <input type="date" id="obsDate">
+                    </div>
+                    <div>
+                      <label>Time</label>
+                      <input type="time" id="obsTime">
+                    </div>
+                    <div>
+                      <label>Shift</label>
+                      <select id="obsShift">
+                        <option>Morning</option>
+                        <option>Evening</option>
+                        <option>Night</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row2">
+                    <div>
+                      <label>Ward / Unit</label>
+                      <input type="text" id="obsLocation" placeholder="e.g. ICU-2, Ward 4B, Emergency">
+                    </div>
+                    <div>
+                      <label>Bed / MRN (no patient names)</label>
+                      <input type="text" id="obsPatient" placeholder="e.g. Bed 14 / MRN 00123">
+                    </div>
+                  </div>
+
+                  <label>Observed by (nurse name / employee ID)</label>
+                  <input type="text" id="obsObserver" placeholder="Name / designation">
+                </div>
+
+                <div class="safetrack-card">
+                  <div class="card-head"><h2>Category &amp; description</h2></div>
+
+                  <label style="margin-top:0;">Category</label>
+                  <div class="pills tiles" id="obsCategory">
+                    <button type="button" class="pill">Medication error</button>
+                    <button type="button" class="pill">Patient fall</button>
+                    <button type="button" class="pill">Patient identification error</button>
+                    <button type="button" class="pill">Hospital-acquired infection</button>
+                    <button type="button" class="pill">Pressure injury</button>
+                    <button type="button" class="pill">Equipment malfunction</button>
+                    <button type="button" class="pill">Documentation gap</button>
+                    <button type="button" class="pill">Communication breakdown / handover</button>
+                    <button type="button" class="pill">Consent / procedure issue</button>
+                    <button type="button" class="pill">Other</button>
+                  </div>
+
+                  <label>Description of what happened</label>
+                  <textarea id="obsDesc" placeholder="Describe exactly what was seen/found — what, where, sequence of events, patient status at the time. No conclusions yet."></textarea>
+
+                  <label>Severity (as per hospital incident classification)</label>
+                  <div class="severity-scale" id="obsSeverity">
+                    <button type="button" class="pill"><div class="dots"><span></span><span></span><span></span><span></span><span></span></div>Near miss</button>
+                    <button type="button" class="pill"><div class="dots"><span></span><span></span><span></span><span></span><span></span></div>No harm</button>
+                    <button type="button" class="pill"><div class="dots"><span></span><span></span><span></span><span></span><span></span></div>Minor harm</button>
+                    <button type="button" class="pill"><div class="dots"><span></span><span></span><span></span><span></span><span></span></div>Moderate harm</button>
+                    <button type="button" class="pill"><div class="dots"><span></span><span></span><span></span><span></span><span></span></div>Severe harm</button>
+                    <button type="button" class="pill sentinel"><div class="dots"><span></span><span></span><span></span><span></span><span></span></div>Sentinel event</button>
+                  </div>
+                </div>
+
+                <div class="nav-row">
+                  <span></span>
+                  <label class="btn" for="tab-1" onclick="if(window.goToSafeTrackStep)goToSafeTrackStep(1)">Next: Root cause →</label>
+                </div>
+              </div>
+
+              <!-- STEP 1: ROOT CAUSE -->
+              <div class="safetrack-panel" data-panel="1">
+                <div class="safetrack-card">
+                  <div class="card-head">
+                    <h2>Find the root cause</h2>
+                    <p>Use the contributing-factor categories (standard clinical RCA framework) and/or the 5 Whys. Use both if you can — they cross-check each other.</p>
+                  </div>
+
+                  <label style="margin-top:0;">Contributing factor categories</label>
+                  <div class="fishbone" id="fishbone"></div>
+                </div>
+
+                <div class="safetrack-card">
+                  <label style="margin-top:0;">5 Whys drill-down</label>
+                  <div id="whyChain"></div>
+                  <button type="button" class="btn ghost small" onclick="addWhy()">+ Add another why</button>
+                </div>
+
+                <div class="nav-row">
+                  <label class="btn ghost" for="tab-0" onclick="if(window.goToSafeTrackStep)goToSafeTrackStep(0)">← Back</label>
+                  <label class="btn" for="tab-2" onclick="if(window.goToSafeTrackStep)goToSafeTrackStep(2)">Next: Write RCS →</label>
+                </div>
+              </div>
+
+              <!-- STEP 2: RCS -->
+              <div class="safetrack-panel" data-panel="2">
+                <div class="safetrack-card">
+                  <div class="card-head">
+                    <h2>Root Cause Statement (RCS)</h2>
+                    <p>A good RCS names the specific, correctable cause — not just "human error" — and links it clearly to the observation. Edit the draft freely.</p>
+                  </div>
+
+                  <div class="rcs-box">
+                    <label style="margin-top:0;">Draft RCS (auto-built from steps 1–2, editable)</label>
+                    <textarea id="rcsText"></textarea>
+                    <button type="button" class="btn ghost small" style="margin-top:10px;" onclick="rebuildRCS()">↻ Regenerate draft from inputs</button>
+                  </div>
+                </div>
+
+                <div class="nav-row">
+                  <label class="btn ghost" for="tab-1" onclick="if(window.goToSafeTrackStep)goToSafeTrackStep(1)">← Back</label>
+                  <label class="btn" for="tab-3" onclick="if(window.goToSafeTrackStep)goToSafeTrackStep(3)">Next: Action plan →</label>
+                </div>
+              </div>
+
+              <!-- STEP 3: ACTION PLAN -->
+              <div class="safetrack-panel" data-panel="3">
+                <div class="safetrack-card">
+                  <div class="card-head">
+                    <h2>Action plan</h2>
+                    <p>Turn the root cause into corrective actions — aim for at least one action that removes the cause (e.g. process/training fix), not only one that manages this one patient.</p>
+                  </div>
+
+                  <div id="actionRows"></div>
+                  <button type="button" class="btn ghost small add-row" style="margin-top:12px;" onclick="addAction()">+ Add action</button>
+                </div>
+
+                <div class="nav-row">
+                  <label class="btn ghost" for="tab-2" onclick="if(window.goToSafeTrackStep)goToSafeTrackStep(2)">← Back</label>
+                  <label class="btn" for="tab-4" onclick="if(window.buildSafeTrackReport)buildSafeTrackReport();">Next: Final report →</label>
+                </div>
+              </div>
+
+              <!-- STEP 4: REPORT -->
+              <div class="safetrack-panel" data-panel="4">
+                <div class="safetrack-card">
+                  <div class="card-head">
+                    <h2>Final report</h2>
+                    <p>Review, then export or print. This worksheet supplements — not replaces — Medanta's formal incident reporting system.</p>
+                  </div>
+                  <div class="report" id="reportBody"></div>
+                </div>
+
+                <div class="nav-row">
+                  <label class="btn ghost" for="tab-3" onclick="if(window.goToSafeTrackStep)goToSafeTrackStep(3)">← Back</label>
+                  <div style="display:flex; gap:10px;">
+                    <button type="button" class="btn ghost" onclick="window.print()">Print / Save as PDF</button>
+                    <button type="button" class="btn" id="downloadBtn" onclick="downloadSafeTrackReport()">Download as .txt</button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- 11. GALLERY VIEW -->
     <section class="view-section" id="view-gallery">
@@ -1363,6 +1595,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Script Code Loader -->
-  <script src="app.js?v=87"></script>
+  <script src="app.js?v=88"></script>
 </body>
 </html>

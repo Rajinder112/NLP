@@ -1338,6 +1338,8 @@ function setupRouter() {
       } else {
         showAdminLoginForm();
       }
+    } else if (viewName === 'digital-tools') {
+      initSafeTrack();
     }
   };
   
@@ -5049,4 +5051,283 @@ async function fetchAdminOverviewList() {
   });
   
   lucide.createIcons();
+}
+
+// ==========================================================================
+// DIGITAL TOOLS - MEDANTA SAFETRACK CONTROLLER
+// ==========================================================================
+let safeTrackStep = 0;
+let safeTrackWhyCount = 0;
+let safeTrackActionCount = 0;
+
+const SAFETRACK_FISHBONE_CATS = [
+  ["Patient factors","complexity, condition, behaviour"],
+  ["Staff factors","fatigue, competence, workload"],
+  ["Task / process","protocol unclear, not followed, absent"],
+  ["Communication","handover, documentation, verbal orders"],
+  ["Equipment / resources","malfunction, unavailable, unfamiliar"],
+  ["Environment / workspace","layout, lighting, noise, staffing ratio"],
+  ["Organisation / policy","training, supervision, scheduling"]
+];
+
+function initSafeTrack() {
+  const container = document.getElementById('view-digital-tools');
+  if (!container || container.getAttribute('data-initialized') === 'true') return;
+  container.setAttribute('data-initialized', 'true');
+
+  // Set today's default date and time
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0];
+  const timeStr = today.toTimeString().split(' ')[0].substring(0, 5);
+  
+  const obsDate = document.getElementById('obsDate');
+  const obsTime = document.getElementById('obsTime');
+  if (obsDate && !obsDate.value) obsDate.value = dateStr;
+  if (obsTime && !obsTime.value) obsTime.value = timeStr;
+
+  // Setup pill selectors
+  setupPillGroup('obsCategory');
+  setupPillGroup('obsSeverity');
+
+  // Render Fishbone Accordion
+  const fbEl = document.getElementById('fishbone');
+  if (fbEl && fbEl.children.length === 0) {
+    SAFETRACK_FISHBONE_CATS.forEach((catPair, i) => {
+      const [cat, hint] = catPair;
+      const div = document.createElement('div');
+      div.className = 'cat';
+      div.id = 'catCard' + i;
+      div.innerHTML = `
+        <div class="cat-head" onclick="toggleSafeTrackCat(${i})">
+          <input type="checkbox" id="catChk${i}" onclick="event.stopPropagation(); toggleSafeTrackCat(${i}, true)">
+          <span>${cat}</span>
+          <span class="cat-hint">— ${hint}</span>
+          <span class="chev">▶</span>
+        </div>
+        <div class="cat-detail" id="catDetail${i}">
+          <div class="inner"><textarea id="catText${i}" placeholder="What specifically about '${cat.toLowerCase()}' contributed?"></textarea></div>
+        </div>`;
+      fbEl.appendChild(div);
+    });
+  }
+
+  // Setup 5 Whys initial rows
+  if (safeTrackWhyCount === 0) {
+    addWhy();
+    addWhy();
+  }
+
+  // Setup Action initial rows
+  if (safeTrackActionCount === 0) {
+    addAction();
+    addAction();
+  }
+
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+}
+
+function goToSafeTrackStep(step) {
+  const r = document.getElementById('tab-' + step);
+  if (r) r.checked = true;
+  
+  const panels = document.querySelectorAll('#view-digital-tools .safetrack-panel');
+  panels.forEach(p => p.classList.remove('active'));
+  
+  const targetPanel = document.querySelector(`#view-digital-tools .safetrack-panel[data-panel="${step}"]`);
+  if (targetPanel) targetPanel.classList.add('active');
+  
+  const stepLinks = document.querySelectorAll('#view-digital-tools .safetrack-sidebar .step-link');
+  stepLinks.forEach((d, i) => {
+    d.classList.remove('active', 'done');
+    if (i < step) d.classList.add('done');
+    if (i === step) d.classList.add('active');
+  });
+  
+  const progressFill = document.getElementById('progressFill');
+  if (progressFill) progressFill.style.width = (10 + step * 22.5) + '%';
+  
+  safeTrackStep = step;
+  if (step === 2) rebuildRCS();
+  if (step === 4) buildSafeTrackReport();
+}
+
+function setupPillGroup(id) {
+  const group = document.getElementById(id);
+  if (!group) return;
+  group.querySelectorAll('.pill').forEach(p => {
+    p.onclick = () => {
+      group.querySelectorAll('.pill').forEach(o => o.classList.remove('on'));
+      p.classList.add('on');
+    };
+  });
+}
+
+function getPillValue(id) {
+  const on = document.querySelector('#' + id + ' .pill.on');
+  return on ? on.textContent.trim() : '';
+}
+
+function toggleSafeTrackCat(i, fromCheckbox) {
+  const chk = document.getElementById('catChk' + i);
+  if (!chk) return;
+  if (!fromCheckbox) chk.checked = !chk.checked;
+  const detail = document.getElementById('catDetail' + i);
+  const card = document.getElementById('catCard' + i);
+  if (detail) detail.classList.toggle('show', chk.checked);
+  if (card) card.classList.toggle('open', chk.checked);
+}
+
+function addWhy() {
+  safeTrackWhyCount++;
+  const wrap = document.getElementById('whyChain');
+  if (!wrap) return;
+  const row = document.createElement('div');
+  row.className = 'why-row';
+  row.innerHTML = `<div class="why-num">${safeTrackWhyCount}</div><textarea id="why${safeTrackWhyCount}" placeholder="Why did that happen?" style="min-height:44px;"></textarea>`;
+  wrap.appendChild(row);
+}
+
+function rebuildRCS() {
+  const descEl = document.getElementById('obsDesc');
+  const desc = descEl ? descEl.value.trim() : '';
+  const cats = [];
+  
+  SAFETRACK_FISHBONE_CATS.forEach((catPair, i) => {
+    const chk = document.getElementById('catChk' + i);
+    if (chk && chk.checked) {
+      const detailEl = document.getElementById('catText' + i);
+      const detail = detailEl ? detailEl.value.trim() : '';
+      cats.push(catPair[0] + (detail ? ' — ' + detail : ''));
+    }
+  });
+  
+  const whys = [];
+  for (let i = 1; i <= safeTrackWhyCount; i++) {
+    const el = document.getElementById('why' + i);
+    if (el && el.value.trim()) whys.push(el.value.trim());
+  }
+  
+  let draft = '';
+  if (desc) draft += 'Observation: ' + desc + '\n\n';
+  if (whys.length) draft += 'Causal chain (5 Whys): ' + whys.join(' → ') + '\n\n';
+  if (cats.length) draft += 'Contributing factors: ' + cats.join('; ') + '\n\n';
+  
+  const rootGuess = whys.length ? whys[whys.length - 1] : (cats.length ? cats[cats.length - 1] : '[state the specific, correctable root cause here]');
+  draft += 'Root cause: ' + rootGuess;
+  
+  const rcsEl = document.getElementById('rcsText');
+  if (rcsEl) rcsEl.value = draft;
+}
+
+function addAction() {
+  safeTrackActionCount++;
+  const id = safeTrackActionCount;
+  const wrap = document.getElementById('actionRows');
+  if (!wrap) return;
+  
+  const card = document.createElement('div');
+  card.className = 'action-card';
+  card.id = 'actionRow' + id;
+  card.innerHTML = `
+    <div class="rm-wrap"><button type="button" class="rm-btn" onclick="removeAction(${id})">✕</button></div>
+    <div class="grid">
+      <div><label>Action</label><input type="text" id="actDesc${id}" placeholder="Corrective action..."></div>
+      <div><label>Owner</label><input type="text" id="actOwner${id}" placeholder="Owner"></div>
+      <div><label>Due date</label><input type="date" id="actDate${id}"></div>
+      <div><label>Type</label><select id="actType${id}">
+          <option>Corrective</option>
+          <option>Preventive</option>
+          <option>Interim / containment</option>
+        </select></div>
+      <div><label>Status</label><select id="actStatus${id}">
+          <option>Open</option>
+          <option>In progress</option>
+          <option>Done</option>
+        </select></div>
+    </div>`;
+  wrap.appendChild(card);
+}
+
+function removeAction(id) {
+  const row = document.getElementById('actionRow' + id);
+  if (row) row.remove();
+}
+
+function buildSafeTrackReport() {
+  const kv = (k, v) => `<div class="kv"><b>${k}</b><span>${v || '—'}</span></div>`;
+  const date = document.getElementById('obsDate')?.value || '';
+  const time = document.getElementById('obsTime')?.value || '';
+  const shift = document.getElementById('obsShift')?.value || '';
+  const loc = document.getElementById('obsLocation')?.value || '';
+  const patient = document.getElementById('obsPatient')?.value || '';
+  const observer = document.getElementById('obsObserver')?.value || '';
+  const cat = getPillValue('obsCategory');
+  const sev = getPillValue('obsSeverity');
+  const desc = document.getElementById('obsDesc')?.value || '';
+  const rcs = document.getElementById('rcsText')?.value || '';
+
+  let actionRowsHtml = '';
+  document.querySelectorAll('#actionRows .action-card').forEach(card => {
+    const idn = card.id.replace('actionRow', '');
+    const d = document.getElementById('actDesc' + idn)?.value || '';
+    const o = document.getElementById('actOwner' + idn)?.value || '';
+    const dt = document.getElementById('actDate' + idn)?.value || '';
+    const ty = document.getElementById('actType' + idn)?.value || '';
+    const st = document.getElementById('actStatus' + idn)?.value || '';
+    if (d || o) {
+      actionRowsHtml += `<div class="kv"><b>${ty}</b><span>${d} — Owner: ${o || '—'} — Due: ${dt || '—'} — Status: ${st}</span></div>`;
+    }
+  });
+
+  const reportBody = document.getElementById('reportBody');
+  if (reportBody) {
+    reportBody.innerHTML = `
+      <div class="masthead">
+        <img class="mast-logo" src="/assets/logo.png" alt="Medanta Logo">
+        <div class="h-name">Medanta SafeTrack Patient Safety Observation</div>
+        <div class="h-sub">Medanta Lucknow · Nursing Excellence</div>
+      </div>
+      <h3>1. Observation Details</h3>
+      ${kv('Date & Time', `${date} ${time} (${shift} Shift)`)}
+      ${kv('Ward / Unit', loc)}
+      ${kv('Bed / MRN', patient)}
+      ${kv('Observer', observer)}
+      ${kv('Category', cat)}
+      ${kv('Severity', sev)}
+      ${kv('Description', desc)}
+      
+      <h3>2. Root Cause Analysis</h3>
+      ${kv('Root Cause Statement', rcs)}
+      
+      <h3>3. Action Plan & CAPA</h3>
+      ${actionRowsHtml || '<p>No specific action items recorded.</p>'}
+    `;
+  }
+}
+
+function downloadSafeTrackReport() {
+  const date = document.getElementById('obsDate')?.value || '';
+  const time = document.getElementById('obsTime')?.value || '';
+  const loc = document.getElementById('obsLocation')?.value || '';
+  const cat = getPillValue('obsCategory');
+  const rcs = document.getElementById('rcsText')?.value || '';
+  
+  let reportText = `MEDANTA SAFETRACK PATIENT SAFETY REPORT\n`;
+  reportText += `==========================================\n\n`;
+  reportText += `Date/Time: ${date} ${time}\n`;
+  reportText += `Location: ${loc}\n`;
+  reportText += `Category: ${cat}\n\n`;
+  reportText += `ROOT CAUSE STATEMENT:\n${rcs}\n\n`;
+  
+  const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Medanta_SafeTrack_${date || 'Report'}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
