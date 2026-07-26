@@ -544,294 +544,280 @@ const SEED_SCHEDULE = [
 const GALLERY_SEED_DATA = [
   {
     "id": "gal_1784962343300",
-    "url": "/uploads/gallery_b64_0_1785057750941.jpg",
+    "url": "/uploads/gallery_b64_0_1785058585850.jpg",
     "title": "Activity",
     "category": "General",
     "description": ""
   },
   {
     "id": "gal_1784980804469",
-    "url": "/uploads/gallery_b64_1_1785057750956.jpg",
+    "url": "/uploads/gallery_b64_1_1785058585854.jpg",
     "title": "NLP Highlights",
     "category": "General",
     "description": ""
   },
   {
     "id": "gal_1784980923140",
-    "url": "/uploads/gallery_b64_2_1785057750958.jpg",
+    "url": "/uploads/gallery_b64_2_1785058585855.jpg",
     "title": "NLP Highlights",
     "category": "General",
     "description": ""
   },
   {
     "id": "gal_1784981129900",
-    "url": "/uploads/gallery_b64_3_1785057750960.jpg",
+    "url": "/uploads/gallery_b64_3_1785058585863.jpg",
     "title": "NLP Highlights",
     "category": "General",
     "description": ""
   },
   {
     "id": "gal_1785038701007",
-    "url": "/uploads/gallery_b64_4_1785057750962.jpg",
+    "url": "/uploads/gallery_b64_4_1785058585866.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1785040692924",
-    "url": "/uploads/gallery_b64_5_1785057750964.jpg",
+    "url": "/uploads/gallery_b64_5_1785058585868.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1785040819681",
-    "url": "/uploads/gallery_b64_6_1785057750966.jpg",
+    "url": "/uploads/gallery_b64_6_1785058585869.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1785046877542",
-    "url": "/uploads/gallery_b64_7_1785057750968.jpg",
+    "url": "/uploads/gallery_b64_7_1785058585871.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
-    "id": "gal_1785055162061",
-    "url": "/uploads/1785055158685_WhatsApp_Image_2026-07-26_at_11.38.47_AM.jpeg",
-    "title": "NLP Highlights",
-    "category": "Opening Ceremony",
-    "description": ""
-  },
-  {
-    "id": "gal_1785056955915",
-    "url": "/uploads/1785056953764_WhatsApp_Image_2026-07-26_at_11.06.19_AM.jpeg",
+    "id": "gal_1785058351282",
+    "url": "/uploads/1785058348287_WhatsApp_Image_2026-07-26_at_11.06.02_AM.jpeg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1784980826243",
-    "url": "/uploads/gallery_b64_10_1785057750973.jpg",
+    "url": "/uploads/gallery_b64_9_1785058585875.jpg",
     "title": "NLP Highlights",
     "category": "General",
     "description": ""
   },
   {
     "id": "gal_1784980937159",
-    "url": "/uploads/gallery_b64_11_1785057750975.jpg",
+    "url": "/uploads/gallery_b64_10_1785058585876.jpg",
     "title": "NLP Highlights",
     "category": "General",
     "description": ""
   },
   {
     "id": "gal_1785038721871",
-    "url": "/uploads/gallery_b64_12_1785057750977.jpg",
+    "url": "/uploads/gallery_b64_11_1785058585879.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1785040716182",
-    "url": "/uploads/gallery_b64_13_1785057750979.jpg",
+    "url": "/uploads/gallery_b64_12_1785058585881.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1785047954395",
-    "url": "/uploads/gallery_b64_14_1785057750981.jpg",
+    "url": "/uploads/gallery_b64_13_1785058585883.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
-    "id": "gal_1785056836468",
-    "url": "/uploads/1785056834472_WhatsApp_Image_2026-07-26_at_11.38.47_AM.jpeg",
-    "title": "NLP Highlights",
-    "category": "Opening Ceremony",
-    "description": ""
-  },
-  {
-    "id": "gal_1785057074444",
-    "url": "/uploads/1785057071490_WhatsApp_Image_2026-07-26_at_11.06.02_AM.jpeg",
+    "id": "gal_1785058402239",
+    "url": "/uploads/1785058398486_WhatsApp_Image_2026-07-26_at_11.06.01_AM.jpeg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1784980847960",
-    "url": "/uploads/gallery_b64_17_1785057750982.jpg",
+    "url": "/uploads/gallery_b64_15_1785058585884.jpg",
     "title": "NLP Highlights",
     "category": "General",
     "description": ""
   },
   {
     "id": "gal_1784980963378",
-    "url": "/uploads/gallery_b64_18_1785057750984.jpg",
+    "url": "/uploads/gallery_b64_16_1785058585885.jpg",
     "title": "NLP Highlights",
     "category": "General",
     "description": ""
   },
   {
     "id": "gal_1785038740362",
-    "url": "/uploads/gallery_b64_19_1785057750986.jpg",
+    "url": "/uploads/gallery_b64_17_1785058585887.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1785040736760",
-    "url": "/uploads/gallery_b64_20_1785057750991.jpg",
+    "url": "/uploads/gallery_b64_18_1785058585888.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1785046862294",
-    "url": "/uploads/gallery_b64_21_1785057750992.jpg",
+    "url": "/uploads/gallery_b64_19_1785058585890.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1784958166599",
-    "url": "/uploads/gallery_b64_22_1785057750994.jpg",
+    "url": "/uploads/gallery_b64_20_1785058585891.jpg",
     "title": "Team Activity",
     "category": "General",
     "description": ""
   },
   {
     "id": "gal_1784980868920",
-    "url": "/uploads/gallery_b64_23_1785057750995.jpg",
+    "url": "/uploads/gallery_b64_21_1785058585893.jpg",
     "title": "NLP Highlights",
     "category": "General",
     "description": ""
   },
   {
     "id": "gal_1784980992102",
-    "url": "/uploads/gallery_b64_24_1785057750998.jpg",
+    "url": "/uploads/gallery_b64_22_1785058585902.jpg",
     "title": "NLP Highlights",
     "category": "General",
     "description": ""
   },
   {
     "id": "gal_1784889372175",
-    "url": "/uploads/gallery_b64_25_1785057751001.jpg",
+    "url": "/uploads/gallery_b64_23_1785058585904.jpg",
     "title": "NLP Delegate",
     "category": "Blank",
     "description": ""
   },
   {
     "id": "gal_1785038796208",
-    "url": "/uploads/gallery_b64_26_1785057751003.jpg",
+    "url": "/uploads/gallery_b64_24_1785058585905.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1785040761579",
-    "url": "/uploads/gallery_b64_27_1785057751006.jpg",
+    "url": "/uploads/gallery_b64_25_1785058585906.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1785046876843",
-    "url": "/uploads/gallery_b64_28_1785057751008.jpg",
+    "url": "/uploads/gallery_b64_26_1785058585908.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1785048018472",
-    "url": "/uploads/gallery_b64_29_1785057751010.jpg",
+    "url": "/uploads/gallery_b64_27_1785058585914.jpg",
     "title": "NLP Highlights",
     "category": "Opening Ceremony",
     "description": ""
   },
   {
-    "id": "gal_1785056882431",
-    "url": "/uploads/1785057005292_WhatsApp_Image_2026-07-26_at_11.06.19_AM.jpeg",
+    "id": "gal_1785058093542",
+    "url": "/uploads/1785058092542_WhatsApp_Image_2026-07-26_at_11.38.47_AM.jpeg",
     "title": "NLP Highlights",
-    "category": "Day 5",
+    "category": "Opening Ceremony",
     "description": ""
   },
   {
     "id": "gal_1784980885345",
-    "url": "/uploads/gallery_b64_31_1785057751012.jpg",
+    "url": "/uploads/gallery_b64_29_1785058585916.jpg",
     "title": "NLP Highlights",
     "category": "General",
     "description": ""
   },
   {
     "id": "gal_1784981014441",
-    "url": "/uploads/gallery_b64_32_1785057751013.jpg",
+    "url": "/uploads/gallery_b64_30_1785058585917.jpg",
+    "title": "NLP Highlights",
+    "category": "General",
+    "description": ""
+  },
+  {
+    "id": "gal_1785058121717",
+    "url": "/uploads/1785058120201_WhatsApp_Image_2026-07-26_at_11.06.20_AM.jpeg",
     "title": "NLP Highlights",
     "category": "General",
     "description": ""
   },
   {
     "id": "gal_1785040654091",
-    "url": "/uploads/gallery_b64_33_1785057751015.jpg",
+    "url": "/uploads/gallery_b64_32_1785058585919.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1785040789839",
-    "url": "/uploads/gallery_b64_34_1785057751016.jpg",
+    "url": "/uploads/gallery_b64_33_1785058585920.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1785046877021",
-    "url": "/uploads/gallery_b64_35_1785057751018.jpg",
+    "url": "/uploads/gallery_b64_34_1785058585922.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
-    "id": "gal_1785056891503",
-    "url": "/uploads/1785056888645_WhatsApp_Image_2026-07-26_at_11.38.47_AM.jpeg",
-    "title": "NLP Highlights",
-    "category": "Opening Ceremony",
-    "description": ""
-  },
-  {
     "id": "gal_1785038665340",
-    "url": "/uploads/gallery_b64_37_1785057751023.jpg",
+    "url": "/uploads/gallery_b64_35_1785058585923.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1784980906954",
-    "url": "/uploads/gallery_b64_38_1785057751025.jpg",
+    "url": "/uploads/gallery_b64_36_1785058585925.jpg",
     "title": "NLP Highlights",
     "category": "General",
     "description": ""
   },
   {
     "id": "gal_1784981110281",
-    "url": "/uploads/gallery_b64_39_1785057751027.jpg",
+    "url": "/uploads/gallery_b64_37_1785058585927.jpg",
     "title": "NLP Highlights",
     "category": "General",
     "description": ""
   },
   {
     "id": "gal_1785040672518",
-    "url": "/uploads/gallery_b64_40_1785057751029.jpg",
+    "url": "/uploads/gallery_b64_38_1785058585930.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
   },
   {
     "id": "gal_1785046877413",
-    "url": "/uploads/gallery_b64_41_1785057751031.jpg",
+    "url": "/uploads/gallery_b64_39_1785058585931.jpg",
     "title": "NLP Highlights",
     "category": "Day 5",
     "description": ""
@@ -839,6 +825,13 @@ const GALLERY_SEED_DATA = [
   {
     "id": "gal_1785056922459",
     "url": "/uploads/1785056919529_WhatsApp_Image_2026-07-26_at_11.06.20_AM.jpeg",
+    "title": "NLP Highlights",
+    "category": "General",
+    "description": ""
+  },
+  {
+    "id": "gal_1785058159108",
+    "url": "/uploads/1785058156855_WhatsApp_Image_2026-07-26_at_11.06.19_AM.jpeg",
     "title": "NLP Highlights",
     "category": "General",
     "description": ""
