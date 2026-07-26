@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>SWOT Rounds — hospital leadership SWOT builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EEF1EC;
+    --panel:#FFFFFF;
+    --ink:#17251F;
+    --ink-soft:#4A564E;
+    --line:#D7DCD3;
+    --line-strong:#B9C1B4;
+
+    --s:#2F6F52; --s-light:#E2F0E7; --s-text:#1C4634;
+    --w:#9C5A34; --w-light:#F3E7DD; --w-text:#6B3C21;
+    --o:#B8862F; --o-light:#F7EFDC; --o-text:#7A5A1D;
+    --t:#8C2F3B; --t-light:#F3E1E3; --t-text:#631F28;
+
+    --font-display:'Source Serif 4', Georgia, serif;
+    --font-body:'IBM Plex Sans', -apple-system, sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+  }
+  #app{
+    max-width:760px;
+    margin:0 auto;
+    padding:28px 20px 80px;
+    min-height:100vh;
+  }
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:0 0 4px;
+  }
+  h1{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:26px;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:20px;
+    margin:0 0 2px;
+  }
+  p.sub{ color:var(--ink-soft); font-size:14px; margin:0 0 20px; line-height:1.5;}
+
+  /* vitals strip progress */
+  .vitals{
+    display:flex; align-items:center; gap:2px;
+    margin:18px 0 30px;
+  }
+  .vitals .seg{
+    flex:1; height:5px; border-radius:2px;
+    background:var(--line);
+    position:relative; overflow:hidden;
+  }
+  .vitals .seg.done{ background:var(--ink); }
+  .vitals .seg.current{ background:var(--line-strong); }
+  .vitals .seg.current::after{
+    content:''; position:absolute; inset:0;
+    background:var(--ink);
+    animation:pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{transform:translateX(-100%);} 50%{transform:translateX(0);} }
+  .vitals-labels{
+    display:flex; justify-content:space-between;
+    font-family:var(--font-mono); font-size:10px;
+    letter-spacing:0.06em; color:var(--ink-soft);
+    margin:-24px 0 30px;
+  }
+
+  .field{ margin-bottom:16px; }
+  .field label{
+    display:block; font-size:13px; font-weight:500;
+    margin-bottom:6px; color:var(--ink);
+  }
+  .field .hint{ font-size:12px; color:var(--ink-soft); margin-top:4px; }
+  input[type=text], textarea{
+    width:100%; font-family:var(--font-body); font-size:15px;
+    padding:10px 12px; border:1px solid var(--line-strong);
+    border-radius:8px; background:var(--panel); color:var(--ink);
+    resize:vertical;
+  }
+  input[type=text]:focus, textarea:focus{
+    outline:none; border-color:var(--ink); box-shadow:0 0 0 3px rgba(23,37,31,0.08);
+  }
+  textarea{ min-height:74px; line-height:1.5; }
+
+  .qcard{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:16px 18px;
+    margin-bottom:14px;
+  }
+  .qcard .qnum{
+    font-family:var(--font-mono); font-size:11px;
+    color:var(--cat-text); background:var(--cat-light);
+    display:inline-block; padding:2px 8px; border-radius:5px;
+    margin-bottom:8px; letter-spacing:0.04em;
+  }
+  .qcard p.qtext{ font-size:15px; margin:0 0 10px; font-weight:500; line-height:1.4; }
+
+  .navrow{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:26px; gap:12px;
+  }
+  button{
+    font-family:var(--font-body); font-size:14px; font-weight:500;
+    padding:11px 20px; border-radius:8px; cursor:pointer;
+    border:1px solid var(--line-strong); background:var(--panel); color:var(--ink);
+  }
+  button:hover{ background:var(--paper); }
+  button.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  button.primary:hover{ background:#0e1913; }
+  button:disabled{ opacity:0.35; cursor:default; }
+  button.ghost{ border-color:transparent; background:transparent; padding:11px 8px; }
+  button.small{ padding:6px 12px; font-size:13px; }
+
+  .stepper{
+    display:flex; gap:8px; margin-bottom:6px; flex-wrap:wrap;
+  }
+  .steptab{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.05em;
+    padding:6px 10px; border-radius:6px; cursor:pointer;
+    border:1px solid var(--line); background:var(--panel); color:var(--ink-soft);
+  }
+  .steptab.active{ border-color:var(--ink); color:var(--ink); font-weight:600; }
+
+  /* review matrix */
+  .matrix{
+    display:grid; grid-template-columns:1fr 1fr; gap:14px;
+    margin-top:10px;
+  }
+  .quad{
+    border-radius:12px; padding:16px 18px;
+    background:var(--quad-light);
+    border:1px solid var(--quad-line);
+  }
+  .quad h3{
+    font-family:var(--font-display); font-weight:600; font-size:16px;
+    color:var(--quad-text); margin:0 0 3px;
+  }
+  .quad .qcount{
+    font-family:var(--font-mono); font-size:11px; color:var(--quad-text);
+    opacity:0.75; margin-bottom:10px; display:block;
+  }
+  .quad ul{ margin:0; padding-left:18px; }
+  .quad li{
+    font-size:13.5px; line-height:1.5; margin-bottom:7px;
+    color:var(--ink);
+  }
+  .quad li .rm{
+    font-family:var(--font-mono); font-size:11px; color:var(--quad-text);
+    cursor:pointer; margin-left:6px; opacity:0.6;
+  }
+  .quad li .rm:hover{ opacity:1; }
+  .addline{ display:flex; gap:6px; margin-top:8px; }
+  .addline input{
+    flex:1; font-size:13px; padding:6px 9px; border-radius:6px;
+    border:1px solid var(--quad-line); background:var(--panel);
+  }
+  .addline button{ padding:6px 10px; font-size:12px; }
+  .empty-quad{ font-size:13px; color:var(--ink-soft); font-style:italic; }
+
+  .topbar{
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-bottom:6px;
+  }
+  .metaline{ font-size:13px; color:var(--ink-soft); margin-bottom:4px; }
+
+  .exportbar{
+    display:flex; gap:10px; flex-wrap:wrap; margin:22px 0 4px;
+  }
+
+  #printarea{ display:none; }
+
+  @media (max-width:640px){
+    .matrix{ grid-template-columns:1fr; }
+    #app{ padding:20px 14px 70px; }
+    h1{ font-size:22px; }
+    .navrow{ flex-wrap:wrap; }
+  }
+
+  @media print{
+    body *{ visibility:hidden; }
+    #printarea, #printarea *{ visibility:visible; }
+    #printarea{ display:block; position:absolute; top:0; left:0; width:100%; padding:24px; }
+    #printarea .matrix{ grid-template-columns:1fr 1fr; }
+  }
+
+  .footlink{
+    margin-top:34px; text-align:center;
+  }
+  .footlink a{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.05em;
+    color:var(--ink-soft); text-decoration:none; cursor:pointer;
+  }
+  .footlink a:hover{ color:var(--ink); text-decoration:underline; }
+
+  .banner{
+    background:var(--o-light); color:var(--o-text); border:1px solid var(--o);
+    border-radius:8px; padding:10px 14px; font-size:13px; margin-bottom:18px;
+  }
+
+  .adminrow{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:12px 16px; margin-bottom:10px; cursor:pointer;
+  }
+  .adminrow:hover{ border-color:var(--line-strong); }
+  .adminrow .arow-top{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .adminrow .arow-name{ font-weight:500; font-size:14.5px; }
+  .adminrow .arow-date{ font-family:var(--font-mono); font-size:11px; color:var(--ink-soft); }
+  .adminrow .arow-sub{ font-size:12.5px; color:var(--ink-soft); margin-top:2px; }
+  .admin-detail{ margin-top:16px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="printarea"></div>
+
+<script>
+const CATS = {
+  S: { label:"Strengths", sub:"internal · working in your favor", color:"s",
+    questions:[
+      "What clinical or operational capabilities does this person or department clearly excel at?",
+      "What positive feedback have patients, families, or staff consistently given?",
+      "What resources — staffing, technology, funding, partnerships — are strong or well-used here?",
+      "What accomplishments, awards, or milestones stand out from the past year?",
+      "What makes this person or team hard for others to replicate or compete with?"
+    ]},
+  W: { label:"Weaknesses", sub:"internal · holding you back", color:"w",
+    questions:[
+      "Where do patient safety, quality, or satisfaction metrics fall short?",
+      "What staffing gaps, turnover, or skill shortages limit performance?",
+      "What processes, workflows, or systems are outdated or inefficient?",
+      "What complaints or recurring issues keep coming up from patients, staff, or leadership?",
+      "Where is this person or department under-resourced compared to what the work needs?"
+    ]},
+  O: { label:"Opportunities", sub:"external · could work in your favor", color:"o",
+    questions:[
+      "What unmet patient or community needs could this person or department step into?",
+      "What new technologies, treatments, or best practices could be adopted?",
+      "What partnerships, referral networks, or community ties could be expanded?",
+      "What funding, grants, or reimbursement changes could be leveraged?",
+      "What shifts in the market, demographics, or regulation create an opening?"
+    ]},
+  T: { label:"Threats", sub:"external · could work against you", color:"t",
+    questions:[
+      "What regulatory, compliance, or accreditation risks could affect this area?",
+      "What competitive pressure — other hospitals, urgent care, telehealth — exists?",
+      "What financial or reimbursement risks loom, such as payer mix or policy shifts?",
+      "What staffing market pressures — burnout, competing offers, shortages — threaten stability?",
+      "What could damage reputation, patient trust, or standing in the community?"
+    ]}
+};
+const CAT_ORDER = ["S","W","O","T"];
+
+const ADMIN_CODES = ["Roh01003061", "Pal01003038", "#@!Raji#@!1", "Rohit@1234"];
+const storageAdapter = {
+  get: async (key, isJson) => {
+    const val = localStorage.getItem(key);
+    return { value: val };
+  },
+  set: async (key, val, isJson) => {
+    localStorage.setItem(key, val);
+  },
+  list: async (prefix, isJson) => {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(prefix)) keys.push(k);
+    }
+    return { keys };
+  }
+};
+const STORAGE_AVAILABLE = true;
+
+let state = {
+  mode: "user", // "user" | "adminLogin" | "admin" | "adminDetail"
+  step: 0, // 0 setup, 1-4 categories, 5 review
+  id: null,
+  subject: "", subjectRole: "", evaluator: "",
+  answers: { S:{}, W:{}, O:{}, T:{} }, // answers[cat][qIdx] = raw textarea text
+  extra: { S:[], W:[], O:[], T:[] }, // manually added bullets on review screen
+  adminError: "",
+  adminEntries: null, // loaded lazily
+  adminDetailId: null
+};
+
+function makeId(){
+  return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,8);
+}
+
+async function autoSave(){
+  if(!STORAGE_AVAILABLE) return;
+  if(!state.id) return;
+  if(!state.subject && !Object.values(state.answers).some(c=>Object.values(c).some(v=>v && v.trim()))) return;
+  try{
+    const payload = {
+      id: state.id,
+      subject: state.subject,
+      subjectRole: state.subjectRole,
+      evaluator: state.evaluator,
+      answers: state.answers,
+      extra: state.extra,
+      savedAt: new Date().toISOString()
+    };
+    await storageAdapter.set(`swot-entry:${state.id}`, JSON.stringify(payload), true);
+  }catch(err){
+    console.error("Autosave failed:", err);
+  }
+}
+
+async function loadAdminEntries(){
+  state.adminEntries = "loading";
+  render();
+  try{
+    const listing = await storageAdapter.list("swot-entry:", true);
+    const keys = (listing && listing.keys) || [];
+    const entries = [];
+    for(const k of keys){
+      try{
+        const res = await storageAdapter.get(k, true);
+        if(res && res.value) entries.push(JSON.parse(res.value));
+      }catch(e){ /* skip unreadable entry */ }
+    }
+    entries.sort((a,b)=> (b.savedAt||"").localeCompare(a.savedAt||""));
+    state.adminEntries = entries;
+  }catch(err){
+    state.adminEntries = [];
+  }
+  render();
+}
+
+function bulletsFor(cat){
+  const out = [];
+  CATS[cat].questions.forEach((q,i)=>{
+    const raw = state.answers[cat][i] || "";
+    raw.split("\n").map(s=>s.trim()).filter(Boolean).forEach(line=>out.push(line));
+  });
+  state.extra[cat].forEach(line=>out.push(line));
+  return out;
+}
+
+function esc(s){
+  return (s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function render(){
+  const app = document.getElementById('app');
+  if(state.mode === "adminLogin") app.innerHTML = renderAdminLogin();
+  else if(state.mode === "admin") app.innerHTML = renderAdminList();
+  else if(state.mode === "adminDetail") app.innerHTML = renderAdminDetail();
+  else if(state.step === 0) app.innerHTML = renderSetup();
+  else if(state.step >= 1 && state.step <= 4) app.innerHTML = renderCategory(CAT_ORDER[state.step-1]);
+  else app.innerHTML = renderReview();
+  wireEvents();
+  if(state.mode === "user" && state.step >= 1) autoSave();
+}
+
+function vitals(activeIdx){
+  const total = 6;
+  let segs = "";
+  for(let i=0;i<total;i++){
+    let cls = "seg";
+    if(i < activeIdx) cls += " done";
+    else if(i === activeIdx) cls += " current";
+    segs += `<div class="${cls}"></div>`;
+  }
+  const labels = ["setup","strengths","weaknesses","opportunities","threats","review"];
+  return `<div class="vitals">${segs}</div>
+    <div class="vitals-labels">${labels.map(l=>`<span>${l}</span>`).join("")}</div>`;
+}
+
+function renderSetup(){
+  return `
+    <p class="eyebrow">SWOT rounds</p>
+    <h1>Guided SWOT builder</h1>
+    <p class="sub">Answer a short set of prompts for strengths, weaknesses, opportunities, and threats. Works the same on your phone during rounds or at your desk.</p>
+    ${vitals(0)}
+    <div class="field">
+      <label for="subject">Who or what is this SWOT for?</label>
+      <input type="text" id="subject" placeholder="e.g. Dr. Alvarez, Emergency Department, Cardiac Rehab Program" value="${esc(state.subject)}">
+      <p class="hint">Can be a person, a department, a service line, or an initiative.</p>
+    </div>
+    <div class="field">
+      <label for="subjectRole">Role or context <span style="color:var(--ink-soft);font-weight:400;">(optional)</span></label>
+      <input type="text" id="subjectRole" placeholder="e.g. Nurse Manager, Med-Surg Unit" value="${esc(state.subjectRole)}">
+    </div>
+    <div class="field">
+      <label for="evaluator">Conducted by <span style="color:var(--ink-soft);font-weight:400;">(optional)</span></label>
+      <input type="text" id="evaluator" placeholder="Your name and title" value="${esc(state.evaluator)}">
+    </div>
+    <div class="navrow">
+      <span></span>
+      <button class="primary" id="startBtn">Start with strengths →</button>
+    </div>
+    <div class="footlink"><a id="adminLink">Admin view</a></div>
+  `;
+}
+
+function renderCategory(cat){
+  const c = CATS[cat];
+  const idx = CAT_ORDER.indexOf(cat);
+  return `
+    <p class="eyebrow">SWOT rounds · ${state.subject ? esc(state.subject) : "untitled subject"}</p>
+    <h1 style="color:var(--${c.color})">${c.label}</h1>
+    <p class="sub">${c.sub}</p>
+    ${vitals(idx+1)}
+    <div class="stepper">
+      ${CAT_ORDER.map((k,i)=>`<span class="steptab ${k===cat?'active':''}" data-goto="${i+1}">${CATS[k].label}</span>`).join("")}
+    </div>
+    <div style="margin-top:18px;">
+    ${c.questions.map((q,i)=>`
+      <div class="qcard" style="--cat-text:var(--${c.color}-text); --cat-light:var(--${c.color}-light);">
+        <span class="qnum">Q${i+1}</span>
+        <p class="qtext">${esc(q)}</p>
+        <textarea data-cat="${cat}" data-qidx="${i}" placeholder="One point per line. Leave blank to skip.">${esc(state.answers[cat][i]||"")}</textarea>
+      </div>
+    `).join("")}
+    </div>
+    <div class="navrow">
+      <button id="backBtn">← Back</button>
+      <button class="primary" id="nextBtn">${idx===3 ? "Review full SWOT →" : "Next: " + CATS[CAT_ORDER[idx+1]].label + " →"}</button>
+    </div>
+  `;
+}
+
+function quadHtml(cat){
+  const c = CATS[cat];
+  const items = bulletsFor(cat);
+  return `
+    <div class="quad" style="--quad-light:var(--${c.color}-light); --quad-text:var(--${c.color}-text); --quad-line:var(--${c.color});">
+      <h3>${c.label}</h3>
+      <span class="qcount">${items.length} point${items.length===1?"":"s"}</span>
+      ${items.length ? `<ul>${items.map((it,i)=>`<li>${esc(it)}<span class="rm" data-rmcat="${cat}" data-rmidx="${i}" title="Remove">✕</span></li>`).join("")}</ul>` : `<p class="empty-quad">Nothing entered yet.</p>`}
+      <div class="addline">
+        <input type="text" placeholder="Add a point" data-addcat="${cat}">
+        <button data-addbtn="${cat}">Add</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderReview(){
+  const today = new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+  return `
+    <p class="eyebrow">SWOT rounds · complete</p>
+    <div class="topbar">
+      <h1>SWOT summary</h1>
+    </div>
+    <p class="metaline"><strong>${esc(state.subject) || "Untitled subject"}</strong>${state.subjectRole ? " — "+esc(state.subjectRole) : ""}</p>
+    <p class="metaline">${state.evaluator ? "Conducted by "+esc(state.evaluator)+" · " : ""}${today}</p>
+    ${vitals(5)}
+    <div class="matrix">
+      ${quadHtml("S")}${quadHtml("W")}${quadHtml("O")}${quadHtml("T")}
+    </div>
+    <div class="exportbar">
+      <button id="printBtn">Print / save as PDF</button>
+      <button id="copyBtn">Copy as text</button>
+      <button id="downloadBtn">Download .txt</button>
+      <button class="ghost" id="editBtn">← Edit answers</button>
+      <button class="ghost" id="newBtn">Start a new SWOT</button>
+    </div>
+  `;
+}
+
+function renderAdminLogin(){
+  return `
+    <p class="eyebrow">SWOT rounds · admin</p>
+    <h1>Admin access</h1>
+    <p class="sub">Enter the admin passcode to view and download every submitted SWOT.</p>
+    <div class="field">
+      <label for="adminPass">Passcode</label>
+      <input type="text" id="adminPass" placeholder="Enter passcode">
+    </div>
+    ${state.adminError ? `<p style="color:var(--t-text); font-size:13px;">${esc(state.adminError)}</p>` : ""}
+    <div class="navrow">
+      <button id="adminBack">← Back</button>
+      <button class="primary" id="adminSubmit">Enter</button>
+    </div>
+  `;
+}
+
+function renderAdminList(){
+  if(state.adminEntries === "loading"){
+    return `<p class="eyebrow">SWOT rounds · admin</p><h1>Loading submissions…</h1>`;
+  }
+  const entries = state.adminEntries || [];
+  return `
+    <p class="eyebrow">SWOT rounds · admin</p>
+    <div class="topbar"><h1>All submissions</h1></div>
+    <p class="sub">${entries.length} SWOT${entries.length===1?"":"s"} saved. Click one to view, or download everything below.</p>
+    ${entries.length ? entries.map(e=>`
+      <div class="adminrow" data-view="${e.id}">
+        <div class="arow-top">
+          <span class="arow-name">${esc(e.subject) || "Untitled subject"}</span>
+          <span class="arow-date">${e.savedAt ? new Date(e.savedAt).toLocaleDateString() : ""}</span>
+        </div>
+        <div class="arow-sub">${e.subjectRole ? esc(e.subjectRole)+" · " : ""}${e.evaluator ? "by "+esc(e.evaluator) : "no evaluator listed"}</div>
+      </div>
+    `).join("") : `<p class="empty-quad">No submissions yet.</p>`}
+    <div class="exportbar">
+      <button id="downloadAllBtn" ${entries.length?"":"disabled"}>Download all as .txt</button>
+      <button class="ghost" id="adminExit">Exit admin view</button>
+    </div>
+  `;
+}
+
+function renderAdminDetail(){
+  const e = (state.adminEntries||[]).find(x=>x.id === state.adminDetailId);
+  if(!e) return renderAdminList();
+  function bulletsForEntry(cat){
+    const out = [];
+    CATS[cat].questions.forEach((q,i)=>{
+      (e.answers[cat][i]||"").split("\n").map(s=>s.trim()).filter(Boolean).forEach(l=>out.push(l));
+    });
+    (e.extra[cat]||[]).forEach(l=>out.push(l));
+    return out;
+  }
+  function quadForEntry(cat){
+    const c = CATS[cat];
+    const items = bulletsForEntry(cat);
+    return `
+      <div class="quad" style="--quad-light:var(--${c.color}-light); --quad-text:var(--${c.color}-text); --quad-line:var(--${c.color});">
+        <h3>${c.label}</h3>
+        <span class="qcount">${items.length} point${items.length===1?"":"s"}</span>
+        ${items.length ? `<ul>${items.map(it=>`<li>${esc(it)}</li>`).join("")}</ul>` : `<p class="empty-quad">Nothing entered.</p>`}
+      </div>
+    `;
+  }
+  return `
+    <p class="eyebrow">SWOT rounds · admin</p>
+    <div class="topbar"><h1>${esc(e.subject) || "Untitled subject"}</h1></div>
+    <p class="metaline">${e.subjectRole ? esc(e.subjectRole) : ""}</p>
+    <p class="metaline">${e.evaluator ? "Conducted by "+esc(e.evaluator)+" · " : ""}${e.savedAt ? new Date(e.savedAt).toLocaleString() : ""}</p>
+    <div class="matrix admin-detail">${CAT_ORDER.map(quadForEntry).join("")}</div>
+    <div class="exportbar">
+      <button id="adminDetailBack">← All submissions</button>
+      <button id="adminDetailDownload">Download this entry</button>
+    </div>
+  `;
+}
+
+function buildPlainText(){
+  const today = new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+  let out = `SWOT ANALYSIS\n`;
+  out += `Subject: ${state.subject || "Untitled subject"}${state.subjectRole ? " ("+state.subjectRole+")" : ""}\n`;
+  if(state.evaluator) out += `Conducted by: ${state.evaluator}\n`;
+  out += `Date: ${today}\n\n`;
+  CAT_ORDER.forEach(cat=>{
+    out += `${CATS[cat].label.toUpperCase()}\n`;
+    const items = bulletsFor(cat);
+    if(!items.length) out += `  (none entered)\n`;
+    items.forEach(it=> out += `  - ${it}\n`);
+    out += `\n`;
+  });
+  return out;
+}
+
+function buildPlainTextForEntry(e){
+  let out = `SWOT ANALYSIS\n`;
+  out += `Subject: ${e.subject || "Untitled subject"}${e.subjectRole ? " ("+e.subjectRole+")" : ""}\n`;
+  if(e.evaluator) out += `Conducted by: ${e.evaluator}\n`;
+  out += `Saved: ${e.savedAt ? new Date(e.savedAt).toLocaleString() : ""}\n\n`;
+  CAT_ORDER.forEach(cat=>{
+    out += `${CATS[cat].label.toUpperCase()}\n`;
+    const items = [];
+    CATS[cat].questions.forEach((q,i)=>{
+      (e.answers[cat][i]||"").split("\n").map(s=>s.trim()).filter(Boolean).forEach(l=>items.push(l));
+    });
+    (e.extra[cat]||[]).forEach(l=>items.push(l));
+    if(!items.length) out += `  (none entered)\n`;
+    items.forEach(it=> out += `  - ${it}\n`);
+    out += `\n`;
+  });
+  return out;
+}
+
+function downloadTextFile(filename, text){
+  const blob = new Blob([text], {type:"text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function buildPrintHtml(){
+  const today = new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+  return `
+    <p class="eyebrow">SWOT rounds</p>
+    <h1>SWOT summary</h1>
+    <p class="metaline"><strong>${esc(state.subject) || "Untitled subject"}</strong>${state.subjectRole ? " — "+esc(state.subjectRole) : ""}</p>
+    <p class="metaline">${state.evaluator ? "Conducted by "+esc(state.evaluator)+" · " : ""}${today}</p>
+    <div class="matrix">${CAT_ORDER.map(quadHtml).join("")}</div>
+  `;
+}
+
+function wireEvents(){
+  const app = document.getElementById('app');
+
+  const subjectEl = document.getElementById('subject');
+  if(subjectEl) subjectEl.addEventListener('input', e=> state.subject = e.target.value);
+  const roleEl = document.getElementById('subjectRole');
+  if(roleEl) roleEl.addEventListener('input', e=> state.subjectRole = e.target.value);
+  const evalEl = document.getElementById('evaluator');
+  if(evalEl) evalEl.addEventListener('input', e=> state.evaluator = e.target.value);
+
+  const startBtn = document.getElementById('startBtn');
+  if(startBtn) startBtn.addEventListener('click', ()=>{
+    if(!state.id) state.id = makeId();
+    state.step = 1; render(); window.scrollTo(0,0);
+  });
+
+  const adminLink = document.getElementById('adminLink');
+  if(adminLink) adminLink.addEventListener('click', ()=>{ state.mode = "adminLogin"; state.adminError = ""; render(); window.scrollTo(0,0); });
+
+  app.querySelectorAll('textarea[data-cat]').forEach(ta=>{
+    ta.addEventListener('input', e=>{
+      state.answers[e.target.dataset.cat][e.target.dataset.qidx] = e.target.value;
+    });
+  });
+
+  const backBtn = document.getElementById('backBtn');
+  if(backBtn) backBtn.addEventListener('click', ()=>{ state.step = Math.max(0,state.step-1); render(); window.scrollTo(0,0); });
+  const nextBtn = document.getElementById('nextBtn');
+  if(nextBtn) nextBtn.addEventListener('click', ()=>{ state.step = Math.min(5,state.step+1); render(); window.scrollTo(0,0); });
+
+  app.querySelectorAll('.steptab').forEach(t=>{
+    t.addEventListener('click', e=>{ state.step = parseInt(e.target.dataset.goto,10); render(); window.scrollTo(0,0); });
+  });
+
+  app.querySelectorAll('[data-addbtn]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const cat = e.target.dataset.addbtn;
+      const input = app.querySelector(`input[data-addcat="${cat}"]`);
+      const val = input.value.trim();
+      if(val){ state.extra[cat].push(val); render(); }
+    });
+  });
+  app.querySelectorAll('input[data-addcat]').forEach(inp=>{
+    inp.addEventListener('keydown', e=>{
+      if(e.key === 'Enter'){
+        const cat = e.target.dataset.addcat;
+        const val = e.target.value.trim();
+        if(val){ state.extra[cat].push(val); render(); }
+      }
+    });
+  });
+
+  app.querySelectorAll('.rm').forEach(x=>{
+    x.addEventListener('click', e=>{
+      const cat = e.target.dataset.rmcat;
+      const idx = parseInt(e.target.dataset.rmidx,10);
+      const qCount = CATS[cat].questions.reduce((acc,_,i)=>{
+        const lines = (state.answers[cat][i]||"").split("\n").map(s=>s.trim()).filter(Boolean);
+        return acc + lines.length;
+      },0);
+      if(idx < qCount){
+        let running = 0;
+        for(let i=0;i<CATS[cat].questions.length;i++){
+          let lines = (state.answers[cat][i]||"").split("\n").map(s=>s.trim()).filter(Boolean);
+          if(idx < running + lines.length){
+            lines.splice(idx-running,1);
+            state.answers[cat][i] = lines.join("\n");
+            break;
+          }
+          running += lines.length;
+        }
+      } else {
+        state.extra[cat].splice(idx-qCount,1);
+      }
+      render();
+    });
+  });
+
+  const printBtn = document.getElementById('printBtn');
+  if(printBtn) printBtn.addEventListener('click', ()=>{
+    document.getElementById('printarea').innerHTML = buildPrintHtml();
+    window.print();
+  });
+
+  const copyBtn = document.getElementById('copyBtn');
+  if(copyBtn) copyBtn.addEventListener('click', async ()=>{
+    try{
+      await navigator.clipboard.writeText(buildPlainText());
+      copyBtn.textContent = "Copied";
+      setTimeout(()=> copyBtn.textContent = "Copy as text", 1500);
+    }catch(err){
+      copyBtn.textContent = "Couldn't copy";
+    }
+  });
+
+  const downloadBtn = document.getElementById('downloadBtn');
+  if(downloadBtn) downloadBtn.addEventListener('click', ()=>{
+    const blob = new Blob([buildPlainText()], {type:"text/plain"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const name = (state.subject || "swot").toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+    a.href = url; a.download = `swot-${name || 'analysis'}.txt`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  const adminBack = document.getElementById('adminBack');
+  if(adminBack) adminBack.addEventListener('click', ()=>{ state.mode = "user"; render(); });
+
+  const adminSubmit = document.getElementById('adminSubmit');
+  if(adminSubmit) adminSubmit.addEventListener('click', ()=>{
+    const val = (document.getElementById('adminPass').value || "").trim();
+    if(ADMIN_CODES.includes(val)){
+      state.adminError = "";
+      state.mode = "admin";
+      loadAdminEntries();
+    } else {
+      state.adminError = "That passcode isn't recognized.";
+      render();
+    }
+  });
+  const adminPassInput = document.getElementById('adminPass');
+  if(adminPassInput) adminPassInput.addEventListener('keydown', e=>{
+    if(e.key === 'Enter') document.getElementById('adminSubmit').click();
+  });
+
+  app.querySelectorAll('.adminrow').forEach(row=>{
+    row.addEventListener('click', e=>{
+      state.adminDetailId = row.dataset.view;
+      state.mode = "adminDetail";
+      render();
+      window.scrollTo(0,0);
+    });
+  });
+
+  const downloadAllBtn = document.getElementById('downloadAllBtn');
+  if(downloadAllBtn) downloadAllBtn.addEventListener('click', ()=>{
+    const entries = state.adminEntries || [];
+    const combined = entries.map(buildPlainTextForEntry).join("\n" + "=".repeat(40) + "\n\n");
+    downloadTextFile(`all-swot-submissions-${new Date().toISOString().slice(0,10)}.txt`, combined);
+  });
+
+  const adminExit = document.getElementById('adminExit');
+  if(adminExit) adminExit.addEventListener('click', ()=>{ state.mode = "user"; render(); window.scrollTo(0,0); });
+
+  const adminDetailBack = document.getElementById('adminDetailBack');
+  if(adminDetailBack) adminDetailBack.addEventListener('click', ()=>{ state.mode = "admin"; render(); window.scrollTo(0,0); });
+
+  const adminDetailDownload = document.getElementById('adminDetailDownload');
+  if(adminDetailDownload) adminDetailDownload.addEventListener('click', ()=>{
+    const e = (state.adminEntries||[]).find(x=>x.id === state.adminDetailId);
+    if(e){
+      const name = (e.subject || "swot").toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+      downloadTextFile(`swot-${name || 'entry'}.txt`, buildPlainTextForEntry(e));
+    }
+  });
+
+  const editBtn = document.getElementById('editBtn');
+  if(editBtn) editBtn.addEventListener('click', ()=>{ state.step = 1; render(); window.scrollTo(0,0); });
+
+  const newBtn = document.getElementById('newBtn');
+  if(newBtn) newBtn.addEventListener('click', ()=>{
+    if(confirm("Start a new SWOT? This clears everything on screen.")){
+      state = { mode:"user", step:0, id:null, subject:"", subjectRole:"", evaluator:"", answers:{S:{},W:{},O:{},T:{}}, extra:{S:[],W:[],O:[],T:[]}, adminError:"", adminEntries:null, adminDetailId:null };
+      render(); window.scrollTo(0,0);
+    }
+  });
+}
+
+render();
+</script>
+</body>
+</html>

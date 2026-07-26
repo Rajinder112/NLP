@@ -15,7 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="styles.css?v=74">
+  <link rel="stylesheet" href="styles.css?v=75">
   
   <!-- SheetJS for client-side Excel exporting -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -687,11 +687,8 @@
         </div>
       </div>
     <!-- 10B. SWOT ANALYSIS TOOL VIEW -->
-    <section class="view-section" id="view-swot">
-      <div class="swot-app-wrapper">
-        <div id="swot-app"></div>
-        <div id="swot-printarea"></div>
-      </div>
+    <section class="view-section" id="view-swot" style="padding: 0 !important; overflow: hidden;">
+      <iframe src="/swot.html" id="swot-iframe" title="SWOT Analysis Tool" style="width: 100%; height: calc(100vh - 70px); min-height: 850px; border: none; background: #EEF1EC;"></iframe>
     </section>
 
     <!-- 11. GALLERY VIEW -->
@@ -1589,6 +1586,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Script Code Loader -->
-  <script src="app.js?v=90"></script>
+  <script src="app.js?v=91"></script>
 </body>
 </html>
