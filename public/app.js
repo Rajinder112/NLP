@@ -541,20 +541,65 @@ const SEED_SCHEDULE = [
   }
 ];
 
-const GALLERY_SEED_DATA = [];
+const GALLERY_SEED_DATA = [
+  {
+    id: "gal_1",
+    title: "Opening Ceremony & Keynote Address",
+    category: "Day 1",
+    description: "Dr. Vinita Yadav delivering the inaugurative lecture on strategic healthcare leadership.",
+    url: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1200&q=80",
+    order: 1,
+    createdAt: "2026-07-24T09:00:00.000Z"
+  },
+  {
+    id: "gal_2",
+    title: "Clinical Workflow & Patient Safety Workshop",
+    category: "Day 1",
+    description: "Middle-level incharges engaging in interactive root cause analysis and SafeTrack clinical simulations.",
+    url: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=1200&q=80",
+    order: 2,
+    createdAt: "2026-07-24T11:30:00.000Z"
+  },
+  {
+    id: "gal_3",
+    title: "Team Building & Crisis Management Exercises",
+    category: "Day 2",
+    description: "Nursing supervisors collaborating on emergency response protocols and unit resource allocation.",
+    url: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1200&q=80",
+    order: 3,
+    createdAt: "2026-07-25T10:00:00.000Z"
+  },
+  {
+    id: "gal_4",
+    title: "Executive Q&A Panel & Capacity Building",
+    category: "Day 2",
+    description: "Interactive session with HR leadership & Deputy Nursing Superintendents on staff retention and mentorship.",
+    url: "https://images.unsplash.com/photo-1531497865144-0464ef8fb9a9?auto=format&fit=crop&w=1200&q=80",
+    order: 4,
+    createdAt: "2026-07-25T14:00:00.000Z"
+  },
+  {
+    id: "gal_5",
+    title: "Valedictory Ceremony & Certificate Presentation",
+    category: "Valedictory & Awards",
+    description: "Honoring Batch 1 participants for successful completion of the Nursing Leadership Program.",
+    url: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80",
+    order: 5,
+    createdAt: "2026-07-26T16:00:00.000Z"
+  }
+];
 
 function getLocalGallery() {
   const local = localStorage.getItem(LOCAL_GALLERY_KEY);
-  if (!local) return [];
+  if (!local) return GALLERY_SEED_DATA;
   try {
     const parsed = JSON.parse(local);
-    if (Array.isArray(parsed)) {
-      // Filter out any legacy sample seed IDs (e.g. gal_1, gal_2, gal_3, gal_4)
-      return parsed.filter(item => item && item.id && !['gal_1', 'gal_2', 'gal_3', 'gal_4'].includes(item.id));
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed;
     }
-    return [];
+    return GALLERY_SEED_DATA;
   } catch (e) {
-    return [];
+    return GALLERY_SEED_DATA;
   }
 }
 
