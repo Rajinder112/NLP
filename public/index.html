@@ -15,7 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="styles.css?v=76">
+  <link rel="stylesheet" href="styles.css?v=77">
   
   <!-- SheetJS for client-side Excel exporting -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -192,21 +192,37 @@
   </aside>
 
   <!-- Main View Container -->
-  <main class="main-container">
+  <main class="main-content">
     <!-- 1. HOME VIEW -->
     <section class="view-section active" id="view-home">
-      <!-- Hero Banner -->
-      <div class="hero-banner">
-        <div class="hero-overlay"></div>
-        <div class="hero-content container">
-          <div class="badge-tag" id="hero-badge-tag">Nursing Leadership Program</div>
-          <h1 id="hero-title-text">Medanta Nursing Leadership Development Program (NLP)</h1>
-          <p class="hero-tagline" id="hero-tagline-text">Empowering Nursing Leaders to Drive Clinical Excellence, Innovation & Exceptional Patient Outcomes.</p>
+      <!-- Premium Hero Section -->
+      <div class="hero-block">
+        <div class="hero-pattern"></div>
+        <div class="hero-content">
+          <p class="hero-eyebrow-main" id="hero-eyebrow-text">MEDANTA HOSPITAL LUCKNOW &bull; NURSING & HR TEAM</p>
+          <p class="hero-eyebrow-sub" id="hero-eyebrow-sub-text">Proudly Hosts The 1st Event Of The</p>
+          <h1 class="hero-title" id="hero-title-text">NURSING LEADERSHIP PROGRAM (NLP)</h1>
+          <p class="hero-subtitle" id="hero-subtitle-text">Middle-Level Incharges &mdash; Batch 1 &mdash; 2026</p>
+          <div class="hero-divider"></div>
+          <p class="hero-tagline" id="hero-tagline-text">STRENGTHENING LEADERSHIP CAPABILITIES, COMMUNICATION,<br>DECISION-MAKING AND TEAM EXCELLENCE.</p>
           
-          <div class="hero-meta">
+          <!-- Event Status Card -->
+          <div class="hero-status-card">
+            <div class="status-indicator">
+              <span class="status-pulse-dot" id="state-dot"></span>
+              <span class="status-label" id="state-label">Loading status...</span>
+            </div>
+            
+            <!-- Dynamic State Content Placeholder -->
+            <div id="state-widget-container">
+              <!-- Upcoming Timer, Active Session info, or Completed Message -->
+            </div>
+          </div>
+          
+          <div class="hero-meta-grid">
             <div class="meta-item">
               <i data-lucide="calendar"></i>
-              <span id="hero-date-text">Batch 1: Nov 15–17 | Batch 2: Dec 01–03</span>
+              <span id="hero-date-text">July 24, 2026</span>
             </div>
             <div class="meta-item">
               <i data-lucide="map-pin"></i>
@@ -1588,6 +1604,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Script Code Loader -->
-  <script src="app.js?v=92"></script>
+  <script src="app.js?v=93"></script>
 </body>
 </html>
