@@ -1359,20 +1359,24 @@ async function initApp() {
     console.warn('UI setup notice:', e);
   }
 
-  // Smooth progressive animation to 100% over 1.2 seconds
+  // Progressive splash animation while core Home, Schedule & Leadership views render
   setTimeout(() => {
-    setSplashProgress(70, 'Rendering Interface...');
+    setSplashProgress(60, 'Initializing Home, Schedule & Leadership Views...');
   }, 500);
 
   setTimeout(() => {
-    setSplashProgress(100, '✓ Complete & Ready');
-    dismissSplashScreen();
+    setSplashProgress(90, 'Preparing Interface & Active Sessions...');
   }, 1200);
 
-  // Hard safety timeout: Guarantee splash screen is removed within 1.8s no matter what
   setTimeout(() => {
+    setSplashProgress(100, '✓ Program Interface Ready!');
     dismissSplashScreen();
   }, 1800);
+
+  // Safety timeout: Guarantee splash screen is removed within 2.2s
+  setTimeout(() => {
+    dismissSplashScreen();
+  }, 2200);
 
   // Background non-blocking hydration (wakes up Render without blocking UI)
   Promise.all([
@@ -1459,7 +1463,7 @@ async function initApp() {
 // DATA FETCHING & SYNCHRONIZATION
 // ==========================================================================
 const DEFAULT_SETTINGS = {
-  eventState: 'Upcoming',
+  eventState: 'Live',
   eventDate: '2026-07-26',
   eventDateDisplay: '10-11 July & 26 July 2026',
   eventVenue: '10th Floor ITC Department (In-House) & Outbound Facility',
@@ -1880,11 +1884,16 @@ function updateEventStateWidget() {
     countdownInterval = null;
   }
   
-  const state = appState.settings.eventState || 'Upcoming';
+  let state = appState.settings.eventState || 'Live';
+  const eventDateStr = appState.settings.eventDate || '2026-07-26';
+  const eventTargetTime = new Date(eventDateStr + 'T08:30:00').getTime();
+  if (state === 'Upcoming' && (!isNaN(eventTargetTime) && Date.now() >= eventTargetTime)) {
+    state = 'Live';
+  }
   
   // Reset dot states
   const heroCard = document.querySelector('.hero-status-card');
-  heroCard.className = 'hero-status-card'; // Reset classes
+  if (heroCard) heroCard.className = 'hero-status-card'; // Reset classes
   
   if (state === 'Upcoming') {
     heroCard.classList.add('state-upcoming');
