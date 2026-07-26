@@ -1468,7 +1468,8 @@ const DEFAULT_SETTINGS = {
   eventDateDisplay: '10-11 July & 26 July 2026',
   eventVenue: '10th Floor ITC Department (In-House) & Outbound Facility',
   lastUpdatedPdf: new Date().toISOString(),
-  pdfVersion: '1.0',
+  pdfVersion: '2.0',
+  pdfUrl: '/assets/MEDANTA_HOSPITAL_LNP_WITH_SCHEDULE_WITH_ALL_DAY.pdf',
   maintenanceMode: false
 };
 
