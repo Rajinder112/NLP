@@ -1,7 +1,7 @@
 // Service Worker for Medanta NLP Application
 // Implements Stale-While-Revalidate static asset caching & Network-First API fallback
 
-const CACHE_NAME = 'nlp-v1-cache-v59';
+const CACHE_NAME = 'nlp-v1-cache-v60';
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
@@ -41,7 +41,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Event: Stale-While-Revalidate for Static Assets, Network-First for API
+// Fetch Event: Direct Network for API (NO SW CACHING for live DB sync), Stale-While-Revalidate for Static Assets
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
@@ -49,25 +49,14 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests or browser extension requests
   if (request.method !== 'GET' || !url.protocol.startsWith('http')) return;
 
-  // Handle API Requests (Network First with Cache Fallback)
+  // Handle API Requests (Direct Network with Cache-Control no-store)
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response && response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
-          }
-          return response;
-        })
-        .catch(() => {
-          return caches.match(request).then((cachedResponse) => {
-            if (cachedResponse) return cachedResponse;
-            return new Response(JSON.stringify({ offline: true }), {
-              headers: { 'Content-Type': 'application/json' }
-            });
-          });
-        })
+      fetch(request, { cache: 'no-store' }).catch(() => {
+        return new Response(JSON.stringify({ offline: true }), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      })
     );
     return;
   }

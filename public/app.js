@@ -620,7 +620,7 @@ let galleryDraggedRowIndex = null;
 // SUB-TAB: Event Gallery Manager CRUD
 async function fetchAdminGallery() {
   try {
-    const res = await fetch(`${API_BASE}/gallery`);
+    const res = await fetch(`${API_BASE}/gallery`, { cache: 'no-store' });
     if (res.ok) {
       const text = await res.text();
       if (!text.trim().startsWith('<!DOCTYPE')) {
@@ -630,6 +630,7 @@ async function fetchAdminGallery() {
           saveLocalGallery(data);
           setGalleryLocalOnly(false);
           renderAdminGalleryTable();
+          renderGalleryGrid();
           return;
         }
       }
@@ -640,6 +641,7 @@ async function fetchAdminGallery() {
 
   appState.gallery = getLocalGallery();
   renderAdminGalleryTable();
+  renderGalleryGrid();
 }
 
 function renderAdminGalleryTable() {
@@ -1257,7 +1259,7 @@ async function fetchSettings() {
 async function refreshPublicData() {
   let bootstrapSuccess = false;
   try {
-    const res = await fetch(`${API_BASE}/bootstrap`);
+    const res = await fetch(`${API_BASE}/bootstrap`, { cache: 'no-store' });
     if (res.ok) {
       const text = await res.text();
       if (!text.trim().startsWith('<!DOCTYPE') && !text.trim().startsWith('<html')) {
@@ -1269,7 +1271,13 @@ async function refreshPublicData() {
         if (data.committee && Array.isArray(data.committee) && data.committee.length > 0) appState.committee = data.committee; else appState.committee = SEED_COMMITTEE;
         if (data.resources) appState.resources = data.resources;
         if (data.overview) appState.overview = data.overview;
-        if (data.gallery && !isGalleryLocalOnly()) appState.gallery = data.gallery; else if (isGalleryLocalOnly()) appState.gallery = getLocalGallery();
+        if (data.gallery && Array.isArray(data.gallery)) {
+          appState.gallery = data.gallery;
+          saveLocalGallery(data.gallery);
+          setGalleryLocalOnly(false);
+        } else {
+          appState.gallery = getLocalGallery();
+        }
         if (data.event_days && Array.isArray(data.event_days) && data.event_days.length >= 5) appState.event_days = data.event_days; else appState.event_days = SEED_EVENT_DAYS;
         bootstrapSuccess = true;
       }
@@ -1281,10 +1289,7 @@ async function refreshPublicData() {
   if (!bootstrapSuccess) {
     const fetchAndSet = async (endpoint, stateKey) => {
       try {
-        if (endpoint === 'gallery' && isGalleryLocalOnly()) {
-          throw new Error('Gallery local-only mode active');
-        }
-        const res = await fetch(`${API_BASE}/${endpoint}`);
+        const res = await fetch(`${API_BASE}/${endpoint}`, { cache: 'no-store' });
         if (res.ok) {
           const text = await res.text();
           if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
