@@ -1209,7 +1209,8 @@ const DEFAULT_SETTINGS = {
   eventDateDisplay: '10-11 July & 26 July 2026',
   eventVenue: '10th Floor ITC Department (In-House) & Outbound Facility',
   lastUpdatedPdf: new Date().toISOString(),
-  pdfVersion: '1.0'
+  pdfVersion: '1.0',
+  maintenanceMode: false
 };
 
 async function fetchSettings() {
@@ -1228,6 +1229,8 @@ async function fetchSettings() {
   if (!appState.settings || Object.keys(appState.settings).length === 0) {
     appState.settings = { ...DEFAULT_SETTINGS };
   }
+  
+  checkMaintenanceState();
   
   // Update Hero elements based on retrieved settings
   const displayDate = appState.settings.eventDateDisplay || formatDateString(appState.settings.eventDate);
@@ -1356,12 +1359,111 @@ function formatDateString(dateStr) {
 }
 
 // ==========================================================================
+// SITE MAINTENANCE MODE CONTROLLER
+// ==========================================================================
+function checkMaintenanceState() {
+  const isMaintenanceOn = appState.settings && (appState.settings.maintenanceMode === true || appState.settings.maintenanceMode === 'true');
+  const maintenanceScreen = document.getElementById('maintenance-screen');
+  const mainHeader = document.querySelector('.main-header');
+  const mainFooter = document.querySelector('.main-footer');
+  const hash = window.location.hash || '#home';
+  const currentView = hash.replace('#', '');
+
+  // Update Admin Dashboard Status Badge & Toggle Button
+  const statusBadge = document.getElementById('maintenance-status-badge');
+  const toggleBtn = document.getElementById('toggle-maintenance-btn');
+
+  if (statusBadge) {
+    if (isMaintenanceOn) {
+      statusBadge.className = 'badge badge-warning';
+      statusBadge.textContent = 'UNDER MAINTENANCE (Public Access OFF)';
+      statusBadge.style.backgroundColor = '#d97706';
+      statusBadge.style.color = '#ffffff';
+    } else {
+      statusBadge.className = 'badge badge-success';
+      statusBadge.textContent = 'LIVE (Public Access ON)';
+      statusBadge.style.backgroundColor = '#16a34a';
+      statusBadge.style.color = '#ffffff';
+    }
+  }
+
+  if (toggleBtn) {
+    if (isMaintenanceOn) {
+      toggleBtn.innerHTML = '<i data-lucide="power"></i> Disable Maintenance (Set Portal LIVE)';
+      toggleBtn.className = 'btn btn-success';
+      toggleBtn.style.backgroundColor = '#16a34a';
+    } else {
+      toggleBtn.innerHTML = '<i data-lucide="power"></i> Enable Maintenance Mode';
+      toggleBtn.className = 'btn btn-gold';
+      toggleBtn.style.backgroundColor = '';
+    }
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  }
+
+  // If Maintenance Mode is ON and user is NOT accessing #admin:
+  if (isMaintenanceOn && currentView !== 'admin') {
+    if (maintenanceScreen) maintenanceScreen.classList.remove('hidden');
+    if (mainHeader) mainHeader.style.display = 'none';
+    if (mainFooter) mainFooter.style.display = 'none';
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.style.display = 'none';
+  } else {
+    // Normal Live site access or Admin login/dashboard access
+    if (maintenanceScreen) maintenanceScreen.classList.add('hidden');
+    if (mainHeader) mainHeader.style.display = '';
+    if (mainFooter) mainFooter.style.display = '';
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.style.display = '';
+  }
+}
+
+async function toggleMaintenanceMode() {
+  if (!appState.settings) appState.settings = { ...DEFAULT_SETTINGS };
+  const currentState = appState.settings.maintenanceMode === true;
+  const newState = !currentState;
+
+  appState.settings.maintenanceMode = newState;
+  checkMaintenanceState();
+
+  try {
+    const res = await fetch(`${API_BASE}/settings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify(appState.settings)
+    });
+    
+    if (res.ok) {
+      showToast(newState ? 'Maintenance Mode Enabled. Public site is under maintenance.' : 'Maintenance Mode Disabled. Portal is now LIVE!', newState ? 'warning' : 'success');
+    } else {
+      throw new Error(`Server returned status ${res.status}`);
+    }
+  } catch (err) {
+    console.warn('Backend settings sync notice:', err.message);
+    showToast(newState ? 'Maintenance Mode activated locally.' : 'Portal set LIVE locally.', 'info');
+  }
+}
+
+function showAdminFromMaintenance(e) {
+  if (e) e.preventDefault();
+  window.location.hash = '#admin';
+  checkMaintenanceState();
+}
+
+// ==========================================================================
 // SPA ROUTER
 // ==========================================================================
 function setupRouter() {
   const handleRouteChange = () => {
     let hash = window.location.hash || '#home';
     let viewName = hash.replace('#', '');
+    
+    // Check Site Maintenance Mode Status
+    checkMaintenanceState();
     
     // Switch Active View Class
     const sections = document.querySelectorAll('.view-section');

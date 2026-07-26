@@ -15,7 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="styles.css?v=84">
+  <link rel="stylesheet" href="styles.css?v=85">
   
   <!-- SheetJS for client-side Excel exporting -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -133,6 +133,39 @@
         100% { transform: scale(1); opacity: 1; }
       }
     </style>
+  </div>
+
+  <!-- Medanta System Maintenance Overlay Screen -->
+  <div id="maintenance-screen" class="maintenance-screen hidden">
+    <div class="maintenance-card">
+      <div class="maintenance-logo-glow">
+        <img src="/assets/logo.png" alt="Medanta Logo" class="maintenance-logo-img">
+      </div>
+      <div class="maintenance-badge">
+        <span class="pulse-dot"></span> System Maintenance Active
+      </div>
+      <h2 style="font-size: 1.5rem; font-weight: 700; color: #ffffff; margin-bottom: 12px;">Platform Maintenance in Progress</h2>
+      <p style="font-size: 0.9rem; color: #94a3b8; line-height: 1.6; margin-bottom: 20px;">
+        The <strong>Nursing Leadership Program (NLP) Portal</strong> is currently undergoing scheduled platform maintenance and system updates to serve you better.
+      </p>
+      
+      <div class="maintenance-info-box">
+        <div class="info-row">
+          <i data-lucide="clock" style="width: 18px; height: 18px; color: #f59e0b;"></i>
+          <span>Status: <strong>Scheduled System Optimization</strong></span>
+        </div>
+        <div class="info-row">
+          <i data-lucide="mail" style="width: 18px; height: 18px; color: #3b82f6;"></i>
+          <span>Emergency Contact: <strong>nursing.leadership@medanta.org</strong></span>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px;">
+        <a href="#admin" class="btn btn-gold btn-sm" onclick="showAdminFromMaintenance(event)" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 600; text-decoration: none;">
+          <i data-lucide="shield-check"></i> Admin Portal Login
+        </a>
+      </div>
+    </div>
   </div>
 
   <!-- Header Navigation -->
@@ -834,6 +867,27 @@
 
             <!-- Global Configurations -->
             <div class="dashboard-row">
+              <!-- Site Maintenance Mode Control Card -->
+              <div class="config-card" style="border-left: 4px solid var(--accent); margin-bottom: 24px; grid-column: 1 / -1;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                  <div>
+                    <h3 style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px; color: var(--primary);">
+                      <i data-lucide="shield-alert" style="color: var(--accent);"></i>
+                      Website Maintenance Mode Control
+                    </h3>
+                    <p class="section-desc" style="margin-bottom: 0;">
+                      Toggle public website access. When <strong>ON (Under Maintenance)</strong>, public visitors see a Medanta System Maintenance screen. Admins retain full access via <code style="background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 4px; color: var(--primary);">#admin</code>.
+                    </p>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <span id="maintenance-status-badge" class="badge badge-success" style="font-size: 0.85rem; padding: 8px 16px; border-radius: var(--radius-full);">LIVE (Public Access ON)</span>
+                    <button type="button" id="toggle-maintenance-btn" class="btn btn-gold" onclick="toggleMaintenanceMode()" style="white-space: nowrap; font-weight: 700;">
+                      <i data-lucide="power"></i> Enable Maintenance Mode
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <div class="config-card">
                 <h3>Event State & Status Configuration</h3>
                 <p class="section-desc">Change the active portal state. The home page updates widgets and buttons instantly based on this setting.</p>
@@ -1625,6 +1679,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Script Code Loader -->
-  <script src="app.js?v=100"></script>
+  <script src="app.js?v=101"></script>
 </body>
 </html>
