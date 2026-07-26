@@ -15,7 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="styles.css?v=72">
+  <link rel="stylesheet" href="styles.css?v=73">
   
   <!-- SheetJS for client-side Excel exporting -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -491,27 +491,27 @@
 
             <nav class="steps">
               <div class="steps-label">Workflow</div>
-              <label class="step-link active" for="tab-0" data-step="0">
+              <label class="step-link active" for="tab-0" data-step="0" onclick="if(window.goToSafeTrackStep)goToSafeTrackStep(0)">
                 <span class="ic"><i data-lucide="eye"></i></span>
                 <span class="label">Observation</span>
                 <span class="badge"></span>
               </label>
-              <label class="step-link" for="tab-1" data-step="1">
+              <label class="step-link" for="tab-1" data-step="1" onclick="if(window.goToSafeTrackStep)goToSafeTrackStep(1)">
                 <span class="ic"><i data-lucide="search"></i></span>
                 <span class="label">Root cause</span>
                 <span class="badge"></span>
               </label>
-              <label class="step-link" for="tab-2" data-step="2">
+              <label class="step-link" for="tab-2" data-step="2" onclick="if(window.goToSafeTrackStep)goToSafeTrackStep(2)">
                 <span class="ic"><i data-lucide="file-text"></i></span>
                 <span class="label">RCS</span>
                 <span class="badge"></span>
               </label>
-              <label class="step-link" for="tab-3" data-step="3">
+              <label class="step-link" for="tab-3" data-step="3" onclick="if(window.goToSafeTrackStep)goToSafeTrackStep(3)">
                 <span class="ic"><i data-lucide="check-square"></i></span>
                 <span class="label">Action plan</span>
                 <span class="badge"></span>
               </label>
-              <label class="step-link" for="tab-4" data-step="4">
+              <label class="step-link" for="tab-4" data-step="4" onclick="if(window.goToSafeTrackStep)goToSafeTrackStep(4)">
                 <span class="ic"><i data-lucide="clipboard-check"></i></span>
                 <span class="label">Report</span>
                 <span class="badge"></span>
@@ -1595,6 +1595,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Script Code Loader -->
-  <script src="app.js?v=88"></script>
+  <script src="app.js?v=89"></script>
 </body>
 </html>

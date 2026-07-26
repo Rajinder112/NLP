@@ -4156,8 +4156,13 @@ img {
   display: none;
 }
 
-.safetrack-panel.active {
-  display: block;
+.safetrack-panel.active,
+#tab-0:checked ~ .safetrack-app .safetrack-panel[data-panel="0"],
+#tab-1:checked ~ .safetrack-app .safetrack-panel[data-panel="1"],
+#tab-2:checked ~ .safetrack-app .safetrack-panel[data-panel="2"],
+#tab-3:checked ~ .safetrack-app .safetrack-panel[data-panel="3"],
+#tab-4:checked ~ .safetrack-app .safetrack-panel[data-panel="4"] {
+  display: block !important;
 }
 
 .safetrack-card {

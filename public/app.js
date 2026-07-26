@@ -5263,10 +5263,28 @@ function buildSafeTrackReport() {
   const loc = document.getElementById('obsLocation')?.value || '';
   const patient = document.getElementById('obsPatient')?.value || '';
   const observer = document.getElementById('obsObserver')?.value || '';
-  const cat = getPillValue('obsCategory');
-  const sev = getPillValue('obsSeverity');
+  const cat = getPillValue('obsCategory') || 'General Observation';
+  const sev = getPillValue('obsSeverity') || 'Unspecified';
   const desc = document.getElementById('obsDesc')?.value || '';
   const rcs = document.getElementById('rcsText')?.value || '';
+
+  // Fishbone Contributing Factors
+  const cats = [];
+  SAFETRACK_FISHBONE_CATS.forEach((catPair, i) => {
+    const chk = document.getElementById('catChk' + i);
+    if (chk && chk.checked) {
+      const detailEl = document.getElementById('catText' + i);
+      const detail = detailEl ? detailEl.value.trim() : '';
+      cats.push(catPair[0] + (detail ? ': ' + detail : ''));
+    }
+  });
+
+  // 5 Whys Chain
+  const whys = [];
+  for (let i = 1; i <= safeTrackWhyCount; i++) {
+    const el = document.getElementById('why' + i);
+    if (el && el.value.trim()) whys.push(`Why ${i}: ` + el.value.trim());
+  }
 
   let actionRowsHtml = '';
   document.querySelectorAll('#actionRows .action-card').forEach(card => {
@@ -5277,7 +5295,7 @@ function buildSafeTrackReport() {
     const ty = document.getElementById('actType' + idn)?.value || '';
     const st = document.getElementById('actStatus' + idn)?.value || '';
     if (d || o) {
-      actionRowsHtml += `<div class="kv"><b>${ty}</b><span>${d} — Owner: ${o || '—'} — Due: ${dt || '—'} — Status: ${st}</span></div>`;
+      actionRowsHtml += `<div class="kv"><b>${ty}</b><span>${d} — <b>Owner:</b> ${o || '—'} | <b>Due:</b> ${dt || '—'} | <b>Status:</b> ${st}</span></div>`;
     }
   });
 
@@ -5287,7 +5305,7 @@ function buildSafeTrackReport() {
       <div class="masthead">
         <img class="mast-logo" src="/assets/logo.png" alt="Medanta Logo">
         <div class="h-name">Medanta SafeTrack Patient Safety Observation</div>
-        <div class="h-sub">Medanta Lucknow · Nursing Excellence</div>
+        <div class="h-sub">Medanta Lucknow · Nursing Excellence & Quality</div>
       </div>
       <h3>1. Observation Details</h3>
       ${kv('Date & Time', `${date} ${time} (${shift} Shift)`)}
@@ -5299,10 +5317,12 @@ function buildSafeTrackReport() {
       ${kv('Description', desc)}
       
       <h3>2. Root Cause Analysis</h3>
-      ${kv('Root Cause Statement', rcs)}
+      ${whys.length ? kv('5 Whys Drill-Down', whys.join('<br>')) : ''}
+      ${cats.length ? kv('Contributing Factors', cats.join('; ')) : ''}
+      <div class="block"><b>Root Cause Statement:</b><br>${rcs || 'Pending analysis formulation.'}</div>
       
       <h3>3. Action Plan & CAPA</h3>
-      ${actionRowsHtml || '<p>No specific action items recorded.</p>'}
+      ${actionRowsHtml || '<p style="color:var(--grey); font-style:italic;">No specific action items recorded.</p>'}
     `;
   }
 }
@@ -5310,16 +5330,67 @@ function buildSafeTrackReport() {
 function downloadSafeTrackReport() {
   const date = document.getElementById('obsDate')?.value || '';
   const time = document.getElementById('obsTime')?.value || '';
+  const shift = document.getElementById('obsShift')?.value || '';
   const loc = document.getElementById('obsLocation')?.value || '';
-  const cat = getPillValue('obsCategory');
+  const patient = document.getElementById('obsPatient')?.value || '';
+  const observer = document.getElementById('obsObserver')?.value || '';
+  const cat = getPillValue('obsCategory') || 'General Observation';
+  const sev = getPillValue('obsSeverity') || 'Unspecified';
+  const desc = document.getElementById('obsDesc')?.value || '';
   const rcs = document.getElementById('rcsText')?.value || '';
+
+  const whys = [];
+  for (let i = 1; i <= safeTrackWhyCount; i++) {
+    const el = document.getElementById('why' + i);
+    if (el && el.value.trim()) whys.push(`Why ${i}: ` + el.value.trim());
+  }
+
+  const cats = [];
+  SAFETRACK_FISHBONE_CATS.forEach((catPair, i) => {
+    const chk = document.getElementById('catChk' + i);
+    if (chk && chk.checked) {
+      const detailEl = document.getElementById('catText' + i);
+      const detail = detailEl ? detailEl.value.trim() : '';
+      cats.push(catPair[0] + (detail ? ': ' + detail : ''));
+    }
+  });
+
+  let actionsText = '';
+  document.querySelectorAll('#actionRows .action-card').forEach(card => {
+    const idn = card.id.replace('actionRow', '');
+    const d = document.getElementById('actDesc' + idn)?.value || '';
+    const o = document.getElementById('actOwner' + idn)?.value || '';
+    const dt = document.getElementById('actDate' + idn)?.value || '';
+    const ty = document.getElementById('actType' + idn)?.value || '';
+    const st = document.getElementById('actStatus' + idn)?.value || '';
+    if (d || o) {
+      actionsText += `- [${ty}] ${d} | Owner: ${o || '—'} | Due: ${dt || '—'} | Status: ${st}\n`;
+    }
+  });
+
+  let reportText = `=====================================================\n`;
+  reportText += `   MEDANTA SAFETRACK PATIENT SAFETY OBSERVATION REPORT\n`;
+  reportText += `   Medanta Lucknow - Quality & Nursing Excellence\n`;
+  reportText += `=====================================================\n\n`;
+  reportText += `1. OBSERVATION DETAILS:\n`;
+  reportText += `-----------------------\n`;
+  reportText += `Date & Time : ${date} ${time} (${shift} Shift)\n`;
+  reportText += `Ward / Unit : ${loc}\n`;
+  reportText += `Bed / MRN   : ${patient}\n`;
+  reportText += `Observer    : ${observer}\n`;
+  reportText += `Category    : ${cat}\n`;
+  reportText += `Severity    : ${sev}\n`;
+  reportText += `Description :\n${desc}\n\n`;
   
-  let reportText = `MEDANTA SAFETRACK PATIENT SAFETY REPORT\n`;
-  reportText += `==========================================\n\n`;
-  reportText += `Date/Time: ${date} ${time}\n`;
-  reportText += `Location: ${loc}\n`;
-  reportText += `Category: ${cat}\n\n`;
-  reportText += `ROOT CAUSE STATEMENT:\n${rcs}\n\n`;
+  reportText += `2. ROOT CAUSE ANALYSIS:\n`;
+  reportText += `-----------------------\n`;
+  if (whys.length) reportText += `5 Whys Chain:\n${whys.join('\n')}\n\n`;
+  if (cats.length) reportText += `Contributing Factors: ${cats.join('; ')}\n\n`;
+  reportText += `Root Cause Statement (RCS):\n${rcs}\n\n`;
+  
+  reportText += `3. ACTION PLAN & CAPA:\n`;
+  reportText += `-----------------------\n`;
+  reportText += actionsText || `No specific action items recorded.\n`;
   
   const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
