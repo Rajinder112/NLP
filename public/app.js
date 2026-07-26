@@ -1367,7 +1367,15 @@ function formatDateString(dateStr) {
 // SITE MAINTENANCE MODE CONTROLLER
 // ==========================================================================
 function checkMaintenanceState() {
-  const isMaintenanceOn = appState.settings && (appState.settings.maintenanceMode === true || appState.settings.maintenanceMode === 'true');
+  const localMaint = localStorage.getItem('nlp_maintenance_mode');
+  let isMaintenanceOn = false;
+  
+  if (localMaint !== null) {
+    isMaintenanceOn = localMaint === 'true';
+  } else if (appState.settings) {
+    isMaintenanceOn = (appState.settings.maintenanceMode === true || appState.settings.maintenanceMode === 'true');
+  }
+
   const maintenanceScreen = document.getElementById('maintenance-screen');
   const mainHeader = document.querySelector('.main-header');
   const mainFooter = document.querySelector('.main-footer');
@@ -1426,10 +1434,18 @@ function checkMaintenanceState() {
 
 async function toggleMaintenanceMode() {
   if (!appState.settings) appState.settings = { ...DEFAULT_SETTINGS };
-  const currentState = appState.settings.maintenanceMode === true;
-  const newState = !currentState;
+  
+  const localMaint = localStorage.getItem('nlp_maintenance_mode');
+  let currentState = false;
+  if (localMaint !== null) {
+    currentState = localMaint === 'true';
+  } else {
+    currentState = (appState.settings.maintenanceMode === true || appState.settings.maintenanceMode === 'true');
+  }
 
+  const newState = !currentState;
   appState.settings.maintenanceMode = newState;
+  localStorage.setItem('nlp_maintenance_mode', newState ? 'true' : 'false');
   checkMaintenanceState();
 
   try {
@@ -1439,7 +1455,10 @@ async function toggleMaintenanceMode() {
         'Content-Type': 'application/json',
         ...getAuthHeader()
       },
-      body: JSON.stringify(appState.settings)
+      body: JSON.stringify({
+        ...appState.settings,
+        maintenanceMode: newState
+      })
     });
     
     if (res.ok) {
