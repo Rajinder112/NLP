@@ -332,11 +332,11 @@ app.post('/api/upload-workbook', authenticateAdmin, (req, res) => {
 
 app.get('/api/download-workbook', (req, res) => {
   if (fs.existsSync(WORKBOOK_PATH)) {
-    return res.download(WORKBOOK_PATH, 'Leadership_Workbook.pdf');
+    return res.download(WORKBOOK_PATH, 'Main_Nursing_Leadership_Development_Program_Worksheet.pdf');
   }
-  const fallbackPath = path.join(__dirname, 'public', 'assets', 'event_information_booklet.pdf');
+  const fallbackPath = path.join(__dirname, 'public', 'assets', 'Main_Nursing_Leadership_Development_Program_Worksheet.pdf');
   if (fs.existsSync(fallbackPath)) {
-    return res.download(fallbackPath, 'Leadership_Workbook.pdf');
+    return res.download(fallbackPath, 'Main_Nursing_Leadership_Development_Program_Worksheet.pdf');
   }
   res.status(404).send('Workbook file not available.');
 });
