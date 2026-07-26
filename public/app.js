@@ -591,15 +591,15 @@ const GALLERY_SEED_DATA = [
 
 function getLocalGallery() {
   const local = localStorage.getItem(LOCAL_GALLERY_KEY);
-  if (!local) return GALLERY_SEED_DATA;
+  if (local === null) return GALLERY_SEED_DATA;
   try {
     const parsed = JSON.parse(local);
-    if (Array.isArray(parsed) && parsed.length > 0) {
+    if (Array.isArray(parsed)) {
       return parsed;
     }
-    return GALLERY_SEED_DATA;
+    return [];
   } catch (e) {
-    return GALLERY_SEED_DATA;
+    return [];
   }
 }
 
@@ -898,7 +898,6 @@ async function deleteGalleryItem(id) {
   const confirmDel = confirm('Are you sure you want to delete this event photograph?');
   if (!confirmDel) return;
 
-  // Find deleted item and perform Real-Time Storage Tracker optimistic subtraction
   const targetItem = (appState.gallery || []).find(g => g.id === id);
   const deletedBytes = targetItem 
     ? (new Blob([JSON.stringify(targetItem)]).size + (targetItem.url ? targetItem.url.length : 0)) 
@@ -906,16 +905,19 @@ async function deleteGalleryItem(id) {
   
   updateStorageTracker(deletedBytes, 'SUBTRACT');
 
-  // LocalStorage Dual-Write fallback
-  let localList = getLocalGallery();
-  saveLocalGallery(localList.filter(g => g.id !== id));
+  // Immediately filter appState.gallery and sync local storage
+  appState.gallery = (appState.gallery || []).filter(g => g.id !== id);
+  saveLocalGallery(appState.gallery);
+  renderAdminGalleryTable();
   
   try {
     const res = await fetch(`${API_BASE}/gallery/${id}`, {
       method: 'DELETE',
       headers: getAuthHeader()
     });
-    if (!res.ok) {
+    if (res.ok) {
+      setGalleryLocalOnly(false);
+    } else {
       throw new Error(`Server returned status ${res.status}`);
     }
   } catch (err) {
