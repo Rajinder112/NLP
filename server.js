@@ -285,7 +285,7 @@ app.post('/api/upload', authenticateAdmin, (req, res) => {
   }
 
   try {
-    // Write locally as cache fallback
+    let returnUrl = fileData;
     try {
       const matches = fileData.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
       if (matches && matches.length === 3) {
@@ -293,13 +293,13 @@ app.post('/api/upload', authenticateAdmin, (req, res) => {
         const safeName = Date.now() + '_' + path.basename(fileName).replace(/[^a-zA-Z0-9.-]/g, '_');
         const destPath = path.join(UPLOADS_DIR, safeName);
         fs.writeFileSync(destPath, buffer);
+        returnUrl = '/uploads/' + safeName;
       }
     } catch (e) {
       console.warn('Failed to cache file on disk:', e.message);
     }
 
-    // Return the base64 data URL directly so it gets saved inside the Postgres SQL tables
-    res.json({ success: true, url: fileData });
+    res.json({ success: true, url: returnUrl });
   } catch (err) {
     console.error('Upload error', err);
     res.status(500).json({ error: 'File upload failed: ' + err.message });

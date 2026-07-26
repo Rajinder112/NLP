@@ -620,20 +620,25 @@ let galleryDraggedRowIndex = null;
 // SUB-TAB: Event Gallery Manager CRUD
 async function fetchAdminGallery() {
   try {
-    if (isGalleryLocalOnly()) {
-      throw new Error('Gallery local-only mode active');
-    }
     const res = await fetch(`${API_BASE}/gallery`);
-    const text = await res.text();
-    if (text.trim().startsWith('<!DOCTYPE')) {
-      throw new Error('Endpoint returned HTML instead of JSON');
+    if (res.ok) {
+      const text = await res.text();
+      if (!text.trim().startsWith('<!DOCTYPE')) {
+        const data = JSON.parse(text);
+        if (Array.isArray(data)) {
+          appState.gallery = data;
+          saveLocalGallery(data);
+          setGalleryLocalOnly(false);
+          renderAdminGalleryTable();
+          return;
+        }
+      }
     }
-    appState.gallery = JSON.parse(text);
   } catch (err) {
-    console.warn('Loading gallery from localStorage:', err.message);
-    appState.gallery = getLocalGallery();
+    console.warn('Loading gallery from localStorage fallback:', err.message);
   }
 
+  appState.gallery = getLocalGallery();
   renderAdminGalleryTable();
 }
 
@@ -870,13 +875,17 @@ async function saveGalleryItem(e) {
       },
       body: JSON.stringify(payload)
     });
-    if (!res.ok) {
+    if (res.ok) {
+      setGalleryLocalOnly(false);
+    } else {
       throw new Error(`Server returned status ${res.status}`);
     }
   } catch (err) {
     console.warn('Backend API error, enabling gallery local-only mode:', err);
     setGalleryLocalOnly(true);
   }
+  
+  if (fileInput) fileInput.value = '';
   
   showToast(isEdit ? 'Gallery item updated successfully.' : 'Gallery item added successfully.', 'success');
   closeModal('admin-gallery-modal');
