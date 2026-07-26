@@ -15,7 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="styles.css?v=77">
+  <link rel="stylesheet" href="styles.css?v=78">
   
   <!-- SheetJS for client-side Excel exporting -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -873,6 +873,25 @@
                 </form>
               </div>
             </div>
+
+            <!-- Leadership Workbook Management Card -->
+            <div class="dashboard-row" style="margin-top: 20px;">
+              <div class="config-card">
+                <h3>Leadership Workbook Management</h3>
+                <p class="section-desc">Upload or update the official Leadership Workbook file. This file will be served when participants click <strong>Download Workbook</strong> on the home page.</p>
+                
+                <div class="form-group" style="margin-top: 14px;">
+                  <label for="admin-workbook-file">Select Leadership Workbook File (PDF / Document)</label>
+                  <div style="display: flex; gap: 12px; align-items: center; margin-top: 8px;">
+                    <input type="file" id="admin-workbook-file" accept=".pdf,.doc,.docx,application/pdf" style="flex: 1;">
+                    <button type="button" class="btn btn-primary" onclick="uploadWorkbookFile(document.getElementById('admin-workbook-file'))">
+                      <i data-lucide="upload"></i> Upload Workbook
+                    </button>
+                  </div>
+                  <span class="form-hint" style="margin-top: 6px; display: block; font-size: 0.82rem; color: var(--text-muted);">Uploaded file immediately updates the live download for the "Download Workbook" button on the Home page.</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- TAB 2: ATTENDANCE RECORDS -->
@@ -1604,6 +1623,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Script Code Loader -->
-  <script src="app.js?v=93"></script>
+  <script src="app.js?v=94"></script>
 </body>
 </html>

@@ -5766,7 +5766,10 @@ function wireSwotEvents() {
 
 // Admin Helper: Upload Leadership Workbook File
 async function uploadWorkbookFile(fileInput) {
-  if (!fileInput || !fileInput.files || fileInput.files.length === 0) return;
+  if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+    showToast('Please select a workbook file to upload.', 'warning');
+    return;
+  }
   const file = fileInput.files[0];
   
   const reader = new FileReader();
@@ -5775,7 +5778,10 @@ async function uploadWorkbookFile(fileInput) {
     try {
       const res = await fetch(`${API_BASE}/upload-workbook`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader()
+        },
         body: JSON.stringify({ fileName: file.name, fileData: base64Data })
       });
       const data = await res.json();
