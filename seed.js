@@ -592,7 +592,7 @@ const seedData = {
       phoneNumber: '+91 99999 00001',
       email: 'rohit.singh@medanta.org',
       responsibility: 'Lead Organizing Convener overseeing event logistics, communication workshops, and session scheduling across all days.',
-      photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400'
+      photo: '/uploads/1783591697995_rohitsingh.png'
     },
     {
       id: 'comm_pallavi_singh',
@@ -603,7 +603,7 @@ const seedData = {
       phoneNumber: '+91 99999 00002',
       email: 'pallavi.singh@medanta.org',
       responsibility: 'Organizing Convener managing workshop activities, group presentation evaluations, and participant coordination.',
-      photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400'
+      photo: '/uploads/1783592183021_pallavi.jpg'
     },
     {
       id: 'comm_jaiprabha_agarwal',
