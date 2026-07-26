@@ -1925,6 +1925,10 @@ function updateEventStateWidget() {
     `;
     
     startCountdown(appState.settings.eventDate + 'T08:30:00');
+    // Keep Mark Attendance button hidden on mobile top header
+    if (quickMarkBtn) {
+      quickMarkBtn.classList.add('hidden-mobile-nav');
+    }
     
   } else if (state === 'Live') {
     heroCard.classList.add('state-live');
@@ -1933,8 +1937,7 @@ function updateEventStateWidget() {
     
     // Show quick mark floating attendance btn
     if (quickMarkBtn) {
-      quickMarkBtn.classList.remove('hidden-mobile-nav');
-      quickMarkBtn.className = 'floating-mark-btn floating-mark-btn-mobile'; // Makes it float on mobile
+      quickMarkBtn.classList.add('hidden-mobile-nav');
     }
     
     // Find current live sessions

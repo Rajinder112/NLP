@@ -3706,16 +3706,11 @@ img {
     display: flex !important;
   }
   
-  /* Floating Mark Attendance on mobile events */
-  .floating-mark-btn-mobile {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 999;
-    display: flex !important;
-    background-color: var(--accent);
-    color: var(--primary);
-    box-shadow: 0 4px 16px rgba(11, 28, 60, 0.35);
+  /* Hide Mark Attendance completely on mobile top header */
+  .floating-mark-btn,
+  .floating-mark-btn-mobile,
+  #quick-mark-btn {
+    display: none !important;
   }
   
   .hero-block {
