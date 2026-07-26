@@ -1015,20 +1015,16 @@ function dismissSplashScreen() {
   if (!splash) return;
   
   setSplashProgress(100, '✓ Complete & Ready');
-  const doneBadge = document.getElementById('splash-done-badge');
-  if (doneBadge) {
-    doneBadge.style.display = 'flex';
-  }
-
-  // Smooth Done checkmark animation display before playing web app
+  splash.style.pointerEvents = 'none';
+  splash.style.opacity = '0';
+  splash.style.transform = 'scale(0.98)';
+  
   setTimeout(() => {
-    splash.style.opacity = '0';
-    splash.style.transform = 'scale(0.98)';
     splash.style.visibility = 'hidden';
-    setTimeout(() => {
-      if (splash.parentNode) splash.parentNode.removeChild(splash);
-    }, 500);
-  }, 450);
+    if (splash.parentNode) {
+      splash.parentNode.removeChild(splash);
+    }
+  }, 250);
 }
 
 // Real-Time Cross-Device Auto-Sync Engine (5-second polling across Render SQL DB, Vercel & client sessions)
@@ -1089,37 +1085,52 @@ function startRealtimeAutoSync() {
   }, 5000);
 }
 
-// Initialize Application
+// Initialize Application (Instant non-blocking rendering & fast splash dismissal)
 async function initApp() {
-  setSplashProgress(25, 'Preloading Configuration...');
-  
+  setSplashProgress(30, 'Preloading Configuration & Layouts...');
+
   // Purge any stale local event_days, schedule, and old sample gallery cache on load
   localStorage.removeItem('nlp_local_event_days');
   localStorage.removeItem('nlp_local_schedule');
   localStorage.removeItem(LOCAL_GALLERY_KEY);
 
-  // Load configuration
-  await initConfig();
-  setSplashProgress(50, 'Hydrating Event Data & Assets...');
-
-  // Pre-render & hydrate data with Promise.all for speed
+  // Setup Router & Navigation immediately with instant seed/cache rendering
   try {
-    await Promise.all([
-      fetchSettings(),
-      refreshPublicData()
-    ]);
-  } catch (err) {
-    console.warn('Pre-rendering network notice (using offline cache fallback):', err.message);
+    setupRouter();
+    setupNavigation();
+    if (typeof updateEventStateWidget === 'function') updateEventStateWidget();
+    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+  } catch (e) {
+    console.warn('UI setup notice:', e);
   }
-  setSplashProgress(85, 'Rendering Navigation & Layouts...');
 
-  // Setup Router & Navigation
-  setupRouter();
-  setupNavigation();
-  
-  // Initialize lucide icons
-  lucide.createIcons();
-  
+  // Smooth progressive animation to 100% over 1.2 seconds
+  setTimeout(() => {
+    setSplashProgress(70, 'Rendering Interface...');
+  }, 500);
+
+  setTimeout(() => {
+    setSplashProgress(100, '✓ Complete & Ready');
+    dismissSplashScreen();
+  }, 1200);
+
+  // Hard safety timeout: Guarantee splash screen is removed within 1.8s no matter what
+  setTimeout(() => {
+    dismissSplashScreen();
+  }, 1800);
+
+  // Background non-blocking hydration (wakes up Render without blocking UI)
+  Promise.all([
+    initConfig(),
+    fetchSettings(),
+    refreshPublicData()
+  ]).then(() => {
+    if (typeof updateEventStateWidget === 'function') updateEventStateWidget();
+    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+  }).catch(err => {
+    console.warn('Background hydration fallback active:', err.message);
+  });
+
   // Pre-fill attendance form date
   const dateInput = document.getElementById('att-date');
   if (dateInput) {
