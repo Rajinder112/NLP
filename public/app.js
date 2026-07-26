@@ -1340,6 +1340,8 @@ function setupRouter() {
       }
     } else if (viewName === 'digital-tools') {
       initSafeTrack();
+    } else if (viewName === 'swot') {
+      initSwot();
     }
   };
   
@@ -5401,4 +5403,391 @@ function downloadSafeTrackReport() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+// ==========================================================================
+// SWOT ANALYSIS TOOL CONTROLLER
+// ==========================================================================
+const SWOT_CATS = {
+  S: { label:"Strengths", sub:"internal · working in your favor", color:"s",
+    questions:[
+      "What clinical or operational capabilities does this person or department clearly excel at?",
+      "What positive feedback have patients, families, or staff consistently given?",
+      "What resources — staffing, technology, funding, partnerships — are strong or well-used here?",
+      "What accomplishments, awards, or milestones stand out from the past year?",
+      "What makes this person or team hard for others to replicate or compete with?"
+    ]},
+  W: { label:"Weaknesses", sub:"internal · holding you back", color:"w",
+    questions:[
+      "Where do patient safety, quality, or satisfaction metrics fall short?",
+      "What staffing gaps, turnover, or skill shortages limit performance?",
+      "What processes, workflows, or systems are outdated or inefficient?",
+      "What complaints or recurring issues keep coming up from patients, staff, or leadership?",
+      "Where is this person or department under-resourced compared to what the work needs?"
+    ]},
+  O: { label:"Opportunities", sub:"external · could work in your favor", color:"o",
+    questions:[
+      "What unmet patient or community needs could this person or department step into?",
+      "What new technologies, treatments, or best practices could be adopted?",
+      "What partnerships, referral networks, or community ties could be expanded?",
+      "What funding, grants, or reimbursement changes could be leveraged?",
+      "What shifts in the market, demographics, or regulation create an opening?"
+    ]},
+  T: { label:"Threats", sub:"external · could work against you", color:"t",
+    questions:[
+      "What regulatory, compliance, or accreditation risks could affect this area?",
+      "What competitive pressure — other hospitals, urgent care, telehealth — exists?",
+      "What financial or reimbursement risks loom, such as payer mix or policy shifts?",
+      "What staffing market pressures — burnout, competing offers, shortages — threaten stability?",
+      "What could damage reputation, patient trust, or standing in the community?"
+    ]}
+};
+const SWOT_CAT_ORDER = ["S","W","O","T"];
+const SWOT_ADMIN_CODES = ["Roh01003061", "Pal01003038", "#@!Raji#@!1", "Rohit@1234"];
+
+let swotState = {
+  mode: "user",
+  step: 0,
+  id: null,
+  subject: "", subjectRole: "", evaluator: "",
+  answers: { S:{}, W:{}, O:{}, T:{} },
+  extra: { S:[], W:[], O:[], T:[] },
+  adminError: "",
+  adminEntries: null,
+  adminDetailId: null
+};
+
+function initSwot() {
+  const container = document.getElementById('swot-app');
+  if (!container) return;
+  renderSwot();
+}
+
+function renderSwot() {
+  const app = document.getElementById('swot-app');
+  if (!app) return;
+
+  if (swotState.mode === "adminLogin") app.innerHTML = renderSwotAdminLogin();
+  else if (swotState.mode === "admin") app.innerHTML = renderSwotAdminList();
+  else if (swotState.mode === "adminDetail") app.innerHTML = renderSwotAdminDetail();
+  else if (swotState.step === 0) app.innerHTML = renderSwotSetup();
+  else if (swotState.step >= 1 && swotState.step <= 4) app.innerHTML = renderSwotCategory(SWOT_CAT_ORDER[swotState.step - 1]);
+  else app.innerHTML = renderSwotReview();
+
+  wireSwotEvents();
+}
+
+function swotVitals(activeIdx) {
+  const total = 6;
+  let segs = "";
+  for (let i = 0; i < total; i++) {
+    let cls = "seg";
+    if (i < activeIdx) cls += " done";
+    else if (i === activeIdx) cls += " current";
+    segs += `<div class="${cls}"></div>`;
+  }
+  const labels = ["setup","strengths","weaknesses","opportunities","threats","review"];
+  return `<div class="vitals">${segs}</div><div class="vitals-labels">${labels.map(l => `<span>${l}</span>`).join("")}</div>`;
+}
+
+function renderSwotSetup() {
+  return `
+    <p class="eyebrow">SWOT Rounds · Nursing Leadership</p>
+    <h1>Guided Hospital Leadership SWOT Builder</h1>
+    <p class="sub">Answer a structured set of prompts for Strengths, Weaknesses, Opportunities, and Threats for your department, team, or initiative.</p>
+    ${swotVitals(0)}
+    <div class="field">
+      <label for="swot-subject">Who or what is this SWOT for?</label>
+      <input type="text" id="swot-subject" placeholder="e.g. ICU Unit, Med-Surg Department, Infection Control Initiative" value="${escHtml(swotState.subject)}">
+      <p class="hint">Can be a person, a department, a service line, or a clinical project.</p>
+    </div>
+    <div class="field">
+      <label for="swot-subjectRole">Role or context <span style="color:var(--ink-soft);font-weight:400;">(optional)</span></label>
+      <input type="text" id="swot-subjectRole" placeholder="e.g. Deputy Nursing Superintendent / Unit Incharge" value="${escHtml(swotState.subjectRole)}">
+    </div>
+    <div class="field">
+      <label for="swot-evaluator">Conducted by <span style="color:var(--ink-soft);font-weight:400;">(optional)</span></label>
+      <input type="text" id="swot-evaluator" placeholder="Your name and designation" value="${escHtml(swotState.evaluator)}">
+    </div>
+    <div class="navrow">
+      <span></span>
+      <button type="button" class="primary" id="swotStartBtn">Start with Strengths →</button>
+    </div>
+    <div class="footlink"><a id="swotAdminLink">Admin Submissions View</a></div>
+  `;
+}
+
+function renderSwotCategory(cat) {
+  const c = SWOT_CATS[cat];
+  const idx = SWOT_CAT_ORDER.indexOf(cat);
+  return `
+    <p class="eyebrow">SWOT Rounds · ${swotState.subject ? escHtml(swotState.subject) : "Untitled Subject"}</p>
+    <h1 style="color:var(--${c.color})">${c.label}</h1>
+    <p class="sub">${c.sub}</p>
+    ${swotVitals(idx + 1)}
+    <div class="stepper">
+      ${SWOT_CAT_ORDER.map((k, i) => `<span class="steptab ${k === cat ? 'active' : ''}" data-goto="${i + 1}">${SWOT_CATS[k].label}</span>`).join("")}
+    </div>
+    <div style="margin-top:18px;">
+    ${c.questions.map((q, i) => `
+      <div class="qcard" style="--cat-text:var(--${c.color}-text); --cat-light:var(--${c.color}-light);">
+        <span class="qnum">Q${i + 1}</span>
+        <p class="qtext">${escHtml(q)}</p>
+        <textarea data-cat="${cat}" data-qidx="${i}" placeholder="One point per line. Leave blank to skip.">${escHtml(swotState.answers[cat][i] || "")}</textarea>
+      </div>
+    `).join("")}
+    </div>
+    <div class="navrow">
+      <button type="button" id="swotBackBtn">← Back</button>
+      <button type="button" class="primary" id="swotNextBtn">${idx === 3 ? "Review Full SWOT →" : "Next: " + SWOT_CATS[SWOT_CAT_ORDER[idx + 1]].label + " →"}</button>
+    </div>
+  `;
+}
+
+function swotBulletsFor(cat) {
+  const out = [];
+  SWOT_CATS[cat].questions.forEach((q, i) => {
+    const raw = swotState.answers[cat][i] || "";
+    raw.split("\n").map(s => s.trim()).filter(Boolean).forEach(line => out.push(line));
+  });
+  swotState.extra[cat].forEach(line => out.push(line));
+  return out;
+}
+
+function swotQuadHtml(cat) {
+  const c = SWOT_CATS[cat];
+  const items = swotBulletsFor(cat);
+  return `
+    <div class="quad" style="--quad-light:var(--${c.color}-light); --quad-text:var(--${c.color}-text); --quad-line:var(--${c.color});">
+      <h3>${c.label}</h3>
+      <span class="qcount">${items.length} point${items.length === 1 ? "" : "s"}</span>
+      ${items.length ? `<ul>${items.map((it, i) => `<li>${escHtml(it)}<span class="rm" data-rmcat="${cat}" data-rmidx="${i}" title="Remove">✕</span></li>`).join("")}</ul>` : `<p class="empty-quad">Nothing entered yet.</p>`}
+      <div class="addline">
+        <input type="text" placeholder="Add a point" data-addcat="${cat}">
+        <button type="button" data-addbtn="${cat}">Add</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderSwotReview() {
+  const today = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  return `
+    <p class="eyebrow">SWOT Rounds · Complete</p>
+    <div class="topbar"><h1>SWOT Summary</h1></div>
+    <p class="metaline"><strong>${escHtml(swotState.subject) || "Untitled Subject"}</strong>${swotState.subjectRole ? " — " + escHtml(swotState.subjectRole) : ""}</p>
+    <p class="metaline">${swotState.evaluator ? "Conducted by " + escHtml(swotState.evaluator) + " · " : ""}${today}</p>
+    ${swotVitals(5)}
+    <div class="matrix">
+      ${swotQuadHtml("S")}${swotQuadHtml("W")}${swotQuadHtml("O")}${swotQuadHtml("T")}
+    </div>
+    <div class="exportbar">
+      <button type="button" id="swotPrintBtn">Print / Save as PDF</button>
+      <button type="button" id="swotCopyBtn">Copy as Text</button>
+      <button type="button" id="swotDownloadBtn">Download .txt</button>
+      <button type="button" class="ghost" id="swotEditBtn">← Edit Answers</button>
+      <button type="button" class="ghost" id="swotNewBtn">Start New SWOT</button>
+    </div>
+  `;
+}
+
+function renderSwotAdminLogin() {
+  return `
+    <p class="eyebrow">SWOT Rounds · Admin</p>
+    <h1>Admin Access</h1>
+    <p class="sub">Enter the admin passcode to view saved SWOT entries.</p>
+    <div class="field">
+      <label for="swotAdminPass">Passcode</label>
+      <input type="text" id="swotAdminPass" placeholder="Enter passcode">
+    </div>
+    ${swotState.adminError ? `<p style="color:var(--t-text); font-size:13px;">${escHtml(swotState.adminError)}</p>` : ""}
+    <div class="navrow">
+      <button type="button" id="swotAdminBack">← Back</button>
+      <button type="button" class="primary" id="swotAdminSubmit">Enter</button>
+    </div>
+  `;
+}
+
+function renderSwotAdminList() {
+  const entries = swotState.adminEntries || [];
+  return `
+    <p class="eyebrow">SWOT Rounds · Admin</p>
+    <div class="topbar"><h1>Submissions Overview</h1></div>
+    <p class="sub">${entries.length} SWOT entry saved on screen.</p>
+    <div class="exportbar">
+      <button type="button" class="ghost" id="swotAdminExit">Exit Admin View</button>
+    </div>
+  `;
+}
+
+function renderSwotAdminDetail() {
+  return renderSwotAdminList();
+}
+
+function buildSwotPlainText() {
+  const today = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  let out = `SWOT ANALYSIS - HOSPITAL LEADERSHIP\n`;
+  out += `Subject: ${swotState.subject || "Untitled Subject"}${swotState.subjectRole ? " (" + swotState.subjectRole + ")" : ""}\n`;
+  if (swotState.evaluator) out += `Conducted by: ${swotState.evaluator}\n`;
+  out += `Date: ${today}\n\n`;
+  SWOT_CAT_ORDER.forEach(cat => {
+    out += `${SWOT_CATS[cat].label.toUpperCase()}\n`;
+    const items = swotBulletsFor(cat);
+    if (!items.length) out += `  (none entered)\n`;
+    items.forEach(it => out += `  - ${it}\n`);
+    out += `\n`;
+  });
+  return out;
+}
+
+function wireSwotEvents() {
+  const app = document.getElementById('swot-app');
+  if (!app) return;
+
+  const subjectEl = document.getElementById('swot-subject');
+  if (subjectEl) subjectEl.oninput = e => swotState.subject = e.target.value;
+  const roleEl = document.getElementById('swot-subjectRole');
+  if (roleEl) roleEl.oninput = e => swotState.subjectRole = e.target.value;
+  const evalEl = document.getElementById('swot-evaluator');
+  if (evalEl) evalEl.oninput = e => swotState.evaluator = e.target.value;
+
+  const startBtn = document.getElementById('swotStartBtn');
+  if (startBtn) startBtn.onclick = () => { swotState.step = 1; renderSwot(); window.scrollTo(0, 0); };
+
+  const adminLink = document.getElementById('swotAdminLink');
+  if (adminLink) adminLink.onclick = () => { swotState.mode = "adminLogin"; swotState.adminError = ""; renderSwot(); window.scrollTo(0, 0); };
+
+  app.querySelectorAll('textarea[data-cat]').forEach(ta => {
+    ta.oninput = e => { swotState.answers[e.target.dataset.cat][e.target.dataset.qidx] = e.target.value; };
+  });
+
+  const backBtn = document.getElementById('swotBackBtn');
+  if (backBtn) backBtn.onclick = () => { swotState.step = Math.max(0, swotState.step - 1); renderSwot(); window.scrollTo(0, 0); };
+  const nextBtn = document.getElementById('swotNextBtn');
+  if (nextBtn) nextBtn.onclick = () => { swotState.step = Math.min(5, swotState.step + 1); renderSwot(); window.scrollTo(0, 0); };
+
+  app.querySelectorAll('.steptab').forEach(t => {
+    t.onclick = e => { swotState.step = parseInt(e.target.dataset.goto, 10); renderSwot(); window.scrollTo(0, 0); };
+  });
+
+  app.querySelectorAll('[data-addbtn]').forEach(btn => {
+    btn.onclick = e => {
+      const cat = e.target.dataset.addbtn;
+      const input = app.querySelector(`input[data-addcat="${cat}"]`);
+      const val = input ? input.value.trim() : '';
+      if (val) { swotState.extra[cat].push(val); renderSwot(); }
+    };
+  });
+
+  app.querySelectorAll('.rm').forEach(x => {
+    x.onclick = e => {
+      const cat = e.target.dataset.rmcat;
+      const idx = parseInt(e.target.dataset.rmidx, 10);
+      const qCount = SWOT_CATS[cat].questions.reduce((acc, _, i) => {
+        const lines = (swotState.answers[cat][i] || "").split("\n").map(s => s.trim()).filter(Boolean);
+        return acc + lines.length;
+      }, 0);
+      if (idx < qCount) {
+        let running = 0;
+        for (let i = 0; i < SWOT_CATS[cat].questions.length; i++) {
+          let lines = (swotState.answers[cat][i] || "").split("\n").map(s => s.trim()).filter(Boolean);
+          if (idx < running + lines.length) {
+            lines.splice(idx - running, 1);
+            swotState.answers[cat][i] = lines.join("\n");
+            break;
+          }
+          running += lines.length;
+        }
+      } else {
+        swotState.extra[cat].splice(idx - qCount, 1);
+      }
+      renderSwot();
+    };
+  });
+
+  const printBtn = document.getElementById('swotPrintBtn');
+  if (printBtn) printBtn.onclick = () => { window.print(); };
+
+  const copyBtn = document.getElementById('swotCopyBtn');
+  if (copyBtn) copyBtn.onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(buildSwotPlainText());
+      showToast('SWOT Summary copied to clipboard!', 'success');
+    } catch (e) {
+      showToast('Failed to copy text', 'error');
+    }
+  };
+
+  const downloadBtn = document.getElementById('swotDownloadBtn');
+  if (downloadBtn) downloadBtn.onclick = () => {
+    const text = buildSwotPlainText();
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const name = (swotState.subject || "swot").toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    a.href = url;
+    a.download = `SWOT-${name || 'analysis'}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const adminBack = document.getElementById('swotAdminBack');
+  if (adminBack) adminBack.onclick = () => { swotState.mode = "user"; renderSwot(); };
+
+  const adminSubmit = document.getElementById('swotAdminSubmit');
+  if (adminSubmit) adminSubmit.onclick = () => {
+    const val = (document.getElementById('swotAdminPass')?.value || "").trim();
+    if (SWOT_ADMIN_CODES.includes(val)) {
+      swotState.adminError = "";
+      swotState.mode = "admin";
+      renderSwot();
+    } else {
+      swotState.adminError = "That passcode isn't recognized.";
+      renderSwot();
+    }
+  };
+
+  const adminExit = document.getElementById('swotAdminExit');
+  if (adminExit) adminExit.onclick = () => { swotState.mode = "user"; renderSwot(); };
+
+  const editBtn = document.getElementById('swotEditBtn');
+  if (editBtn) editBtn.onclick = () => { swotState.step = 1; renderSwot(); window.scrollTo(0, 0); };
+
+  const newBtn = document.getElementById('swotNewBtn');
+  if (newBtn) newBtn.onclick = () => {
+    if (confirm("Start a new SWOT? This clears everything on screen.")) {
+      swotState = { mode:"user", step:0, id:null, subject:"", subjectRole:"", evaluator:"", answers:{S:{},W:{},O:{},T:{}}, extra:{S:[],W:[],O:[],T:[]}, adminError:"", adminEntries:null, adminDetailId:null };
+      renderSwot(); window.scrollTo(0, 0);
+    }
+  };
+}
+
+// Admin Helper: Upload Leadership Workbook File
+async function uploadWorkbookFile(fileInput) {
+  if (!fileInput || !fileInput.files || fileInput.files.length === 0) return;
+  const file = fileInput.files[0];
+  
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64Data = e.target.result;
+    try {
+      const res = await fetch(`${API_BASE}/upload-workbook`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName: file.name, fileData: base64Data })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Leadership Workbook uploaded successfully!', 'success');
+      } else {
+        showToast('Upload failed: ' + (data.error || 'Unknown error'), 'error');
+      }
+    } catch (err) {
+      console.error('Workbook upload failed:', err);
+      showToast('Network error while uploading workbook.', 'error');
+    }
+  };
+  reader.readAsDataURL(file);
 }

@@ -15,7 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="styles.css?v=73">
+  <link rel="stylesheet" href="styles.css?v=74">
   
   <!-- SheetJS for client-side Excel exporting -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -153,6 +153,7 @@
           <li><a href="#leadership" class="nav-link" data-view="leadership" id="nav-link-leadership">Leadership</a></li>
           <li><a href="#updates" class="nav-link" data-view="updates" id="nav-link-updates">Updates</a></li>
           <li><a href="#digital-tools" class="nav-link" data-view="digital-tools" id="nav-link-digital-tools">Digital Tools</a></li>
+          <li><a href="#swot" class="nav-link" data-view="swot" id="nav-link-swot">SWOT Analysis</a></li>
           <li><a href="#gallery" class="nav-link" data-view="gallery" id="nav-link-gallery">Gallery</a></li>
         </ul>
       </nav>
@@ -184,44 +185,28 @@
         <li><a href="#leadership" class="mobile-link" data-view="leadership" id="m-nav-link-leadership"><i data-lucide="users"></i> Leadership</a></li>
         <li><a href="#updates" class="mobile-link" data-view="updates" id="m-nav-link-updates"><i data-lucide="bell"></i> Updates</a></li>
         <li><a href="#digital-tools" class="mobile-link" data-view="digital-tools" id="m-nav-link-digital-tools"><i data-lucide="wrench"></i> Digital Tools</a></li>
+        <li><a href="#swot" class="mobile-link" data-view="swot" id="m-nav-link-swot"><i data-lucide="grid"></i> SWOT Analysis</a></li>
         <li><a href="#gallery" class="mobile-link" data-view="gallery" id="m-nav-link-gallery"><i data-lucide="image"></i> Gallery</a></li>
       </ul>
     </nav>
   </aside>
 
   <!-- Main View Container -->
-  <main class="main-content">
-    
+  <main class="main-container">
     <!-- 1. HOME VIEW -->
     <section class="view-section active" id="view-home">
-      <!-- Premium Hero Section -->
-      <div class="hero-block">
-        <div class="hero-pattern"></div>
-        <div class="hero-content">
-          <p class="hero-eyebrow-main" id="hero-eyebrow-text">MEDANTA HOSPITAL LUCKNOW &bull; NURSING & HR TEAM</p>
-          <p class="hero-eyebrow-sub" id="hero-eyebrow-sub-text">Proudly Hosts The 1st Event Of The</p>
-          <h1 class="hero-title" id="hero-title-text">NURSING LEADERSHIP PROGRAM (NLP)</h1>
-          <p class="hero-subtitle" id="hero-subtitle-text">Middle-Level Incharges &mdash; Batch 1 &mdash; 2026</p>
-          <div class="hero-divider"></div>
-          <p class="hero-tagline" id="hero-tagline-text">STRENGTHENING LEADERSHIP CAPABILITIES, COMMUNICATION,<br>DECISION-MAKING AND TEAM EXCELLENCE.</p>
+      <!-- Hero Banner -->
+      <div class="hero-banner">
+        <div class="hero-overlay"></div>
+        <div class="hero-content container">
+          <div class="badge-tag" id="hero-badge-tag">Nursing Leadership Program</div>
+          <h1 id="hero-title-text">Medanta Nursing Leadership Development Program (NLP)</h1>
+          <p class="hero-tagline" id="hero-tagline-text">Empowering Nursing Leaders to Drive Clinical Excellence, Innovation & Exceptional Patient Outcomes.</p>
           
-          <!-- Event Status Card -->
-          <div class="hero-status-card">
-            <div class="status-indicator">
-              <span class="status-pulse-dot" id="state-dot"></span>
-              <span class="status-label" id="state-label">Loading status...</span>
-            </div>
-            
-            <!-- Dynamic State Content Placeholder -->
-            <div id="state-widget-container">
-              <!-- Upcoming Timer, Active Session info, or Completed Message -->
-            </div>
-          </div>
-          
-          <div class="hero-meta-grid">
+          <div class="hero-meta">
             <div class="meta-item">
               <i data-lucide="calendar"></i>
-              <span id="hero-date-text">July 24, 2026</span>
+              <span id="hero-date-text">Batch 1: Nov 15–17 | Batch 2: Dec 01–03</span>
             </div>
             <div class="meta-item">
               <i data-lucide="map-pin"></i>
@@ -234,6 +219,9 @@
             <a href="#attendance" class="btn btn-gold"><i data-lucide="user-check"></i> Mark Attendance</a>
             <a href="/assets/event_information_booklet.pdf" download class="btn btn-outline download-pdf-btn" id="hero-download-pdf-btn">
               <i data-lucide="download"></i> Download Event PDF
+            </a>
+            <a href="/api/download-workbook" download="Leadership_Workbook.pdf" class="btn btn-outline download-pdf-btn" id="hero-download-workbook-btn">
+              <i data-lucide="book-open"></i> Download Workbook
             </a>
           </div>
         </div>
@@ -697,6 +685,12 @@
             </div>
           </div>
         </div>
+      </div>
+    <!-- 10B. SWOT ANALYSIS TOOL VIEW -->
+    <section class="view-section" id="view-swot">
+      <div class="swot-app-wrapper">
+        <div id="swot-app"></div>
+        <div id="swot-printarea"></div>
       </div>
     </section>
 
@@ -1595,6 +1589,6 @@
   <div id="toast-container" class="toast-container"></div>
 
   <!-- Script Code Loader -->
-  <script src="app.js?v=89"></script>
+  <script src="app.js?v=90"></script>
 </body>
 </html>

@@ -4439,3 +4439,334 @@ img {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ==========================================================================
+   SWOT ANALYSIS TOOL STYLING
+   ========================================================================== */
+#view-swot {
+  background: var(--paper, #EEF1EC);
+  color: var(--ink, #17251F);
+  padding: 0 !important;
+}
+
+.swot-app-wrapper {
+  --paper:#EEF1EC;
+  --panel:#FFFFFF;
+  --ink:#17251F;
+  --ink-soft:#4A564E;
+  --line:#D7DCD3;
+  --line-strong:#B9C1B4;
+
+  --s:#2F6F52; --s-light:#E2F0E7; --s-text:#1C4634;
+  --w:#9C5A34; --w-light:#F3E7DD; --w-text:#6B3C21;
+  --o:#B8862F; --o-light:#F7EFDC; --o-text:#7A5A1D;
+  --t:#8C2F3B; --t-light:#F3E1E3; --t-text:#631F28;
+
+  --font-display:'Source Serif 4', Georgia, serif;
+  --font-body:'IBM Plex Sans', -apple-system, sans-serif;
+  --font-mono:'IBM Plex Mono', monospace;
+
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px 20px 80px;
+  min-height: 85vh;
+}
+
+.swot-app-wrapper .eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 4px;
+}
+
+.swot-app-wrapper h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 26px;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+
+.swot-app-wrapper h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  margin: 0 0 2px;
+}
+
+.swot-app-wrapper p.sub {
+  color: var(--ink-soft);
+  font-size: 14px;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.swot-app-wrapper .vitals {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 18px 0 30px;
+}
+
+.swot-app-wrapper .vitals .seg {
+  flex: 1;
+  height: 5px;
+  border-radius: 2px;
+  background: var(--line);
+  position: relative;
+  overflow: hidden;
+}
+
+.swot-app-wrapper .vitals .seg.done { background: var(--ink); }
+.swot-app-wrapper .vitals .seg.current { background: var(--line-strong); }
+.swot-app-wrapper .vitals .seg.current::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.swot-app-wrapper .vitals-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  margin: -24px 0 30px;
+}
+
+.swot-app-wrapper .field { margin-bottom: 16px; }
+.swot-app-wrapper .field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+
+.swot-app-wrapper .field .hint { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+.swot-app-wrapper input[type=text],
+.swot-app-wrapper textarea {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  resize: vertical;
+}
+
+.swot-app-wrapper input[type=text]:focus,
+.swot-app-wrapper textarea:focus {
+  outline: none;
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(23,37,31,0.08);
+}
+
+.swot-app-wrapper textarea { min-height: 74px; line-height: 1.5; }
+
+.swot-app-wrapper .qcard {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+
+.swot-app-wrapper .qcard .qnum {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--cat-text);
+  background: var(--cat-light);
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 5px;
+  margin-bottom: 8px;
+  letter-spacing: 0.04em;
+}
+
+.swot-app-wrapper .qcard p.qtext { font-size: 15px; margin: 0 0 10px; font-weight: 500; line-height: 1.4; }
+
+.swot-app-wrapper .navrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 26px;
+  gap: 12px;
+}
+
+.swot-app-wrapper button {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 11px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid var(--line-strong);
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.swot-app-wrapper button:hover { background: var(--paper); }
+.swot-app-wrapper button.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.swot-app-wrapper button.primary:hover { background: #0e1913; }
+.swot-app-wrapper button:disabled { opacity: 0.35; cursor: default; }
+.swot-app-wrapper button.ghost { border-color: transparent; background: transparent; padding: 11px 8px; }
+.swot-app-wrapper button.small { padding: 6px 12px; font-size: 13px; }
+
+.swot-app-wrapper .stepper {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.swot-app-wrapper .steptab {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink-soft);
+}
+
+.swot-app-wrapper .steptab.active { border-color: var(--ink); color: var(--ink); font-weight: 600; }
+
+.swot-app-wrapper .matrix {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.swot-app-wrapper .quad {
+  border-radius: 12px;
+  padding: 16px 18px;
+  background: var(--quad-light);
+  border: 1px solid var(--quad-line);
+}
+
+.swot-app-wrapper .quad h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--quad-text);
+  margin: 0 0 3px;
+}
+
+.swot-app-wrapper .quad .qcount {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--quad-text);
+  opacity: 0.75;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.swot-app-wrapper .quad ul { margin: 0; padding-left: 18px; }
+.swot-app-wrapper .quad li {
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin-bottom: 7px;
+  color: var(--ink);
+}
+
+.swot-app-wrapper .quad li .rm {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--quad-text);
+  cursor: pointer;
+  margin-left: 6px;
+  opacity: 0.6;
+}
+
+.swot-app-wrapper .quad li .rm:hover { opacity: 1; }
+.swot-app-wrapper .addline { display: flex; gap: 6px; margin-top: 8px; }
+.swot-app-wrapper .addline input {
+  flex: 1;
+  font-size: 13px;
+  padding: 6px 9px;
+  border-radius: 6px;
+  border: 1px solid var(--quad-line);
+  background: var(--panel);
+}
+
+.swot-app-wrapper .addline button { padding: 6px 10px; font-size: 12px; }
+.swot-app-wrapper .empty-quad { font-size: 13px; color: var(--ink-soft); font-style: italic; }
+
+.swot-app-wrapper .topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.swot-app-wrapper .metaline { font-size: 13px; color: var(--ink-soft); margin-bottom: 4px; }
+.swot-app-wrapper .exportbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 22px 0 4px;
+}
+
+#swot-printarea { display: none; }
+
+@media (max-width: 640px) {
+  .swot-app-wrapper .matrix { grid-template-columns: 1fr; }
+  .swot-app-wrapper { padding: 20px 14px 70px; }
+  .swot-app-wrapper h1 { font-size: 22px; }
+  .swot-app-wrapper .navrow { flex-wrap: wrap; }
+}
+
+@media print {
+  body * { visibility: hidden; }
+  #swot-printarea, #swot-printarea * { visibility: visible; }
+  #swot-printarea { display: block; position: absolute; top: 0; left: 0; width: 100%; padding: 24px; }
+  #swot-printarea .matrix { grid-template-columns: 1fr 1fr; }
+}
+
+.swot-app-wrapper .footlink { margin-top: 34px; text-align: center; }
+.swot-app-wrapper .footlink a {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.swot-app-wrapper .footlink a:hover { color: var(--ink); text-decoration: underline; }
+.swot-app-wrapper .banner {
+  background: var(--o-light);
+  color: var(--o-text);
+  border: 1px solid var(--o);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+.swot-app-wrapper .adminrow {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.swot-app-wrapper .adminrow:hover { border-color: var(--line-strong); }
+.swot-app-wrapper .adminrow .arow-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.swot-app-wrapper .adminrow .arow-name { font-weight: 500; font-size: 14.5px; }
+.swot-app-wrapper .adminrow .arow-date { font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); }
+.swot-app-wrapper .adminrow .arow-sub { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+.swot-app-wrapper .admin-detail { margin-top: 16px; }

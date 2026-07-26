@@ -306,6 +306,41 @@ app.post('/api/upload', authenticateAdmin, (req, res) => {
   }
 });
 
+// --- WORKBOOK UPLOAD & DOWNLOAD API ---
+let activeWorkbookDataUrl = null;
+const WORKBOOK_PATH = path.join(__dirname, 'public', 'uploads', 'workbook.pdf');
+
+app.post('/api/upload-workbook', authenticateAdmin, (req, res) => {
+  const { fileName, fileData } = req.body;
+  if (!fileName || !fileData) {
+    return res.status(400).json({ error: 'Filename and base64 fileData are required.' });
+  }
+
+  try {
+    const matches = fileData.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if (matches && matches.length === 3) {
+      const buffer = Buffer.from(matches[2], 'base64');
+      fs.writeFileSync(WORKBOOK_PATH, buffer);
+    }
+    activeWorkbookDataUrl = fileData;
+    res.json({ success: true, message: 'Leadership Workbook updated successfully.', url: '/api/download-workbook' });
+  } catch (err) {
+    console.error('Workbook Upload Error:', err);
+    res.status(500).json({ error: 'Workbook upload failed: ' + err.message });
+  }
+});
+
+app.get('/api/download-workbook', (req, res) => {
+  if (fs.existsSync(WORKBOOK_PATH)) {
+    return res.download(WORKBOOK_PATH, 'Leadership_Workbook.pdf');
+  }
+  const fallbackPath = path.join(__dirname, 'public', 'assets', 'event_information_booklet.pdf');
+  if (fs.existsSync(fallbackPath)) {
+    return res.download(fallbackPath, 'Leadership_Workbook.pdf');
+  }
+  res.status(404).send('Workbook file not available.');
+});
+
 // Fallback to serving SPA index.html for unknown routes (client routing)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
